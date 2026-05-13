@@ -3,295 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>♔ CHESS 3D MASTERS - Edición Completa ♚</title>
+    <title>♔ CHESS 3D - Vista Frontal ♚</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background: linear-gradient(135deg, #1a0f0a 0%, #0a0604 100%);
-            font-family: 'Poppins', 'Segoe UI', system-ui, sans-serif;
-            overflow: hidden;
-            position: fixed;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Pantallas */
-        .screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 10;
-            overflow-y: auto;
-        }
-
-        .screen-hidden {
-            transform: translateX(100%);
-            pointer-events: none;
-        }
-
-        .screen-visible {
-            transform: translateX(0);
-            pointer-events: auto;
-        }
-
-        /* ========== HOME ========== */
-        #homeScreen {
-            background: radial-gradient(ellipse at 50% 40%, #2a1a12, #0a0604);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .logo-frame {
-            background: linear-gradient(145deg, #d4a55a, #6b3a1a);
-            border-radius: 80px;
-            padding: 30px 50px;
-            box-shadow: 0 25px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
-            margin-bottom: 40px;
-            animation: float 3s ease infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .main-logo {
-            font-size: 90px;
-            filter: drop-shadow(4px 6px 8px rgba(0,0,0,0.5));
-        }
-
-        .game-title {
-            font-size: 36px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #ffd700, #ff8c00);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: 3px;
-        }
-
-        .play-btn {
-            background: linear-gradient(145deg, #d4a55a, #8b5a2b);
-            border: none;
-            width: 220px;
-            padding: 18px;
-            border-radius: 50px;
-            font-size: 24px;
-            font-weight: 800;
-            color: #1a0f0a;
-            margin: 20px 0;
-            cursor: pointer;
-            box-shadow: 0 8px 0 #4a2a10;
-            transition: all 0.05s linear;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .play-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 4px 0 #4a2a10;
-        }
-
-        .home-buttons {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .home-btn {
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(218, 165, 32, 0.4);
-            padding: 12px 24px;
-            border-radius: 40px;
-            color: #e8c97a;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* ========== INTERFAZ 3D ========== */
-        #gameScreen {
-            background: #000;
-        }
-
-        #canvas3d {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        .game-ui {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 20;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
-            pointer-events: none;
-        }
-
-        .game-ui button {
-            pointer-events: auto;
-        }
-
-        .back-btn {
-            background: rgba(139, 90, 43, 0.9);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(218, 165, 32, 0.4);
-            width: 44px;
-            height: 44px;
-            border-radius: 30px;
-            font-size: 22px;
-            cursor: pointer;
-            color: #e8c97a;
-        }
-
-        .timer-compact {
-            background: linear-gradient(145deg, #3a2518, #1f140a);
-            border-radius: 40px;
-            padding: 8px 20px;
-            display: flex;
-            gap: 20px;
-            border: 1px solid rgba(218, 165, 32, 0.4);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-
-        .timer-item {
-            text-align: center;
-        }
-
-        .timer-label {
-            font-size: 10px;
-            color: #ffd700;
-            font-weight: 600;
-        }
-
-        .timer-value {
-            font-size: 20px;
-            font-weight: 800;
-            font-family: monospace;
-            color: #f0e6c5;
-        }
-
-        .energy-compact {
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(10px);
-            border-radius: 40px;
-            padding: 8px 18px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border: 1px solid rgba(218, 165, 32, 0.3);
-        }
-
-        .right-controls {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            z-index: 20;
-            display: flex;
-            gap: 10px;
-            pointer-events: none;
-        }
-
-        .right-controls button {
-            pointer-events: auto;
-            background: linear-gradient(145deg, #d4a55a, #8b5a2b);
-            border: none;
-            padding: 10px 18px;
-            border-radius: 30px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 3px 0 #4a2a10;
-        }
-
-        .right-controls button:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #4a2a10;
-        }
-
-        #status3d {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            z-index: 20;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 30px;
-            padding: 10px 20px;
-            color: #ffd700;
-            font-weight: 600;
-            font-size: 14px;
-            pointer-events: none;
-            border: 1px solid rgba(218,165,32,0.3);
-        }
-
-        @media (max-width: 600px) {
-            .timer-value { font-size: 16px; }
-            .timer-compact { padding: 5px 12px; gap: 10px; }
-            .right-controls button { padding: 6px 12px; font-size: 11px; }
-            #status3d { font-size: 11px; padding: 6px 12px; }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background: linear-gradient(135deg, #1a0f0a 0%, #0a0604 100%); font-family: 'Poppins', system-ui, sans-serif; overflow: hidden; position: fixed; width: 100%; height: 100%; }
+        .screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 10; overflow-y: auto; }
+        .screen-hidden { transform: translateX(100%); pointer-events: none; }
+        .screen-visible { transform: translateX(0); pointer-events: auto; }
+        #homeScreen { background: radial-gradient(ellipse at 50% 40%, #2a1a12, #0a0604); display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .logo-frame { background: linear-gradient(145deg, #d4a55a, #6b3a1a); border-radius: 80px; padding: 30px 50px; box-shadow: 0 25px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2); margin-bottom: 40px; animation: float 3s ease infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .main-logo { font-size: 90px; filter: drop-shadow(4px 6px 8px rgba(0,0,0,0.5)); }
+        .game-title { font-size: 36px; font-weight: 800; background: linear-gradient(135deg, #ffd700, #ff8c00); -webkit-background-clip: text; background-clip: text; color: transparent; letter-spacing: 3px; }
+        .play-btn { background: linear-gradient(145deg, #d4a55a, #8b5a2b); border: none; width: 220px; padding: 18px; border-radius: 50px; font-size: 24px; font-weight: 800; color: #1a0f0a; margin: 20px 0; cursor: pointer; box-shadow: 0 8px 0 #4a2a10; transition: all 0.05s linear; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .play-btn:active { transform: translateY(4px); box-shadow: 0 4px 0 #4a2a10; }
+        .home-buttons { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+        .home-btn { background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(218, 165, 32, 0.4); padding: 12px 24px; border-radius: 40px; color: #e8c97a; font-weight: 600; cursor: pointer; }
+        #gameScreen { background: #000; }
+        #canvas3d { width: 100%; height: 100%; display: block; }
+        .game-ui { position: absolute; top: 0; left: 0; right: 0; z-index: 20; padding: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent); pointer-events: none; }
+        .game-ui button { pointer-events: auto; }
+        .back-btn { background: rgba(139, 90, 43, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(218, 165, 32, 0.4); width: 44px; height: 44px; border-radius: 30px; font-size: 22px; cursor: pointer; color: #e8c97a; }
+        .timer-compact { background: linear-gradient(145deg, #3a2518, #1f140a); border-radius: 40px; padding: 8px 20px; display: flex; gap: 20px; border: 1px solid rgba(218, 165, 32, 0.4); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .timer-item { text-align: center; }
+        .timer-label { font-size: 10px; color: #ffd700; font-weight: 600; }
+        .timer-value { font-size: 20px; font-weight: 800; font-family: monospace; color: #f0e6c5; }
+        .energy-compact { background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); border-radius: 40px; padding: 8px 18px; display: flex; align-items: center; gap: 10px; border: 1px solid rgba(218, 165, 32, 0.3); }
+        .right-controls { position: absolute; bottom: 20px; right: 20px; z-index: 20; display: flex; gap: 10px; pointer-events: none; }
+        .right-controls button { pointer-events: auto; background: linear-gradient(145deg, #d4a55a, #8b5a2b); border: none; padding: 10px 18px; border-radius: 30px; font-weight: 700; cursor: pointer; box-shadow: 0 3px 0 #4a2a10; }
+        .right-controls button:active { transform: translateY(2px); box-shadow: 0 1px 0 #4a2a10; }
+        #status3d { position: absolute; bottom: 20px; left: 20px; z-index: 20; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); border-radius: 30px; padding: 10px 20px; color: #ffd700; font-weight: 600; font-size: 14px; pointer-events: none; border: 1px solid rgba(218,165,32,0.3); }
+        @media (max-width: 600px) { .timer-value { font-size: 16px; } .timer-compact { padding: 5px 12px; gap: 10px; } .right-controls button { padding: 6px 12px; font-size: 11px; } #status3d { font-size: 11px; padding: 6px 12px; } }
     </style>
 </head>
 <body>
-    <!-- HOME -->
     <div id="homeScreen" class="screen screen-visible">
-        <div class="logo-frame">
-            <div class="main-logo">♔</div>
-            <div class="game-title">CHESS 3D</div>
-        </div>
+        <div class="logo-frame"><div class="main-logo">♔</div><div class="game-title">CHESS 3D</div></div>
         <button class="play-btn" id="playBtn">▶ PLAY</button>
-        <div class="home-buttons">
-            <button class="home-btn" id="instructionsHomeBtn">📖 JUGADAS</button>
-            <button class="home-btn" id="comingHomeBtn">🔜 PRÓXIMAMENTE</button>
-        </div>
+        <div class="home-buttons"><button class="home-btn" id="instructionsHomeBtn">📖 JUGADAS</button><button class="home-btn" id="comingHomeBtn">🔜 PRÓXIMAMENTE</button></div>
     </div>
 
-    <!-- JUEGO 3D -->
     <div id="gameScreen" class="screen screen-hidden">
         <canvas id="canvas3d"></canvas>
-        
         <div class="game-ui">
             <button class="back-btn" id="backFromGameBtn">←</button>
-            <div class="timer-compact">
-                <div class="timer-item"><div class="timer-label">⚪ BLANCAS</div><div class="timer-value" id="whiteTimer">10:00</div></div>
-                <div class="timer-item"><div class="timer-label">⚫ NEGRAS</div><div class="timer-value" id="blackTimer">10:00</div></div>
-            </div>
+            <div class="timer-compact"><div class="timer-item"><div class="timer-label">⚪ BLANCAS</div><div class="timer-value" id="whiteTimer">10:00</div></div><div class="timer-item"><div class="timer-label">⚫ NEGRAS</div><div class="timer-value" id="blackTimer">10:00</div></div></div>
             <div class="energy-compact"><span>⚡</span><span id="energyValue">100</span><span>%</span></div>
         </div>
-        
         <div id="status3d">🎮 Turno: Blancas</div>
-        
-        <div class="right-controls">
-            <button id="reset3dBtn">🔄 Reiniciar</button>
-            <button id="sound3dBtn">🔊 Sonido</button>
-        </div>
+        <div class="right-controls"><button id="reset3dBtn">🔄 Reiniciar</button><button id="sound3dBtn">🔊 Sonido</button></div>
     </div>
 
-    <!-- INSTRUCCIONES -->
     <div id="instructionsScreen" class="screen screen-hidden">
         <div style="background: linear-gradient(135deg,#1a0f0a,#0a0604); min-height:100vh; padding:20px;">
             <button class="back-btn" id="backFromInstructionsBtn" style="margin-bottom:20px;">←</button>
@@ -305,7 +68,6 @@
         </div>
     </div>
 
-    <!-- PRÓXIMAMENTE -->
     <div id="comingScreen" class="screen screen-hidden">
         <div style="background:linear-gradient(135deg,#1a0f0a,#0a0604); min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center;">
             <button class="back-btn" id="backFromComingBtn" style="position:absolute; top:20px; left:20px;">←</button>
@@ -317,11 +79,7 @@
     </div>
 
     <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
-            }
-        }
+        { "imports": { "three": "https://unpkg.com/three@0.128.0/build/three.module.js" } }
     </script>
 
     <script type="module">
@@ -334,21 +92,11 @@
             instructions: document.getElementById('instructionsScreen'),
             coming: document.getElementById('comingScreen')
         };
-        
         function showScreen(name) {
-            Object.keys(screens).forEach(k => {
-                screens[k].classList.add('screen-hidden');
-                screens[k].classList.remove('screen-visible');
-            });
-            screens[name].classList.remove('screen-hidden');
-            screens[name].classList.add('screen-visible');
-            if (name === 'game') {
-                setTimeout(() => {
-                    if (window.onResize3D) window.onResize3D();
-                }, 100);
-            }
+            Object.keys(screens).forEach(k => { screens[k].classList.add('screen-hidden'); screens[k].classList.remove('screen-visible'); });
+            screens[name].classList.remove('screen-hidden'); screens[name].classList.add('screen-visible');
+            if (name === 'game') setTimeout(() => { if (window.onResize3D) window.onResize3D(); }, 100);
         }
-        
         document.getElementById('playBtn').onclick = () => showScreen('game');
         document.getElementById('instructionsHomeBtn').onclick = () => showScreen('instructions');
         document.getElementById('comingHomeBtn').onclick = () => showScreen('coming');
@@ -357,7 +105,7 @@
         document.getElementById('backFromComingBtn').onclick = () => showScreen('home');
         document.getElementById('volverHomeBtn').onclick = () => showScreen('home');
         
-        // ========== CONFIGURACIÓN 3D ==========
+        // ========== CONFIGURACIÓN 3D - VISTA FRONTAL ==========
         const canvas = document.getElementById('canvas3d');
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -368,15 +116,14 @@
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x0a0604, 0.008);
         
-        // Cámara isométrica
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(6, 7, 7);
+        // CAMBIO IMPORTANTE: Vista frontal (cenital)
+        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 9, 0.01);
         camera.lookAt(0, 0, 0);
         
         // Luces
         const ambientLight = new THREE.AmbientLight(0x404040);
         scene.add(ambientLight);
-        
         const mainLight = new THREE.DirectionalLight(0xfff5e6, 1.2);
         mainLight.position.set(5, 10, 3);
         mainLight.castShadow = true;
@@ -384,33 +131,26 @@
         mainLight.shadow.mapSize.width = 1024;
         mainLight.shadow.mapSize.height = 1024;
         scene.add(mainLight);
-        
         const fillLight = new THREE.PointLight(0x8b5a3c, 0.5);
         fillLight.position.set(-2, 3, 4);
         scene.add(fillLight);
-        
         const backLight = new THREE.PointLight(0xd4a55a, 0.3);
         backLight.position.set(0, 2, -5);
         scene.add(backLight);
         
-        // Suelo para sombras
-        const floorHelper = new THREE.Mesh(
-            new THREE.PlaneGeometry(12, 12),
-            new THREE.ShadowMaterial({ opacity: 0.4, color: 0x000000, transparent: true, side: THREE.DoubleSide })
-        );
+        const floorHelper = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.ShadowMaterial({ opacity: 0.4, color: 0x000000, transparent: true, side: THREE.DoubleSide }));
         floorHelper.rotation.x = -Math.PI / 2;
         floorHelper.position.y = -0.6;
         floorHelper.receiveShadow = true;
         scene.add(floorHelper);
         
-        // ========== TABLERO 3D ==========
+        // ========== TABLERO ==========
         const boardGroup = new THREE.Group();
         const squareSize = 0.85;
         
         function createWoodTexture(color1, color2) {
             const canvasTex = document.createElement('canvas');
-            canvasTex.width = 512;
-            canvasTex.height = 512;
+            canvasTex.width = 512; canvasTex.height = 512;
             const ctxTex = canvasTex.getContext('2d');
             ctxTex.fillStyle = color1;
             ctxTex.fillRect(0, 0, 512, 512);
@@ -431,19 +171,12 @@
         
         const lightWoodTex = createWoodTexture('#e8d5a3', '#c4a86a');
         const darkWoodTex = createWoodTexture('#8b5a3c', '#4a2a10');
-        
-        // Array para almacenar referencias de casillas
         const squares = [];
         
         for(let i=0; i<8; i++) {
             for(let j=0; j<8; j++) {
                 const isLight = (i+j)%2 === 0;
-                const material = new THREE.MeshStandardMaterial({
-                    map: isLight ? lightWoodTex : darkWoodTex,
-                    roughness: 0.4,
-                    metalness: 0.1,
-                    color: isLight ? 0xe8d5a3 : 0x8b5a3c
-                });
+                const material = new THREE.MeshStandardMaterial({ map: isLight ? lightWoodTex : darkWoodTex, roughness: 0.4, metalness: 0.1, color: isLight ? 0xe8d5a3 : 0x8b5a3c });
                 const square = new THREE.Mesh(new THREE.BoxGeometry(squareSize, 0.15, squareSize), material);
                 const x = (j - 3.5) * squareSize;
                 const z = (i - 3.5) * squareSize;
@@ -461,10 +194,9 @@
         border.position.set(0, -0.3, 0);
         border.receiveShadow = true;
         boardGroup.add(border);
-        
         scene.add(boardGroup);
         
-        // ========== PIEZAS 3D ==========
+        // ========== PIEZAS ==========
         const piecesGroup = new THREE.Group();
         scene.add(piecesGroup);
         
@@ -474,102 +206,64 @@
         function createPiece3D(type, isWhite) {
             const group = new THREE.Group();
             const mat = isWhite ? whiteMat : blackMat;
-            const posY = 0;
-            
             switch(type) {
                 case 'p':
                     const base = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 0.3, 24), mat);
-                    base.position.y = 0.15;
-                    group.add(base);
+                    base.position.y = 0.15; group.add(base);
                     const body = new THREE.Mesh(new THREE.SphereGeometry(0.22, 24, 16), mat);
-                    body.position.y = 0.4;
-                    group.add(body);
+                    body.position.y = 0.4; group.add(body);
                     const top = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.18, 0.2, 16), mat);
-                    top.position.y = 0.55;
-                    group.add(top);
+                    top.position.y = 0.55; group.add(top);
                     break;
                 case 'n':
                     const kBody = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.4, 0.45), mat);
-                    kBody.position.y = 0.25;
-                    group.add(kBody);
+                    kBody.position.y = 0.25; group.add(kBody);
                     const kHead = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.25, 0.35, 8), mat);
-                    kHead.position.y = 0.55;
-                    group.add(kHead);
+                    kHead.position.y = 0.55; group.add(kHead);
                     break;
                 case 'b':
                     const bBase = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.25, 24), mat);
-                    bBase.position.y = 0.15;
-                    group.add(bBase);
+                    bBase.position.y = 0.15; group.add(bBase);
                     const bBody = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.55, 16), mat);
-                    bBody.position.y = 0.5;
-                    group.add(bBody);
+                    bBody.position.y = 0.5; group.add(bBody);
                     const bTop = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16), mat);
-                    bTop.position.y = 0.78;
-                    group.add(bTop);
+                    bTop.position.y = 0.78; group.add(bTop);
                     break;
                 case 'r':
                     const rBase = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.2, 0.45), mat);
-                    rBase.position.y = 0.1;
-                    group.add(rBase);
+                    rBase.position.y = 0.1; group.add(rBase);
                     const rBody = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.55, 0.4), mat);
-                    rBody.position.y = 0.4;
-                    group.add(rBody);
+                    rBody.position.y = 0.4; group.add(rBody);
                     const rTop = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.1, 0.5), mat);
-                    rTop.position.y = 0.7;
-                    group.add(rTop);
+                    rTop.position.y = 0.7; group.add(rTop);
                     break;
                 case 'q':
                     const qBase = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.35, 0.25, 24), mat);
-                    qBase.position.y = 0.15;
-                    group.add(qBase);
+                    qBase.position.y = 0.15; group.add(qBase);
                     const qBody = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.45, 16), mat);
-                    qBody.position.y = 0.45;
-                    group.add(qBody);
+                    qBody.position.y = 0.45; group.add(qBody);
                     const qTop = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16), mat);
-                    qTop.position.y = 0.72;
-                    group.add(qTop);
+                    qTop.position.y = 0.72; group.add(qTop);
                     break;
                 case 'k':
                     const kingBase = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.38, 0.28, 24), mat);
-                    kingBase.position.y = 0.15;
-                    group.add(kingBase);
+                    kingBase.position.y = 0.15; group.add(kingBase);
                     const kingBody = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.34, 0.5, 16), mat);
-                    kingBody.position.y = 0.48;
-                    group.add(kingBody);
+                    kingBody.position.y = 0.48; group.add(kingBody);
                     const kingTop = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.2, 0.15, 8), mat);
-                    kingTop.position.y = 0.75;
-                    group.add(kingTop);
+                    kingTop.position.y = 0.75; group.add(kingTop);
                     const cross = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.08, 0.08), mat);
-                    cross.position.y = 0.84;
-                    group.add(cross);
+                    cross.position.y = 0.84; group.add(cross);
                     break;
             }
             return group;
         }
         
-        // Almacenar piezas
-        const pieceObjects = new Map(); // clave: "row,col" -> objeto 3D
-        const pieceData = new Map();    // clave: "row,col" -> info {type, color}
-        
-        function getPositionFromSquare(squareName) {
-            const col = squareName.charCodeAt(0) - 97;
-            const row = 8 - parseInt(squareName[1]);
-            return { row, col };
-        }
-        
-        function getSquareFromPosition(row, col) {
-            return String.fromCharCode(97+col)+(8-row);
-        }
+        const pieceObjects = new Map();
         
         function updatePiecePositions(boardState) {
-            // Limpiar piezas existentes
-            while(piecesGroup.children.length > 0) {
-                piecesGroup.remove(piecesGroup.children[0]);
-            }
+            while(piecesGroup.children.length > 0) piecesGroup.remove(piecesGroup.children[0]);
             pieceObjects.clear();
-            pieceData.clear();
-            
-            // Crear piezas según estado del tablero
             for(let i=0; i<8; i++) {
                 for(let j=0; j<8; j++) {
                     const piece = boardState[i][j];
@@ -582,13 +276,12 @@
                         piece3D.userData = { row: i, col: j, type: piece.type, color: piece.color };
                         piecesGroup.add(piece3D);
                         pieceObjects.set(`${i},${j}`, piece3D);
-                        pieceData.set(`${i},${j}`, { type: piece.type, color: piece.color });
                     }
                 }
             }
         }
         
-        // ========== LÓGICA DE AJEDREZ ==========
+        // ========== LÓGICA DEL JUEGO ==========
         const chessGame = new Chess();
         let selectedPiece = null;
         let selectedPos = null;
@@ -597,47 +290,21 @@
         let energy = 100;
         let whiteTime = 600, blackTime = 600, currentTimer = 'w', timerInterval = null;
         
-        // Raycaster para detectar clics
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
         
-        function highlightSquare(row, col, color) {
-            // Reset all squares
-            squares.forEach(square => {
-                if(square.material.emissiveIntensity) square.material.emissiveIntensity = 0;
-            });
-            
-            // Highlight selected square
-            const selectedSquare = squares.find(s => s.userData.row === row && s.userData.col === col);
-            if(selectedSquare) {
-                selectedSquare.material.emissive = new THREE.Color(color);
-                selectedSquare.material.emissiveIntensity = 0.5;
-            }
-        }
-        
-        function clearHighlights() {
-            squares.forEach(square => {
-                square.material.emissiveIntensity = 0;
-            });
-        }
+        function clearHighlights() { squares.forEach(square => { square.material.emissiveIntensity = 0; }); }
         
         function updateUI() {
             const statusEl = document.getElementById('status3d');
             if(chessGame.game_over()) {
-                if(chessGame.in_checkmate()) {
-                    const winner = chessGame.turn() === 'w' ? 'NEGRAS' : 'BLANCAS';
-                    statusEl.innerHTML = `🏆 ¡JAQUE MATE! Ganan ${winner}`;
-                } else if(chessGame.in_stalemate()) {
-                    statusEl.innerHTML = '♾️ TABLAS';
-                } else {
-                    statusEl.innerHTML = '⏸️ FIN DEL JUEGO';
-                }
+                if(chessGame.in_checkmate()) statusEl.innerHTML = chessGame.turn() === 'w' ? '🏆 Ganan NEGRAS' : '🏆 Ganan BLANCAS';
+                else if(chessGame.in_stalemate()) statusEl.innerHTML = '♾️ TABLAS';
+                else statusEl.innerHTML = '⏸️ FIN DEL JUEGO';
             } else {
                 const turn = chessGame.turn() === 'w' ? 'BLANCAS' : 'NEGRAS';
-                const check = chessGame.in_check() ? ' ⚠️ JAQUE' : '';
-                statusEl.innerHTML = `🎮 Turno: ${turn}${check}`;
+                statusEl.innerHTML = `🎮 Turno: ${turn}${chessGame.in_check() ? ' ⚠️ JAQUE' : ''}`;
             }
-            
             document.getElementById('energyValue').innerText = Math.floor(energy);
             updateTimerDisplay();
         }
@@ -654,17 +321,11 @@
                 if(currentTimer === 'w') { if(whiteTime>0) whiteTime--; }
                 else { if(blackTime>0) blackTime--; }
                 updateTimerDisplay();
-                if(whiteTime === 0 || blackTime === 0) {
-                    clearInterval(timerInterval);
-                    document.getElementById('status3d').innerHTML = whiteTime===0 ? '⏰ Ganan NEGRAS' : '⏰ Ganan BLANCAS';
-                }
+                if(whiteTime === 0 || blackTime === 0) clearInterval(timerInterval);
             }, 1000);
         }
         
-        function switchTimer() {
-            currentTimer = chessGame.turn();
-            startTimer();
-        }
+        function switchTimer() { currentTimer = chessGame.turn(); startTimer(); }
         
         function playSound(type) {
             if(!soundEnabled) return;
@@ -672,8 +333,7 @@
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
+                osc.connect(gain); gain.connect(audioCtx.destination);
                 osc.frequency.value = type === 'capture' ? 392 : 523.25;
                 gain.gain.value = 0.1;
                 osc.start();
@@ -688,12 +348,10 @@
                 setTimeout(() => {
                     const moves = chessGame.moves();
                     if(moves.length) {
-                        const randomMove = moves[Math.floor(Math.random() * moves.length)];
-                        chessGame.move(randomMove);
+                        chessGame.move(moves[Math.floor(Math.random() * moves.length)]);
                         updatePiecePositions(chessGame.board());
                         clearHighlights();
-                        selectedPiece = null;
-                        selectedPos = null;
+                        selectedPiece = null; selectedPos = null;
                         updateUI();
                         playSound('move');
                         energy = Math.min(100, energy + 5);
@@ -706,92 +364,59 @@
         
         function onCanvasClick(event) {
             if(chessGame.game_over()) return;
-            
             const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            
             let clientX, clientY;
-            if(event.touches) {
-                clientX = event.touches[0].clientX;
-                clientY = event.touches[0].clientY;
-                event.preventDefault();
-            } else {
-                clientX = event.clientX;
-                clientY = event.clientY;
-            }
-            
+            if(event.touches) { clientX = event.touches[0].clientX; clientY = event.touches[0].clientY; event.preventDefault(); }
+            else { clientX = event.clientX; clientY = event.clientY; }
             mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
             mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
-            
             raycaster.setFromCamera(mouse, camera);
             
-            // Detectar clic en piezas
             const intersects = raycaster.intersectObjects(piecesGroup.children, true);
-            
             if(intersects.length > 0) {
                 let pieceObj = intersects[0].object;
-                while(pieceObj.parent !== piecesGroup && pieceObj.parent !== pieceObj) {
-                    pieceObj = pieceObj.parent;
-                }
+                while(pieceObj.parent !== piecesGroup && pieceObj.parent !== pieceObj) pieceObj = pieceObj.parent;
                 if(pieceObj.userData) {
                     const { row, col, color } = pieceObj.userData;
                     const currentTurn = chessGame.turn();
-                    
                     if(selectedPiece === null && color === currentTurn) {
-                        // Seleccionar pieza
                         selectedPiece = pieceObj;
                         selectedPos = { row, col };
-                        const squareName = getSquareFromPosition(row, col);
+                        const squareName = String.fromCharCode(97+col)+(8-row);
                         legalMovesForSelected = chessGame.moves({ square: squareName, verbose: true }).map(m => m.to);
-                        highlightSquare(row, col, 0xffaa00);
-                        
-                        // Resaltar movimientos legales
+                        clearHighlights();
+                        const selectedSquare = squares.find(s => s.userData.row === row && s.userData.col === col);
+                        if(selectedSquare) { selectedSquare.material.emissive = new THREE.Color(0xffaa00); selectedSquare.material.emissiveIntensity = 0.5; }
                         legalMovesForSelected.forEach(moveTo => {
-                            const { row: r, col: c } = getPositionFromSquare(moveTo);
-                            const targetSquare = squares.find(s => s.userData.row === r && s.userData.col === c);
-                            if(targetSquare) {
-                                targetSquare.material.emissive = new THREE.Color(0x44ff44);
-                                targetSquare.material.emissiveIntensity = 0.4;
-                            }
+                            const moveCol = moveTo.charCodeAt(0)-97;
+                            const moveRow = 8-parseInt(moveTo[1]);
+                            const targetSquare = squares.find(s => s.userData.row === moveRow && s.userData.col === moveCol);
+                            if(targetSquare) { targetSquare.material.emissive = new THREE.Color(0x44ff44); targetSquare.material.emissiveIntensity = 0.4; }
                         });
                         playSound('move');
                     }
                 }
             } else {
-                // Detectar clic en casilla (movimiento)
                 const squareIntersects = raycaster.intersectObjects(squares);
                 if(squareIntersects.length > 0 && selectedPiece) {
                     const clickedSquare = squareIntersects[0].object;
                     const { row, col } = clickedSquare.userData;
-                    const toSquare = getSquareFromPosition(row, col);
-                    const fromSquare = getSquareFromPosition(selectedPos.row, selectedPos.col);
+                    const toSquare = String.fromCharCode(97+col)+(8-row);
+                    const fromSquare = String.fromCharCode(97+selectedPos.col)+(8-selectedPos.row);
                     const move = { from: fromSquare, to: toSquare, promotion: 'q' };
-                    
                     const result = chessGame.move(move);
                     if(result) {
                         updatePiecePositions(chessGame.board());
                         clearHighlights();
-                        selectedPiece = null;
-                        selectedPos = null;
+                        selectedPiece = null; selectedPos = null;
                         updateUI();
                         playSound(result.flags?.includes('c') ? 'capture' : 'move');
                         energy = Math.max(0, energy - 2);
                         document.getElementById('energyValue').innerText = Math.floor(energy);
                         switchTimer();
                         makeAIMove();
-                    } else {
-                        // Movimiento inválido, limpiar selección
-                        clearHighlights();
-                        selectedPiece = null;
-                        selectedPos = null;
-                    }
-                } else {
-                    // Clic en vacío, limpiar selección
-                    clearHighlights();
-                    selectedPiece = null;
-                    selectedPos = null;
-                }
+                    } else { clearHighlights(); selectedPiece = null; selectedPos = null; }
+                } else { clearHighlights(); selectedPiece = null; selectedPos = null; }
             }
         }
         
@@ -799,66 +424,45 @@
             chessGame.reset();
             updatePiecePositions(chessGame.board());
             clearHighlights();
-            selectedPiece = null;
-            selectedPos = null;
-            whiteTime = 600;
-            blackTime = 600;
-            currentTimer = 'w';
-            energy = 100;
-            updateUI();
-            startTimer();
+            selectedPiece = null; selectedPos = null;
+            whiteTime = 600; blackTime = 600; currentTimer = 'w'; energy = 100;
+            updateUI(); startTimer();
             playSound('move');
         }
         
         function toggleSound() {
             soundEnabled = !soundEnabled;
-            const btn = document.getElementById('sound3dBtn');
-            btn.innerHTML = soundEnabled ? '🔊 Sonido' : '🔇 Sonido';
+            document.getElementById('sound3dBtn').innerHTML = soundEnabled ? '🔊 Sonido' : '🔇 Sonido';
         }
         
-        // Configurar eventos
         canvas.addEventListener('click', onCanvasClick);
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            onCanvasClick(e);
-        });
-        
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); onCanvasClick(e); });
         document.getElementById('reset3dBtn').onclick = resetGame;
         document.getElementById('sound3dBtn').onclick = toggleSound;
         
-        // ========== ANIMACIÓN Y RENDER ==========
+        // Animación
         let time = 0;
         function animate() {
             requestAnimationFrame(animate);
             time += 0.016;
-            
-            // Animación sutil de flotación
-            piecesGroup.children.forEach((piece, idx) => {
-                piece.position.y = -0.05 + Math.sin(time * 2 + idx) * 0.008;
-            });
-            
+            piecesGroup.children.forEach((piece, idx) => { piece.position.y = -0.05 + Math.sin(time * 2 + idx) * 0.008; });
             renderer.render(scene, camera);
         }
         animate();
         
         function handleResize() {
-            const width = window.innerWidth;
-            const height = window.innerHeight;
+            const width = window.innerWidth, height = window.innerHeight;
             renderer.setSize(width, height);
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
         }
-        
         window.onResize3D = handleResize;
         window.addEventListener('resize', handleResize);
         handleResize();
         
-        // Inicializar juego
         updatePiecePositions(chessGame.board());
         updateUI();
         startTimer();
-        
-        console.log('✅ Ajedrez 3D completamente funcional');
     </script>
 </body>
 </html>
