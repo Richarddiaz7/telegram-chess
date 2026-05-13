@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Ajedrez Mini App</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <style>
+        * {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body { 
+            font-family: system-ui, -apple-system, sans-serif; 
+            padding: 16px; 
+            background: #2c3e2f; 
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+        }
+        #board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            aspect-ratio: 1 / 1;
+            background: #f0d9b5;
+            border: 4px solid #7b4c2e;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .square {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(24px, 8vw, 48px);
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+        .light { background-color: #f0d9b5; }
+        .dark { background-color: #b58863; }
+        .selected { 
+            background-color: #b7c962;
+            box-shadow: inset 0 0 0 2px gold;
+        }
+        .legal-move { 
+            background-color: #7dab5a;
+            position: relative;
+        }
+        .legal-move::after {
+            content: "●";
+            font-size: 20px;
+            opacity: 0.6;
+        }
+        #status {
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            background: #1e2a1f;
+            color: #f0d9b5;
+            padding: 12px;
+            border-radius: 32px;
+            font-size: 16px;
+        }
+        button {
+            margin-top: 12px;
+            background: #0088cc;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 32px;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            width: 100%;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        button:active {
+            transform: scale(0.97);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="board"></div>
+    <div id="status"></div>
+    <button id="reset">🔄 Nueva partida</button>
+</div>
+
+<script>
+    const game = new Chess();
+    let selectedSquare = null;
+    let legalMoves = [];
+
+    const pieces = {
+        'k': '♔', 'q': '♕', 'r': '♖', 'b': '♗', 'n': '♘', 'p': '♙',
+        'K': '♚', 'Q': '♛', 'R': '♜', 'B': '♝', 'N': '♞', 'P': '♟'
+    };
+
+    function renderBoard() {
+        const boardDiv = document.getElementById('board');
+        boardDiv.innerHTML = '';
+        const board = game.board();
+        
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                const square = String.fromCharCode(97 + j) + (8 - i);
+                const piece = board[i][j];
+                const pieceChar = piece ? pieces[piece.type + (piece.color === 'w' ? '' : '')] : '';
+                const squareDiv = document.createElement('div');
+                squareDiv.className = `square ${(i + j) % 2 === 0 ? 'light' : 'dark'}`;
+                
+                if (selectedSquare === square) squareDiv.classList.add('selected');
+                if (legalMoves.includes(square)) squareDiv.classList.add('legal-move');
+                
+                squareDiv.textContent = pieceChar;
+                squareDiv.onclick = (function(s) { return function() { onSquareClick(s); }; })(square);
+                boardDiv.appendChild(squareDiv);
+            }
+        }
+        updateStatus();
+    }
+
+    function updateStatus() {
+        const statusDiv = document.getElementById('status');
+        if (game.game_over()) {
+            if (game.in_checkmate()) {
+                const winner = game.turn() === 'w' ? '♟️ Negras' : '♔ Blancas';
+                statusDiv.innerHTML = `🏆 ¡Jaque mate! Ganan ${winner}`;
+            }
+            else if (game.in_stalemate()) statusDiv.innerHTML = '♾️ Tablas por ahogado';
+            else if (game.in_threefold_repetition()) statusDiv.innerHTML = '🔄 Tablas por repetición';
+            else statusDiv.innerHTML = '⏸️ Juego terminado';
+        } else {
+            const turn = game.turn() === 'w' ? '⚪ Blancas' : '⚫ Negras';
+            let checkText = game.in_check() ? ' ⚠️ ¡JAQUE!' : '';
+            statusDiv.innerHTML = `🎯 Turno: ${turn}${checkText}`;
+        }
+    }
+
+    function makeRandomMove() {
+        const moves = game.moves();
+        if (moves.length > 0 && !game.game_over()) {
+            const randomMove = moves[Math.floor(Math.random() * moves.length)];
+            game.move(randomMove);
+            selectedSquare = null;
+            legalMoves = [];
+            renderBoard();
+        }
+    }
+
+    function onSquareClick(square) {
+        if (game.game_over()) return;
+        
+        if (selectedSquare) {
+            const move = { from: selectedSquare, to: square, promotion: 'q' };
+            const moveResult = game.move(move);
+            
+            if (moveResult) {
+                selectedSquare = null;
+                legalMoves = [];
+                renderBoard();
+                
+                if (!game.game_over() && game.turn() === 'b') {
+                    setTimeout(() => makeRandomMove(), 150);
+                }
+            } else {
+                const piece = game.get(square);
+                if (piece && piece.color === game.turn()) {
+                    selectedSquare = square;
+                    legalMoves = game.moves({ square, verbose: true }).map(m => m.to);
+                    renderBoard();
+                } else {
+                    selectedSquare = null;
+                    legalMoves = [];
+                    renderBoard();
+                }
+            }
+        } else {
+            const piece = game.get(square);
+            if (piece && piece.color === game.turn()) {
+                selectedSquare = square;
+                legalMoves = game.moves({ square, verbose: true }).map(m => m.to);
+                renderBoard();
+            }
+        }
+    }
+
+    document.getElementById('reset').onclick = () => {
+        game.reset();
+        selectedSquare = null;
+        legalMoves = [];
+        renderBoard();
+    };
+
+    renderBoard();
+</script>
+</body>
+</html>
