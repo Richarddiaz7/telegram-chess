@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ajedrez Kombat | Mini App</title>
+    <title>⚡ CHESS KOMBAT ⚡</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <style>
         * {
@@ -15,515 +15,407 @@
         }
 
         body {
-            font-family: 'Poppins', 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: #0a0a0a;
+            background: radial-gradient(ellipse at 30% 40%, #0f0c29, #24243e, #0a0a0a);
             min-height: 100vh;
-            padding: 12px;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        /* Fondo estilo Hamster Kombat con partículas */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 30%, #ffd70020 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, #ff6b6b20 0%, transparent 40%),
-                repeating-linear-gradient(45deg, #ffffff05 0px, #ffffff05 2px, transparent 2px, transparent 8px);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .container {
-            max-width: 550px;
-            width: 100%;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Header estilo juego */
-        .header {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border-radius: 28px;
-            padding: 12px 16px;
-            margin-bottom: 16px;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            gap: 12px;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            padding: 16px;
         }
 
-        .timer-card {
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
-            border-radius: 20px;
-            padding: 8px 12px;
-            text-align: center;
+        /* Contenedor principal con efecto glass */
+        .game-container {
+            max-width: 500px;
+            width: 100%;
+            background: rgba(10, 10, 20, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 48px;
+            padding: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Header estilo Hamster Kombat */
+        .stats-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
             flex: 1;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 215, 0, 0.2);
+            background: linear-gradient(135deg, #1a1a2e, #0d0d1a);
+            border-radius: 28px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 215, 0, 0.4);
             position: relative;
             overflow: hidden;
         }
 
-        .timer-card::before {
+        .stat-box.active {
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+            transform: scale(1.02);
+            transition: all 0.2s ease;
+        }
+
+        .stat-box.active::before {
             content: '';
             position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, #ffd700, #ff6b6b, #ffd700);
-            border-radius: 22px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: -1;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
+            animation: shine 1.5s infinite;
         }
 
-        .timer-card.active::before {
-            opacity: 1;
+        @keyframes shine {
+            100% { left: 100%; }
         }
 
-        .timer-card.active {
-            transform: scale(1.02);
-            border-color: transparent;
-        }
-
-        .timer-label {
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 1px;
-            color: #ffd700;
+        .stat-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
+            color: #ffd700;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
         }
 
-        .timer-value {
+        .stat-time {
             font-size: 28px;
+            font-weight: 800;
             font-family: 'Courier New', monospace;
-            font-weight: 900;
             background: linear-gradient(135deg, #fff, #ffd700);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-            letter-spacing: 2px;
         }
 
-        /* Tablero con glow */
-        .board-wrapper {
-            background: linear-gradient(135deg, #1a1a2e, #0d0d1a);
+        /* Canvas - Tablero con animaciones fluidas */
+        .board-canvas-wrapper {
+            background: rgba(0, 0, 0, 0.4);
             border-radius: 24px;
             padding: 12px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            display: block;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            background: #2c1a12;
+        }
+
+        /* Botón de estado */
+        .status-btn {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            border-radius: 60px;
+            padding: 16px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 18px;
+            color: #1a1a2e;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+
+        .status-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Barra de energía estilo juego clicker */
+        .energy-bar {
+            background: #1a1a2e;
+            border-radius: 40px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
             border: 1px solid rgba(255, 215, 0, 0.2);
         }
 
-        #board {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            aspect-ratio: 1 / 1;
-            background: #2d1b0a;
-            border-radius: 16px;
+        .energy-icon {
+            font-size: 28px;
+            animation: pulse 1s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); text-shadow: 0 0 10px #ffd700; }
+        }
+
+        .energy-track {
+            flex: 1;
+            height: 12px;
+            background: #333;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
         }
 
-        .square {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: clamp(28px, 9vw, 56px);
-            font-weight: 500;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        .energy-fill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #ffd700, #ff6b6b);
+            border-radius: 20px;
+            transition: width 0.2s ease;
         }
 
-        /* Casillas vibrantes */
-        .light {
-            background: linear-gradient(135deg, #f5e6d3 0%, #ecd9b4 100%);
-        }
-
-        .dark {
-            background: linear-gradient(135deg, #8b5e3c 0%, #6b4226 100%);
-        }
-
-        .square:active {
-            transform: scale(0.95);
-        }
-
-        /* Efecto selección con aura */
-        .selected {
-            position: relative;
-            animation: selectPulse 0.4s ease;
-        }
-
-        .selected::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle, rgba(255, 215, 0, 0.5), transparent 70%);
-            animation: glowPulse 1s infinite;
-        }
-
-        @keyframes selectPulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(0.97); background: rgba(255, 215, 0, 0.3); }
-            100% { transform: scale(1); }
-        }
-
-        @keyframes glowPulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-
-        /* Movimientos legales estilo kombat */
-        .legal-move {
-            position: relative;
-        }
-
-        .legal-move::after {
-            content: '⚡';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 24px;
-            opacity: 0.8;
-            animation: thunderFlash 0.5s ease;
-            text-shadow: 0 0 5px #ffd700;
-        }
-
-        @keyframes thunderFlash {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
-            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
-            100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
-        }
-
-        /* Estado del juego - estilo arcade */
-        #status {
-            margin-top: 16px;
-            background: linear-gradient(135deg, #1a1a2e, #0d0d1a);
-            border-radius: 60px;
-            padding: 14px 20px;
-            text-align: center;
+        .energy-number {
             font-weight: 800;
+            color: #ffd700;
             font-size: 16px;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            letter-spacing: 1px;
+            min-width: 50px;
+            text-align: right;
         }
 
-        /* Botones estilo kombat */
-        .buttons {
+        /* Botones de acción */
+        .action-buttons {
             display: flex;
             gap: 12px;
-            margin-top: 16px;
         }
 
-        button {
+        .action-btn {
+            flex: 1;
             background: linear-gradient(135deg, #ffd700, #ff8c00);
             border: none;
-            padding: 14px 16px;
-            border-radius: 60px;
-            color: #1a1a2e;
+            padding: 14px;
+            border-radius: 40px;
             font-weight: 800;
-            font-size: 13px;
-            flex: 1;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.1s ease;
+            color: #1a1a2e;
         }
 
-        button:active {
+        .action-btn:active {
             transform: scale(0.95);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
 
         .reset-btn {
             background: linear-gradient(135deg, #ff6b6b, #c92a2a);
             color: white;
         }
-
-        /* Panel de energía (estilo hamster) */
-        .energy-bar {
-            margin-top: 16px;
-            background: #1a1a2e;
-            border-radius: 60px;
-            padding: 8px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-        }
-
-        .energy-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #ffd700;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .energy-fill {
-            flex: 1;
-            height: 8px;
-            background: #333;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 0 12px;
-        }
-
-        .energy-progress {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, #ffd700, #ff8c00);
-            border-radius: 10px;
-            transition: width 0.3s ease;
-        }
-
-        /* Animación de jaque */
-        @keyframes screenShake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-4px); }
-            75% { transform: translateX(4px); }
-        }
-
-        .check-flash {
-            animation: screenShake 0.2s ease;
-        }
-
-        /* Efecto de partícula al mover */
-        .particle {
-            position: fixed;
-            pointer-events: none;
-            font-size: 20px;
-            animation: particleFloat 0.5s ease-out forwards;
-            z-index: 1000;
-        }
-
-        @keyframes particleFloat {
-            0% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-50px) scale(0);
-            }
-        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="timer-card" id="whiteTimerCard">
-                <div class="timer-label">
-                    <span>👑</span>
-                    BLANCAS
-                </div>
-                <div class="timer-value" id="whiteTimer">10:00</div>
+    <div class="game-container">
+        <!-- Timer stats -->
+        <div class="stats-row">
+            <div class="stat-box" id="whiteBox">
+                <div class="stat-label">👑 BLANCAS</div>
+                <div class="stat-time" id="whiteTimer">10:00</div>
             </div>
-            <div class="timer-card" id="blackTimerCard">
-                <div class="timer-label">
-                    <span>💀</span>
-                    NEGRAS
-                </div>
-                <div class="timer-value" id="blackTimer">10:00</div>
+            <div class="stat-box" id="blackBox">
+                <div class="stat-label">💀 NEGRAS</div>
+                <div class="stat-time" id="blackTimer">10:00</div>
             </div>
         </div>
 
-        <div class="board-wrapper">
-            <div id="board"></div>
+        <!-- Canvas board -->
+        <div class="board-canvas-wrapper">
+            <canvas id="chessCanvas" width="500" height="500"></canvas>
         </div>
 
-        <div id="status">🎮 TURNO: BLANCAS</div>
+        <!-- Status button -->
+        <button class="status-btn" id="statusBtn">🎮 TURNO: BLANCAS</button>
 
+        <!-- Energy bar -->
         <div class="energy-bar">
-            <div class="energy-label">⚡ ENERGÍA</div>
-            <div class="energy-fill">
-                <div class="energy-progress" id="energyProgress"></div>
+            <div class="energy-icon">⚡</div>
+            <div class="energy-track">
+                <div class="energy-fill" id="energyFill"></div>
             </div>
-            <div class="energy-label" id="energyText">100%</div>
+            <div class="energy-number" id="energyText">100%</div>
         </div>
 
-        <div class="buttons">
-            <button id="reset" class="reset-btn">🔄 REINICIAR</button>
-            <button id="soundToggle">🔊 SONIDO ON</button>
-            <button id="effectToggle">✨ EFECTOS</button>
+        <!-- Action buttons -->
+        <div class="action-buttons">
+            <button class="action-btn reset-btn" id="resetBtn">🔄 REINICIAR</button>
+            <button class="action-btn" id="soundBtn">🔊 SONIDO</button>
         </div>
     </div>
 
     <script>
+        // ========== INICIALIZACIÓN ==========
         const game = new Chess();
         let selectedSquare = null;
         let legalMoves = [];
         let soundEnabled = true;
-        let effectsEnabled = true;
+        let energy = 100;
         let whiteTime = 600;
         let blackTime = 600;
         let currentTimer = 'w';
         let timerInterval = null;
-        let energy = 100;
-        let lastMoveTime = 0;
 
-        // Mapa de piezas Emoji (Bien visibles y modernos)
-        const pieceEmojis = {
-            'k': '🫅',  // Rey blanco
-            'q': '👑',  // Reina blanca
-            'r': '🏰',  // Torre blanca
-            'b': '🧙',  // Alfil blanco
-            'n': '🐴',  // Caballo blanco
-            'p': '⚔️',  // Peón blanco
-            'K': '👑',  // Rey negro (usamos corona negra pero se ve)
-            'Q': '👸',  // Reina negra
-            'R': '🗼',  // Torre negra
-            'B': '🧛',  // Alfil negro
-            'N': '🐎',  // Caballo negro
-            'P': '🛡️'   // Peón negro
-        };
+        // Canvas elements
+        const canvas = document.getElementById('chessCanvas');
+        const ctx = canvas.getContext('2d');
+        let squareSize = canvas.width / 8;
 
-        // Mejor mapeo con distinción clara
+        // Elementos DOM
+        const whiteTimerEl = document.getElementById('whiteTimer');
+        const blackTimerEl = document.getElementById('blackTimer');
+        const whiteBox = document.getElementById('whiteBox');
+        const blackBox = document.getElementById('blackBox');
+        const statusBtn = document.getElementById('statusBtn');
+        const energyFill = document.getElementById('energyFill');
+        const energyText = document.getElementById('energyText');
+
+        // ========== MAPA DE PIEZAS (ICONOS UNICODE) ==========
         const pieceIcons = {
-            // Blancas
             'k': '♔', 'q': '♕', 'r': '♖', 'b': '♗', 'n': '♘', 'p': '♙',
-            // Negras
             'K': '♚', 'Q': '♛', 'R': '♜', 'B': '♝', 'N': '♞', 'P': '♟'
         };
 
-        const whiteTimerEl = document.getElementById('whiteTimer');
-        const blackTimerEl = document.getElementById('blackTimer');
-        const whiteCard = document.getElementById('whiteTimerCard');
-        const blackCard = document.getElementById('blackTimerCard');
-        const energyProgress = document.getElementById('energyProgress');
-        const energyText = document.getElementById('energyText');
+        // ========== DIBUJAR TABLERO EN CANVAS ==========
+        function drawBoard() {
+            const board = game.board();
+            squareSize = canvas.width / 8;
 
-        function updateEnergy() {
-            energy = Math.max(0, Math.min(100, energy));
-            energyProgress.style.width = `${energy}%`;
-            energyText.textContent = `${Math.floor(energy)}%`;
-            
-            if (energy <= 20) {
-                energyProgress.style.background = 'linear-gradient(90deg, #ff6b6b, #c92a2a)';
-            } else {
-                energyProgress.style.background = 'linear-gradient(90deg, #ffd700, #ff8c00)';
+            for (let i = 0; i < 8; i++) {
+                for (let j = 0; j < 8; j++) {
+                    const x = j * squareSize;
+                    const y = i * squareSize;
+                    const isLight = (i + j) % 2 === 0;
+                    const squareName = String.fromCharCode(97 + j) + (8 - i);
+
+                    // Color de casilla
+                    if (selectedSquare === squareName) {
+                        ctx.fillStyle = '#ffd700';
+                    } else if (legalMoves.includes(squareName)) {
+                        ctx.fillStyle = '#4ade80';
+                    } else if (isLight) {
+                        ctx.fillStyle = '#f0d9b5';
+                    } else {
+                        ctx.fillStyle = '#b58863';
+                    }
+
+                    ctx.fillRect(x, y, squareSize, squareSize);
+
+                    // Dibujar pieza
+                    const piece = board[i][j];
+                    if (piece) {
+                        let pieceKey = piece.type;
+                        if (piece.color === 'b') {
+                            pieceKey = piece.type.toUpperCase();
+                        }
+                        const icon = pieceIcons[pieceKey];
+                        ctx.font = `${squareSize * 0.6}px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillStyle = piece.color === 'w' ? '#2c2c2c' : '#1a1a1a';
+                        ctx.shadowBlur = 4;
+                        ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                        ctx.fillText(icon, x + squareSize / 2, y + squareSize / 2);
+                        ctx.shadowBlur = 0;
+                    }
+                }
             }
         }
 
+        // ========== ANIMACIÓN DE PARTÍCULA AL HACER CLIC ==========
         function createParticle(x, y) {
-            if (!effectsEnabled) return;
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.textContent = ['⭐', '✨', '💥', '⚡', '🔥'][Math.floor(Math.random() * 5)];
-            particle.style.left = x - 10 + 'px';
-            particle.style.top = y - 10 + 'px';
-            document.body.appendChild(particle);
-            setTimeout(() => particle.remove(), 500);
+            // Efecto visual temporal al hacer clic
+            const originalFillStyle = ctx.fillStyle;
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.6)';
+            ctx.beginPath();
+            ctx.arc(x, y, squareSize * 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = originalFillStyle;
+            
+            setTimeout(() => drawBoard(), 80);
         }
 
+        // ========== SISTEMA DE SONIDO ==========
         function playSound(type) {
             if (!soundEnabled) return;
             try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                const now = audioContext.currentTime;
-                
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
                 if (type === 'move') {
-                    oscillator.frequency.value = 523.25;
-                    gainNode.gain.value = 0.15;
-                    oscillator.start();
-                    gainNode.gain.exponentialRampToValueAtTime(0.00001, now + 0.2);
-                    oscillator.stop(now + 0.2);
+                    osc.frequency.value = 523.25;
+                    gain.gain.value = 0.1;
+                    osc.start();
+                    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.2);
+                    osc.stop(audioCtx.currentTime + 0.2);
                 } else if (type === 'capture') {
-                    oscillator.frequency.value = 392.00;
-                    gainNode.gain.value = 0.2;
-                    oscillator.start();
-                    gainNode.gain.exponentialRampToValueAtTime(0.00001, now + 0.15);
-                    oscillator.stop(now + 0.15);
-                    
-                    // Sonido extra de "choque"
-                    const osc2 = audioContext.createOscillator();
-                    const gain2 = audioContext.createGain();
-                    osc2.connect(gain2);
-                    gain2.connect(audioContext.destination);
-                    osc2.frequency.value = 659.25;
-                    gain2.gain.value = 0.1;
-                    osc2.start(now + 0.05);
-                    gain2.gain.exponentialRampToValueAtTime(0.00001, now + 0.2);
-                    osc2.stop(now + 0.2);
+                    osc.frequency.value = 392;
+                    gain.gain.value = 0.15;
+                    osc.start();
+                    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.15);
+                    osc.stop(audioCtx.currentTime + 0.15);
                 } else if (type === 'check') {
-                    oscillator.frequency.value = 880.00;
-                    gainNode.gain.value = 0.25;
-                    oscillator.start();
-                    gainNode.gain.exponentialRampToValueAtTime(0.00001, now + 0.3);
-                    oscillator.stop(now + 0.3);
-                    
-                    document.getElementById('board').classList.add('check-flash');
-                    setTimeout(() => document.getElementById('board').classList.remove('check-flash'), 300);
-                } else if (type === 'gameEnd') {
-                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
-                        const osc = audioContext.createOscillator();
-                        const gain = audioContext.createGain();
-                        osc.connect(gain);
-                        gain.connect(audioContext.destination);
-                        osc.frequency.value = freq;
-                        gain.gain.value = 0.15;
-                        osc.start(now + i * 0.15);
-                        gain.gain.exponentialRampToValueAtTime(0.00001, now + i * 0.15 + 0.3);
-                        osc.stop(now + i * 0.15 + 0.3);
-                    });
+                    osc.frequency.value = 659.25;
+                    gain.gain.value = 0.2;
+                    osc.start();
+                    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.3);
+                    osc.stop(audioCtx.currentTime + 0.3);
+                    statusBtn.style.animation = 'none';
+                    setTimeout(() => statusBtn.style.animation = '', 100);
                 }
-                
-                setTimeout(() => audioContext.close(), 500);
+                setTimeout(() => audioCtx.close(), 400);
             } catch(e) {}
         }
 
-        function updateTimerDisplay() {
-            const whiteMinutes = Math.floor(whiteTime / 60);
-            const whiteSeconds = whiteTime % 60;
-            const blackMinutes = Math.floor(blackTime / 60);
-            const blackSeconds = blackTime % 60;
+        // ========== ACTUALIZAR ENERGÍA ==========
+        function updateEnergy() {
+            energy = Math.max(0, Math.min(100, energy));
+            energyFill.style.width = `${energy}%`;
+            energyText.textContent = `${Math.floor(energy)}%`;
             
-            whiteTimerEl.textContent = `${whiteMinutes.toString().padStart(2, '0')}:${whiteSeconds.toString().padStart(2, '0')}`;
-            blackTimerEl.textContent = `${blackMinutes.toString().padStart(2, '0')}:${blackSeconds.toString().padStart(2, '0')}`;
-            
-            if (currentTimer === 'w' && !game.game_over()) {
-                whiteCard.classList.add('active');
-                blackCard.classList.remove('active');
-            } else if (currentTimer === 'b' && !game.game_over()) {
-                blackCard.classList.add('active');
-                whiteCard.classList.remove('active');
+            if (energy <= 20) {
+                energyFill.style.background = 'linear-gradient(90deg, #ff6b6b, #c92a2a)';
             } else {
-                whiteCard.classList.remove('active');
-                blackCard.classList.remove('active');
+                energyFill.style.background = 'linear-gradient(90deg, #ffd700, #ff8c00)';
             }
         }
 
+        // ========== ACTUALIZAR TIMER ==========
+        function updateTimerDisplay() {
+            const whiteMins = Math.floor(whiteTime / 60);
+            const whiteSecs = whiteTime % 60;
+            const blackMins = Math.floor(blackTime / 60);
+            const blackSecs = blackTime % 60;
+
+            whiteTimerEl.textContent = `${whiteMins.toString().padStart(2, '0')}:${whiteSecs.toString().padStart(2, '0')}`;
+            blackTimerEl.textContent = `${blackMins.toString().padStart(2, '0')}:${blackSecs.toString().padStart(2, '0')}`;
+
+            if (currentTimer === 'w' && !game.game_over()) {
+                whiteBox.classList.add('active');
+                blackBox.classList.remove('active');
+            } else if (currentTimer === 'b' && !game.game_over()) {
+                blackBox.classList.add('active');
+                whiteBox.classList.remove('active');
+            } else {
+                whiteBox.classList.remove('active');
+                blackBox.classList.remove('active');
+            }
+        }
+
+        // ========== INICIAR TIMER ==========
         function startTimer() {
             if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
@@ -534,8 +426,8 @@
                         updateTimerDisplay();
                         if (whiteTime === 0) {
                             clearInterval(timerInterval);
-                            document.getElementById('status').innerHTML = '⏰ ¡TIME'S UP! GANAN NEGRAS ⏰';
-                            playSound('gameEnd');
+                            statusBtn.innerHTML = '⏰ ¡TIEMPO AGOTADO! GANAN NEGRAS ⏰';
+                            playSound('capture');
                         }
                     }
                 } else {
@@ -544,8 +436,8 @@
                         updateTimerDisplay();
                         if (blackTime === 0) {
                             clearInterval(timerInterval);
-                            document.getElementById('status').innerHTML = '⏰ ¡TIME'S UP! GANAN BLANCAS ⏰';
-                            playSound('gameEnd');
+                            statusBtn.innerHTML = '⏰ ¡TIEMPO AGOTADO! GANAN BLANCAS ⏰';
+                            playSound('capture');
                         }
                     }
                 }
@@ -558,122 +450,106 @@
             startTimer();
         }
 
-        function renderBoard() {
-            const boardDiv = document.getElementById('board');
-            boardDiv.innerHTML = '';
-            const board = game.board();
-            
-            for (let i = 0; i < 8; i++) {
-                for (let j = 0; j < 8; j++) {
-                    const square = String.fromCharCode(97 + j) + (8 - i);
-                    const piece = board[i][j];
-                    const squareDiv = document.createElement('div');
-                    squareDiv.className = `square ${(i + j) % 2 === 0 ? 'light' : 'dark'}`;
-                    
-                    if (selectedSquare === square) squareDiv.classList.add('selected');
-                    if (legalMoves.includes(square)) squareDiv.classList.add('legal-move');
-                    
-                    if (piece) {
-                        // Usar el mapeo correcto
-                        let pieceKey = piece.type;
-                        if (piece.color === 'b') {
-                            pieceKey = piece.type.toUpperCase();
-                        }
-                        squareDiv.textContent = pieceIcons[pieceKey] || '●';
-                        squareDiv.style.fontSize = 'clamp(28px, 9vw, 56px)';
-                    }
-                    
-                    squareDiv.onclick = (function(s) { return function(e) { 
-                        const rect = e.target.getBoundingClientRect();
-                        createParticle(rect.left + rect.width/2, rect.top + rect.height/2);
-                        onSquareClick(s);
-                    }; })(square);
-                    boardDiv.appendChild(squareDiv);
-                }
-            }
-            updateStatus();
-        }
-
+        // ========== ACTUALIZAR ESTADO ==========
         function updateStatus() {
-            const statusDiv = document.getElementById('status');
             if (game.game_over()) {
                 clearInterval(timerInterval);
                 if (game.in_checkmate()) {
                     const winner = game.turn() === 'w' ? '⚫ NEGRAS' : '⚪ BLANCAS';
-                    statusDiv.innerHTML = `🏆 ¡CHECKMATE! GANAN ${winner} 🏆`;
-                    playSound('gameEnd');
+                    statusBtn.innerHTML = `🏆 ¡JAQUE MATE! GANAN ${winner} 🏆`;
+                    playSound('capture');
                 } else if (game.in_stalemate()) {
-                    statusDiv.innerHTML = '♾️ STALEMATE - TABLAS ♾️';
+                    statusBtn.innerHTML = '♾️ TABLAS - AHOGADO ♾️';
                 } else {
-                    statusDiv.innerHTML = '⏸️ GAME OVER';
+                    statusBtn.innerHTML = '⏸️ JUEGO TERMINADO';
                 }
             } else {
-                const turn = game.turn() === 'w' ? '⚪ BLANCAS' : '⚫ NEGRAS';
-                let checkText = game.in_check() ? ' ⚠️ ¡CHECK! ⚠️' : '';
-                statusDiv.innerHTML = `🎮 TURNO: ${turn}${checkText}`;
+                const turnText = game.turn() === 'w' ? '⚪ BLANCAS' : '⚫ NEGRAS';
+                const checkText = game.in_check() ? ' ⚠️ ¡JAQUE! ⚠️' : '';
+                statusBtn.innerHTML = `🎮 TURNO: ${turnText}${checkText}`;
                 if (game.in_check()) playSound('check');
                 switchTimer();
             }
+            drawBoard();
         }
 
-        function makeRandomMove() {
+        // ========== MOVIMIENTO IA ==========
+        function makeAIMove() {
             if (!game.game_over() && game.turn() === 'b') {
                 setTimeout(() => {
                     const moves = game.moves();
                     if (moves.length > 0) {
                         const randomMove = moves[Math.floor(Math.random() * moves.length)];
-                        const moveResult = game.move(randomMove);
-                        if (moveResult) {
-                            selectedSquare = null;
-                            legalMoves = [];
-                            renderBoard();
-                            playSound('move');
-                            
-                            // Recuperar energía al mover
-                            energy = Math.min(100, energy + 5);
-                            updateEnergy();
-                        }
+                        game.move(randomMove);
+                        selectedSquare = null;
+                        legalMoves = [];
+                        drawBoard();
+                        updateStatus();
+                        playSound('move');
+                        energy = Math.min(100, energy + 3);
+                        updateEnergy();
                     }
-                }, 250);
+                }, 200);
             }
         }
 
-        function onSquareClick(square) {
+        // ========== MANEJAR CLICK EN CANVAS ==========
+        function handleCanvasClick(e) {
             if (game.game_over()) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
             
-            // Consumir energía al intentar mover
-            if (Date.now() - lastMoveTime < 200) return;
+            let clientX, clientY;
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+                e.preventDefault();
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            const canvasX = (clientX - rect.left) * scaleX;
+            const canvasY = (clientY - rect.top) * scaleY;
+            
+            if (canvasX < 0 || canvasX > canvas.width || canvasY < 0 || canvasY > canvas.height) return;
+            
+            const col = Math.floor(canvasX / squareSize);
+            const row = Math.floor(canvasY / squareSize);
+            const square = String.fromCharCode(97 + col) + (8 - row);
+            
+            createParticle(canvasX, canvasY);
             
             if (selectedSquare) {
                 const move = { from: selectedSquare, to: square, promotion: 'q' };
-                const moveResult = game.move(move);
+                const result = game.move(move);
                 
-                if (moveResult) {
-                    if (moveResult.flags && moveResult.flags.includes('c')) {
+                if (result) {
+                    energy = Math.max(0, energy - 2);
+                    updateEnergy();
+                    if (result.flags && result.flags.includes('c')) {
                         playSound('capture');
-                        energy = Math.max(0, energy - 2);
                     } else {
                         playSound('move');
-                        energy = Math.max(0, energy - 1);
                     }
-                    updateEnergy();
-                    lastMoveTime = Date.now();
-                    
                     selectedSquare = null;
                     legalMoves = [];
-                    renderBoard();
-                    makeRandomMove();
+                    drawBoard();
+                    updateStatus();
+                    makeAIMove();
                 } else {
                     const piece = game.get(square);
                     if (piece && piece.color === game.turn()) {
                         selectedSquare = square;
                         legalMoves = game.moves({ square, verbose: true }).map(m => m.to);
-                        renderBoard();
+                        drawBoard();
                         playSound('move');
                     } else {
                         selectedSquare = null;
                         legalMoves = [];
-                        renderBoard();
+                        drawBoard();
                     }
                 }
             } else {
@@ -681,12 +557,13 @@
                 if (piece && piece.color === game.turn()) {
                     selectedSquare = square;
                     legalMoves = game.moves({ square, verbose: true }).map(m => m.to);
-                    renderBoard();
+                    drawBoard();
                     playSound('move');
                 }
             }
         }
 
+        // ========== REINICIAR JUEGO ==========
         function resetGame() {
             game.reset();
             selectedSquare = null;
@@ -697,29 +574,46 @@
             energy = 100;
             updateEnergy();
             updateTimerDisplay();
-            renderBoard();
+            drawBoard();
+            updateStatus();
             startTimer();
             playSound('move');
         }
 
+        // ========== TOGGLE SONIDO ==========
         function toggleSound() {
             soundEnabled = !soundEnabled;
-            const btn = document.getElementById('soundToggle');
-            btn.innerHTML = soundEnabled ? '🔊 SONIDO ON' : '🔇 SONIDO OFF';
+            const btn = document.getElementById('soundBtn');
+            btn.innerHTML = soundEnabled ? '🔊 SONIDO' : '🔇 SONIDO';
         }
 
-        function toggleEffects() {
-            effectsEnabled = !effectsEnabled;
-            const btn = document.getElementById('effectToggle');
-            btn.innerHTML = effectsEnabled ? '✨ EFECTOS ON' : '💫 EFECTOS OFF';
-        }
+        // ========== EVENT LISTENERS ==========
+        canvas.addEventListener('click', handleCanvasClick);
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const canvasX = (touch.clientX - rect.left) * (canvas.width / rect.width);
+            const canvasY = (touch.clientY - rect.top) * (canvas.height / rect.height);
+            const col = Math.floor(canvasX / squareSize);
+            const row = Math.floor(canvasY / squareSize);
+            const square = String.fromCharCode(97 + col) + (8 - row);
+            createParticle(canvasX, canvasY);
+            setTimeout(() => handleCanvasClick(e), 10);
+        });
+        
+        document.getElementById('resetBtn').onclick = resetGame;
+        document.getElementById('soundBtn').onclick = toggleSound;
 
-        document.getElementById('reset').onclick = resetGame;
-        document.getElementById('soundToggle').onclick = toggleSound;
-        document.getElementById('effectToggle').onclick = toggleEffects;
+        // Redibujar en resize
+        window.addEventListener('resize', () => {
+            setTimeout(() => drawBoard(), 50);
+        });
 
+        // ========== INICIALIZAR ==========
         updateEnergy();
-        renderBoard();
+        drawBoard();
+        updateStatus();
         startTimer();
     </script>
 </body>
