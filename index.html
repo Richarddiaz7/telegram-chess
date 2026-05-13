@@ -3,170 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ajedrez Mini App</title>
+    <title>Ajedrez Premium | Mini App</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <style>
         * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
-        
-        body { 
-            font-family: system-ui, -apple-system, sans-serif; 
-            padding: 16px; 
-            background: linear-gradient(135deg, #1a472a 0%, #2d5a3b 100%);
-            margin: 0;
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
+            overflow-x: hidden;
         }
-        
+
+        /* Fondo animado */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
         .container {
-            max-width: 500px;
+            max-width: 550px;
             width: 100%;
+            position: relative;
+            z-index: 1;
         }
-        
-        /* Encabezado con temporizador */
+
+        /* Header moderno */
         .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
             gap: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
-        
-        .timer-box {
-            background: rgba(0,0,0,0.8);
+
+        .timer-card {
+            background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(10px);
+            border-radius: 24px;
             padding: 8px 16px;
-            border-radius: 32px;
             text-align: center;
             flex: 1;
-            color: white;
-            font-weight: bold;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
+
+        .timer-card.active {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.8), rgba(255, 165, 0, 0.8));
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
         .timer-label {
             font-size: 11px;
-            opacity: 0.8;
+            font-weight: 600;
             letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.9);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
-        
+
+        .piece-icon-small {
+            font-size: 16px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
         .timer-value {
-            font-size: 22px;
-            font-family: 'Courier New', monospace;
+            font-size: 28px;
+            font-family: 'Courier New', 'Fira Mono', monospace;
             font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 2px;
         }
-        
-        .timer-white { border-left: 3px solid #f0d9b5; }
-        .timer-black { border-left: 3px solid #b58863; }
-        
-        /* Tablero con animaciones */
+
+        /* Tablero premium */
+        .board-wrapper {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
         #board {
             display: grid;
             grid-template-columns: repeat(8, 1fr);
             aspect-ratio: 1 / 1;
-            background: #f0d9b5;
-            border: 4px solid #7b4c2e;
+            background: #2c1a12;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
             position: relative;
         }
-        
+
+        /* Casillas con gradiente */
         .square {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: clamp(24px, 8vw, 48px);
             cursor: pointer;
-            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            font-size: 0;
+        }
+
+        /* Piezas SVG */
+        .piece {
+            width: 70%;
+            height: 70%;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+            transition: all 0.2s ease;
+            pointer-events: none;
+        }
+
+        .square:hover .piece {
+            transform: scale(1.1);
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+        }
+
+        .light {
+            background: linear-gradient(135deg, #f3e7d3 0%, #e8d5b7 100%);
+        }
+
+        .dark {
+            background: linear-gradient(135deg, #5c3d2e 0%, #4a2f23 100%);
+        }
+
+        /* Efecto de selección */
+        .selected {
             position: relative;
         }
-        
-        /* Animación de hover */
-        .square:hover {
-            transform: scale(0.95);
-            filter: brightness(0.95);
-        }
-        
-        .light { background-color: #f0d9b5; }
-        .dark { background-color: #b58863; }
-        
-        /* Animación de selección */
-        .selected { 
-            background-color: #b7c962;
-            box-shadow: inset 0 0 0 3px gold;
-            animation: pulse 0.5s ease;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(0.98); }
-            100% { transform: scale(1); }
-        }
-        
-        /* Animación de movimientos legales */
-        .legal-move { 
-            position: relative;
-        }
-        
-        .legal-move::before {
-            content: "";
+
+        .selected::before {
+            content: '';
             position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.4), transparent);
+            animation: pulseGlow 0.6s ease;
+        }
+
+        @keyframes pulseGlow {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Movimientos legales */
+        .legal-move {
+            position: relative;
+        }
+
+        .legal-move::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             width: 25%;
             height: 25%;
-            background: rgba(0,255,0,0.4);
+            background: radial-gradient(circle, #4ade80, #22c55e);
             border-radius: 50%;
-            animation: ripple 0.6s ease-out;
+            animation: rippleMove 0.5s ease;
+            box-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
         }
-        
-        @keyframes ripple {
-            0% { transform: scale(0); opacity: 1; }
-            100% { transform: scale(3); opacity: 0; }
+
+        @keyframes rippleMove {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
         }
-        
-        /* Animación de movimiento de pieza */
-        .moving-piece {
-            position: fixed;
-            z-index: 1000;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: clamp(24px, 8vw, 48px);
-            pointer-events: none;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-        }
-        
+
         /* Estado del juego */
         #status {
             margin-top: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(20px);
+            border-radius: 40px;
+            padding: 14px 20px;
             text-align: center;
-            font-weight: bold;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px);
-            color: #f0d9b5;
-            padding: 12px;
-            border-radius: 32px;
+            font-weight: 600;
+            color: white;
             font-size: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s ease;
         }
-        
-        /* Botones */
+
+        /* Botones modernos */
         .buttons {
             display: flex;
             gap: 12px;
-            margin-top: 12px;
+            margin-top: 16px;
         }
-        
+
         button {
-            background: rgba(0,136,204,0.9);
-            backdrop-filter: blur(10px);
-            border: none;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             padding: 12px 20px;
-            border-radius: 32px;
+            border-radius: 40px;
             color: white;
-            font-weight: bold;
-            font-size: 15px;
+            font-weight: 600;
+            font-size: 14px;
             flex: 1;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -174,62 +242,85 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            letter-spacing: 0.5px;
         }
-        
+
         button:active {
             transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.25);
         }
-        
-        .reset-btn { background: rgba(220,53,69,0.9); }
-        .sound-btn { background: rgba(255,193,7,0.9); color: #000; }
-        
-        /* Modo noche toggle */
-        .theme-toggle {
-            position: fixed;
-            top: 16px;
-            right: 16px;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(10px);
-            border: none;
-            border-radius: 50%;
-            width: 44px;
-            height: 44px;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 100;
+
+        .reset-btn {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.8), rgba(220, 38, 38, 0.8));
         }
-        
+
         /* Modo noche */
         body.night-mode {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
         }
-        
-        body.night-mode .square.light { background-color: #334155; }
-        body.night-mode .square.dark { background-color: #1e293b; }
-        body.night-mode .square.selected { background-color: #4ade80; }
+
+        body.night-mode .light {
+            background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+        }
+
+        body.night-mode .dark {
+            background: linear-gradient(135deg, #1e1b4b 0%, #2e1065 100%);
+        }
+
+        /* Animación de jaque */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+
+        .check-animation {
+            animation: shake 0.3s ease;
+        }
+
+        /* Tooltip flotante */
+        .float-tip {
+            position: fixed;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body>
-    <button class="theme-toggle" id="themeToggle">🌙</button>
-    
     <div class="container">
         <div class="header">
-            <div class="timer-box timer-white">
-                <div class="timer-label">⚪ BLANCAS</div>
+            <div class="timer-card" id="whiteTimerCard">
+                <div class="timer-label">
+                    <span class="piece-icon-small">♔</span>
+                    BLANCAS
+                </div>
                 <div class="timer-value" id="whiteTimer">10:00</div>
             </div>
-            <div class="timer-box timer-black">
-                <div class="timer-label">⚫ NEGRAS</div>
+            <div class="timer-card" id="blackTimerCard">
+                <div class="timer-label">
+                    <span class="piece-icon-small">♚</span>
+                    NEGRAS
+                </div>
                 <div class="timer-value" id="blackTimer">10:00</div>
             </div>
         </div>
-        
-        <div id="board"></div>
-        <div id="status"></div>
-        
+
+        <div class="board-wrapper">
+            <div id="board"></div>
+        </div>
+
+        <div id="status">🎯 Turno: BLANCAS</div>
+
         <div class="buttons">
-            <button id="reset" class="reset-btn">🔄 Reiniciar</button>
-            <button id="soundToggle" class="sound-btn">🔊 Sonido ON</button>
+            <button id="reset" class="reset-btn">🔄 REINICIAR</button>
+            <button id="soundToggle">🔊 SONIDO ON</button>
+            <button id="themeToggle">🌙 MODO NOCHE</button>
         </div>
     </div>
 
@@ -238,75 +329,163 @@
         let selectedSquare = null;
         let legalMoves = [];
         let soundEnabled = true;
-        
-        // Temporizador
-        let whiteTime = 600; // 10 minutos en segundos
+        let whiteTime = 600;
         let blackTime = 600;
         let currentTimer = 'w';
         let timerInterval = null;
-        
-        // Elementos del DOM
+
+        // Definición de piezas SVG inline
+        const piecesSVG = {
+            // Blancas (mayúsculas)
+            'K': `<svg class="piece" viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g fill="white" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22.5 3L22.5 8M22.5 3L19 6M22.5 3L26 6" stroke="black" fill="none"/>
+                    <path d="M22.5 9C18.5 9 15 12 15 15C15 18 16 21 16 21C16 21 14 22 14 25C14 28 16 30 16 30C16 30 14 33 14 36C14 39 18 41 22.5 41C27 41 31 39 31 36C31 33 29 30 29 30C29 30 31 28 31 25C31 22 29 21 29 21C29 21 30 18 30 15C30 12 26.5 9 22.5 9Z" fill="white" stroke="black"/>
+                    <circle cx="22.5" cy="24" r="2" fill="black"/>
+                    <path d="M20 29L25 29" stroke="black" fill="none"/>
+                </g>
+            </svg>`,
+            'Q': `<svg class="piece" viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g fill="white" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22.5 3L22.5 8M22.5 3L18 6.5M22.5 3L27 6.5" stroke="black" fill="none"/>
+                    <path d="M22.5 9C20 9 18 11 18 13C18 15 19 17 19 17C19 17 13 16 11 19C9 22 9 25 9 25C9 25 11 24 13 25C15 26 16 27 16 27C16 27 14 29 14 32C14 35 18 41 22.5 41C27 41 31 35 31 32C31 29 29 27 29 27C29 27 30 26 32 25C34 24 36 25 36 25C36 25 36 22 34 19C32 16 26 17 26 17C26 17 27 15 27 13C27 11 25 9 22.5 9Z" fill="white" stroke="black"/>
+                    <circle cx="15" cy="25" r="1.5" fill="black"/>
+                    <circle cx="22.5" cy="25" r="1.5" fill="black"/>
+                    <circle cx="30" cy="25" r="1.5" fill="black"/>
+                    <path d="M19 32L26 32" stroke="black" fill="none"/>
+                </g>
+            </svg>`,
+            'R': `<svg class="piece" viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g fill="white" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 5L15 9M30 5L30 9M18 5L18 9M27 5L27 9M12 9L33 9C33 9 34 15 34 20C34 25 32 30 32 30L13 30C13 30 11 25 11 20C11 15 12 9 12 9Z" fill="white" stroke="black"/>
+                    <path d="M13 30L13 37L32 37L32 30" fill="white" stroke="black"/>
+                    <path d="M16 37L16 41L29 41L29 37" stroke="black" fill="none"/>
+                    <circle cx="17" cy="18" r="2" fill="black"/>
+                    <circle cx="28" cy="18" r="2" fill="black"/>
+                </g>
+            </svg>`,
+            'B': `<svg class="piece" viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g fill="white" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22.5 3C20 3 18 5 18 7C18 9 19 11 19 11C19 11 17 12 16 15C15 18 15 22 15 22C15 22 13 24 13 27C13 31 18 41 22.5 41C27 41 32 31 32 27C32 24 30 22 30 22C30 22 30 18 29 15C28 12 26 11 26 11C26 11 27 9 27 7C27 5 25 3 22.5 3Z" fill="white" stroke="black"/>
+                    <path d="M19 11L26 11" stroke="black" fill="none"/>
+                    <path d="M20 15L25 15" stroke="black" fill="none"/>
+                    <circle cx="22.5" cy="24" r="3" fill="black"/>
+                </g>
+            </svg>`,
+            'N': `<svg class="piece" viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g fill="white" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 3C18 3 15 6 15 10C15 14 18 18 18 18C18 18 14 21 14 25C14 29 16 33 16 33C16 33 18 35 22 35C26 35 28 33 28 33C28 33 30 29 30 25C30 21 28 18 28 18C28 18 31 14 31 10C31 6 26 3 22 3Z" fill="white" stroke="black"/>
+                    <path d="M18 18L24 24" stroke="black" fill="none"/>
+                    <circle cx="20" cy="12" r="1.5" fill="black"/>
+                    <circle cx="26" cy="13" r="1.5" fill="black"/>
+                </g>
+            </svg>`,
+            'P': `<svg class="piece" viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g fill="white" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22.5 3C19 3 16 7 16 11C16 15 18 18 18 18C18 18 14 20 14 24C14 28 16 32 16 32C16 32 18 35 22.5 35C27 35 29 32 29 32C29 32 31 28 31 24C31 20 27 18 27 18C27 18 29 15 29 11C29 7 26 3 22.5 3Z" fill="white" stroke="black"/>
+                    <circle cx="22.5" cy="22" r="2" fill="black"/>
+                </g>
+            </svg>`,
+            // Negras (minúsculas) - mismas formas pero color negro
+            'k': `<svg class="piece" viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g fill="#2c2c2c" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22.5 3L22.5 8M22.5 3L19 6M22.5 3L26 6" stroke="#1a1a1a" fill="none"/>
+                    <path d="M22.5 9C18.5 9 15 12 15 15C15 18 16 21 16 21C16 21 14 22 14 25C14 28 16 30 16 30C16 30 14 33 14 36C14 39 18 41 22.5 41C27 41 31 39 31 36C31 33 29 30 29 30C29 30 31 28 31 25C31 22 29 21 29 21C29 21 30 18 30 15C30 12 26.5 9 22.5 9Z" fill="#2c2c2c" stroke="#1a1a1a"/>
+                    <circle cx="22.5" cy="24" r="2" fill="#e0e0e0"/>
+                    <path d="M20 29L25 29" stroke="#1a1a1a" fill="none"/>
+                </g>
+            </svg>`,
+            'q': `<svg class="piece" viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g fill="#2c2c2c" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22.5 3L22.5 8M22.5 3L18 6.5M22.5 3L27 6.5" stroke="#1a1a1a" fill="none"/>
+                    <path d="M22.5 9C20 9 18 11 18 13C18 15 19 17 19 17C19 17 13 16 11 19C9 22 9 25 9 25C9 25 11 24 13 25C15 26 16 27 16 27C16 27 14 29 14 32C14 35 18 41 22.5 41C27 41 31 35 31 32C31 29 29 27 29 27C29 27 30 26 32 25C34 24 36 25 36 25C36 25 36 22 34 19C32 16 26 17 26 17C26 17 27 15 27 13C27 11 25 9 22.5 9Z" fill="#2c2c2c" stroke="#1a1a1a"/>
+                    <circle cx="15" cy="25" r="1.5" fill="#e0e0e0"/>
+                    <circle cx="22.5" cy="25" r="1.5" fill="#e0e0e0"/>
+                    <circle cx="30" cy="25" r="1.5" fill="#e0e0e0"/>
+                    <path d="M19 32L26 32" stroke="#1a1a1a" fill="none"/>
+                </g>
+            </svg>`,
+            'r': `<svg class="piece" viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g fill="#2c2c2c" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 5L15 9M30 5L30 9M18 5L18 9M27 5L27 9M12 9L33 9C33 9 34 15 34 20C34 25 32 30 32 30L13 30C13 30 11 25 11 20C11 15 12 9 12 9Z" fill="#2c2c2c" stroke="#1a1a1a"/>
+                    <path d="M13 30L13 37L32 37L32 30" fill="#2c2c2c" stroke="#1a1a1a"/>
+                    <path d="M16 37L16 41L29 41L29 37" stroke="#1a1a1a" fill="none"/>
+                    <circle cx="17" cy="18" r="2" fill="#e0e0e0"/>
+                    <circle cx="28" cy="18" r="2" fill="#e0e0e0"/>
+                </g>
+            </svg>`,
+            'b': `<svg class="piece" viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g fill="#2c2c2c" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22.5 3C20 3 18 5 18 7C18 9 19 11 19 11C19 11 17 12 16 15C15 18 15 22 15 22C15 22 13 24 13 27C13 31 18 41 22.5 41C27 41 32 31 32 27C32 24 30 22 30 22C30 22 30 18 29 15C28 12 26 11 26 11C26 11 27 9 27 7C27 5 25 3 22.5 3Z" fill="#2c2c2c" stroke="#1a1a1a"/>
+                    <path d="M19 11L26 11" stroke="#1a1a1a" fill="none"/>
+                    <path d="M20 15L25 15" stroke="#1a1a1a" fill="none"/>
+                    <circle cx="22.5" cy="24" r="3" fill="#e0e0e0"/>
+                </g>
+            </svg>`,
+            'n': `<svg class="piece" viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g fill="#2c2c2c" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 3C18 3 15 6 15 10C15 14 18 18 18 18C18 18 14 21 14 25C14 29 16 33 16 33C16 33 18 35 22 35C26 35 28 33 28 33C28 33 30 29 30 25C30 21 28 18 28 18C28 18 31 14 31 10C31 6 26 3 22 3Z" fill="#2c2c2c" stroke="#1a1a1a"/>
+                    <path d="M18 18L24 24" stroke="#1a1a1a" fill="none"/>
+                    <circle cx="20" cy="12" r="1.5" fill="#e0e0e0"/>
+                    <circle cx="26" cy="13" r="1.5" fill="#e0e0e0"/>
+                </g>
+            </svg>`,
+            'p': `<svg class="piece" viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g fill="#2c2c2c" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22.5 3C19 3 16 7 16 11C16 15 18 18 18 18C18 18 14 20 14 24C14 28 16 32 16 32C16 32 18 35 22.5 35C27 35 29 32 29 32C29 32 31 28 31 24C31 20 27 18 27 18C27 18 29 15 29 11C29 7 26 3 22.5 3Z" fill="#2c2c2c" stroke="#1a1a1a"/>
+                    <circle cx="22.5" cy="22" r="2" fill="#e0e0e0"/>
+                </g>
+            </svg>`
+        };
+
+        // Helper para obtener SVG de pieza
+        function getPieceSVG(piece) {
+            if (!piece) return '';
+            const key = piece.type + (piece.color === 'w' ? piece.type.toUpperCase() : piece.type.toLowerCase());
+            return piecesSVG[key] || '';
+        }
+
+        // Elementos DOM
         const whiteTimerEl = document.getElementById('whiteTimer');
         const blackTimerEl = document.getElementById('blackTimer');
-        
-        // Piezas en emoji
-        const pieces = {
-            'k': '♔', 'q': '♕', 'r': '♖', 'b': '♗', 'n': '♘', 'p': '♙',
-            'K': '♚', 'Q': '♛', 'R': '♜', 'B': '♝', 'N': '♞', 'P': '♟'
-        };
-        
-        // Función para reproducir sonido (Web Audio API)
+        const whiteCard = document.getElementById('whiteTimerCard');
+        const blackCard = document.getElementById('blackTimerCard');
+
         function playSound(type) {
             if (!soundEnabled) return;
-            
             try {
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const oscillator = audioContext.createOscillator();
                 const gainNode = audioContext.createGain();
-                
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
                 
                 if (type === 'move') {
-                    oscillator.frequency.value = 523.25; // Do
+                    oscillator.frequency.value = 523.25;
                     gainNode.gain.value = 0.1;
-                    oscillator.start();
-                    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.3);
-                    oscillator.stop(audioContext.currentTime + 0.3);
-                } else if (type === 'capture') {
-                    oscillator.frequency.value = 392.00; // Sol
-                    gainNode.gain.value = 0.15;
                     oscillator.start();
                     gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.2);
                     oscillator.stop(audioContext.currentTime + 0.2);
+                } else if (type === 'capture') {
+                    oscillator.frequency.value = 392.00;
+                    gainNode.gain.value = 0.15;
+                    oscillator.start();
+                    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.15);
+                    oscillator.stop(audioContext.currentTime + 0.15);
                 } else if (type === 'check') {
-                    oscillator.frequency.value = 659.25; // Mi
+                    oscillator.frequency.value = 659.25;
                     gainNode.gain.value = 0.2;
                     oscillator.start();
-                    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5);
-                    oscillator.stop(audioContext.currentTime + 0.5);
-                } else if (type === 'gameEnd') {
-                    // Melodía simple
-                    [523.25, 659.25, 783.99].forEach((freq, i) => {
-                        const osc = audioContext.createOscillator();
-                        const gain = audioContext.createGain();
-                        osc.connect(gain);
-                        gain.connect(audioContext.destination);
-                        osc.frequency.value = freq;
-                        gain.gain.value = 0.15;
-                        osc.start(audioContext.currentTime + i * 0.15);
-                        gain.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + i * 0.15 + 0.3);
-                        osc.stop(audioContext.currentTime + i * 0.15 + 0.3);
-                    });
+                    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.3);
+                    oscillator.stop(audioContext.currentTime + 0.3);
+                    // Añadir clase de animación al tablero
+                    document.getElementById('board').classList.add('check-animation');
+                    setTimeout(() => document.getElementById('board').classList.remove('check-animation'), 300);
                 }
-                
-                audioContext.close();
-            } catch(e) {
-                // Fallback silencioso si no soporta AudioContext
-            }
+                setTimeout(() => audioContext.close(), 400);
+            } catch(e) {}
         }
-        
-        // Actualizar temporizador
+
         function updateTimerDisplay() {
             const whiteMinutes = Math.floor(whiteTime / 60);
             const whiteSeconds = whiteTime % 60;
@@ -316,29 +495,31 @@
             whiteTimerEl.textContent = `${whiteMinutes.toString().padStart(2, '0')}:${whiteSeconds.toString().padStart(2, '0')}`;
             blackTimerEl.textContent = `${blackMinutes.toString().padStart(2, '0')}:${blackSeconds.toString().padStart(2, '0')}`;
             
-            // Cambiar color si queda poco tiempo
-            if (whiteTime < 30) whiteTimerEl.style.color = '#ff6b6b';
-            else whiteTimerEl.style.color = 'white';
-            
-            if (blackTime < 30) blackTimerEl.style.color = '#ff6b6b';
-            else blackTimerEl.style.color = 'white';
+            // Actualizar card activa
+            if (currentTimer === 'w' && !game.game_over()) {
+                whiteCard.classList.add('active');
+                blackCard.classList.remove('active');
+            } else if (currentTimer === 'b' && !game.game_over()) {
+                blackCard.classList.add('active');
+                whiteCard.classList.remove('active');
+            } else {
+                whiteCard.classList.remove('active');
+                blackCard.classList.remove('active');
+            }
         }
-        
-        // Iniciar/detener temporizador
+
         function startTimer() {
             if (timerInterval) clearInterval(timerInterval);
-            
             timerInterval = setInterval(() => {
                 if (game.game_over()) return;
-                
                 if (currentTimer === 'w') {
                     if (whiteTime > 0) {
                         whiteTime--;
                         updateTimerDisplay();
                         if (whiteTime === 0) {
                             clearInterval(timerInterval);
-                            document.getElementById('status').innerHTML = '⏰ ¡Se acabó el tiempo! Ganan NEGRAS';
-                            playSound('gameEnd');
+                            document.getElementById('status').innerHTML = '⏰ ¡TIEMPO AGOTADO! Ganan NEGRAS ⏰';
+                            playSound('capture');
                         }
                     }
                 } else {
@@ -347,22 +528,21 @@
                         updateTimerDisplay();
                         if (blackTime === 0) {
                             clearInterval(timerInterval);
-                            document.getElementById('status').innerHTML = '⏰ ¡Se acabó el tiempo! Ganan BLANCAS';
-                            playSound('gameEnd');
+                            document.getElementById('status').innerHTML = '⏰ ¡TIEMPO AGOTADO! Ganan BLANCAS ⏰';
+                            playSound('capture');
                         }
                     }
                 }
             }, 1000);
         }
-        
-        // Cambiar turno del temporizador
+
         function switchTimer() {
             currentTimer = game.turn();
+            updateTimerDisplay();
             startTimer();
         }
-        
-        // Renderizar tablero con animación
-        function renderBoard(animatedMove = null) {
+
+        function renderBoard() {
             const boardDiv = document.getElementById('board');
             boardDiv.innerHTML = '';
             const board = game.board();
@@ -371,21 +551,23 @@
                 for (let j = 0; j < 8; j++) {
                     const square = String.fromCharCode(97 + j) + (8 - i);
                     const piece = board[i][j];
-                    const pieceChar = piece ? pieces[piece.type + (piece.color === 'w' ? '' : '')] : '';
                     const squareDiv = document.createElement('div');
                     squareDiv.className = `square ${(i + j) % 2 === 0 ? 'light' : 'dark'}`;
                     
                     if (selectedSquare === square) squareDiv.classList.add('selected');
                     if (legalMoves.includes(square)) squareDiv.classList.add('legal-move');
                     
-                    squareDiv.textContent = pieceChar;
+                    if (piece) {
+                        squareDiv.innerHTML = getPieceSVG(piece);
+                    }
+                    
                     squareDiv.onclick = (function(s) { return function() { onSquareClick(s); }; })(square);
                     boardDiv.appendChild(squareDiv);
                 }
             }
             updateStatus();
         }
-        
+
         function updateStatus() {
             const statusDiv = document.getElementById('status');
             if (game.game_over()) {
@@ -393,36 +575,39 @@
                 if (game.in_checkmate()) {
                     const winner = game.turn() === 'w' ? '⚫ NEGRAS' : '⚪ BLANCAS';
                     statusDiv.innerHTML = `🏆 ¡JAQUE MATE! Ganan ${winner} 🏆`;
-                    playSound('gameEnd');
+                    playSound('capture');
+                } else if (game.in_stalemate()) {
+                    statusDiv.innerHTML = '♾️ TABLAS por ahogado ♾️';
+                } else {
+                    statusDiv.innerHTML = '⏸️ Juego terminado';
                 }
-                else if (game.in_stalemate()) statusDiv.innerHTML = '♾️ TABLAS por ahogado';
-                else if (game.in_threefold_repetition()) statusDiv.innerHTML = '🔄 TABLAS por repetición';
-                else statusDiv.innerHTML = '⏸️ Juego terminado';
             } else {
                 const turn = game.turn() === 'w' ? '⚪ BLANCAS' : '⚫ NEGRAS';
-                let checkText = game.in_check() ? ' ⚠️ ¡JAQUE!' : '';
+                let checkText = game.in_check() ? ' ⚠️ ¡JAQUE! ⚠️' : '';
                 statusDiv.innerHTML = `🎯 Turno: ${turn}${checkText}`;
                 if (game.in_check()) playSound('check');
                 switchTimer();
             }
         }
-        
+
         function makeRandomMove() {
             if (!game.game_over() && game.turn() === 'b') {
                 setTimeout(() => {
                     const moves = game.moves();
                     if (moves.length > 0) {
                         const randomMove = moves[Math.floor(Math.random() * moves.length)];
-                        game.move(randomMove);
-                        selectedSquare = null;
-                        legalMoves = [];
-                        renderBoard();
-                        playSound('move');
+                        const moveResult = game.move(randomMove);
+                        if (moveResult) {
+                            selectedSquare = null;
+                            legalMoves = [];
+                            renderBoard();
+                            playSound('move');
+                        }
                     }
                 }, 200);
             }
         }
-        
+
         function onSquareClick(square) {
             if (game.game_over()) return;
             
@@ -431,13 +616,11 @@
                 const moveResult = game.move(move);
                 
                 if (moveResult) {
-                    // Determinar si fue captura
                     if (moveResult.flags && moveResult.flags.includes('c')) {
                         playSound('capture');
                     } else {
                         playSound('move');
                     }
-                    
                     selectedSquare = null;
                     legalMoves = [];
                     renderBoard();
@@ -465,8 +648,7 @@
                 }
             }
         }
-        
-        // Reiniciar juego
+
         function resetGame() {
             game.reset();
             selectedSquare = null;
@@ -479,27 +661,23 @@
             startTimer();
             playSound('move');
         }
-        
-        // Alternar sonido
+
         function toggleSound() {
             soundEnabled = !soundEnabled;
             const btn = document.getElementById('soundToggle');
-            btn.innerHTML = soundEnabled ? '🔊 Sonido ON' : '🔇 Sonido OFF';
+            btn.innerHTML = soundEnabled ? '🔊 SONIDO ON' : '🔇 SONIDO OFF';
         }
-        
-        // Alternar modo noche
+
         function toggleTheme() {
             document.body.classList.toggle('night-mode');
             const btn = document.getElementById('themeToggle');
-            btn.textContent = document.body.classList.contains('night-mode') ? '☀️' : '🌙';
+            btn.textContent = document.body.classList.contains('night-mode') ? '☀️ MODO DÍA' : '🌙 MODO NOCHE';
         }
-        
-        // Event listeners
+
         document.getElementById('reset').onclick = resetGame;
         document.getElementById('soundToggle').onclick = toggleSound;
         document.getElementById('themeToggle').onclick = toggleTheme;
-        
-        // Inicializar
+
         renderBoard();
         startTimer();
     </script>
