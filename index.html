@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>♔ AJEDREZ MASTER - Aprende Jugando ♚</title>
+    <title>♔ AJEDREZ MASTER ♚</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <style>
         * {
@@ -16,7 +16,7 @@
 
         body {
             background: #0a0a0a;
-            font-family: 'Poppins', 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Poppins', system-ui, sans-serif;
             overflow: hidden;
             position: fixed;
             width: 100%;
@@ -30,9 +30,9 @@
             left: 0;
             width: 100%;
             height: 100%;
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.3s ease;
             z-index: 10;
-            overflow-y: auto;
+            overflow: hidden;
         }
 
         .screen-hidden {
@@ -45,7 +45,7 @@
             pointer-events: auto;
         }
 
-        /* ========== HOME - Fondo claro ========== */
+        /* HOME */
         #homeScreen {
             background: linear-gradient(135deg, #1a2a4a 0%, #0f1a2e 100%);
             display: flex;
@@ -58,225 +58,174 @@
         .logo-frame {
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(15px);
-            border-radius: 80px;
-            padding: 25px 45px;
-            box-shadow: 0 25px 40px rgba(0,0,0,0.3);
-            margin-bottom: 40px;
+            border-radius: 70px;
+            padding: 20px 40px;
+            margin-bottom: 30px;
             border: 1px solid rgba(255,255,255,0.2);
         }
 
-        .main-logo {
-            font-size: 80px;
-            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
-        }
-
-        .game-title {
-            font-size: 32px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #ffffff, #ffdd88);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: 2px;
-        }
+        .main-logo { font-size: 70px; }
+        .game-title { font-size: 28px; font-weight: 800; color: white; letter-spacing: 2px; }
 
         .play-btn {
             background: linear-gradient(145deg, #ffdd88, #ffaa33);
             border: none;
             width: 200px;
-            padding: 16px;
+            padding: 14px;
             border-radius: 50px;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 800;
             color: #1a2a4a;
-            margin: 20px 0;
+            margin: 15px 0;
             cursor: pointer;
-            box-shadow: 0 6px 0 #aa7722;
-            transition: all 0.05s linear;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            box-shadow: 0 5px 0 #aa7722;
         }
+        .play-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #aa7722; }
 
-        .play-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 2px 0 #aa7722;
-        }
-
-        .home-buttons {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
+        .home-buttons { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
         .home-btn {
             background: rgba(255,255,255,0.15);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.3);
-            padding: 10px 20px;
+            padding: 8px 18px;
             border-radius: 40px;
             color: white;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
-        .home-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.25); }
-
-        /* ========== JUEGO 3D ========== */
+        /* JUEGO - SIN MARCOS BLANCOS */
         #gameScreen {
             background: #0a0a0a;
+            position: relative;
         }
 
         #canvas3d {
             width: 100%;
             height: 100%;
             display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
 
+        /* UI FLOTANTE - MINIMALISTA */
         .game-ui {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             z-index: 20;
-            padding: 12px;
+            padding: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
             gap: 8px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+            background: transparent;
             pointer-events: none;
         }
 
         .game-ui button { pointer-events: auto; }
 
         .back-btn {
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,215,0,0.4);
-            width: 40px;
-            height: 40px;
-            border-radius: 30px;
-            font-size: 20px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 25px;
+            font-size: 18px;
             cursor: pointer;
             color: #ffdd88;
         }
 
         .timer-compact {
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(10px);
-            border-radius: 30px;
-            padding: 5px 15px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            border-radius: 25px;
+            padding: 4px 12px;
             display: flex;
-            gap: 15px;
-            border: 1px solid rgba(255,215,0,0.3);
+            gap: 12px;
         }
-
-        .timer-label { font-size: 9px; color: #ffdd88; font-weight: 600; }
-        .timer-value { font-size: 18px; font-weight: 800; font-family: monospace; color: white; }
+        .timer-label { font-size: 8px; color: #ffdd88; }
+        .timer-value { font-size: 16px; font-weight: 700; font-family: monospace; color: white; }
 
         .energy-compact {
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(10px);
-            border-radius: 30px;
-            padding: 5px 15px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            border-radius: 25px;
+            padding: 4px 12px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            border: 1px solid rgba(255,215,0,0.3);
+            gap: 6px;
             color: #ffdd88;
+            font-size: 14px;
         }
 
         .right-controls {
             position: absolute;
-            bottom: 15px;
-            right: 15px;
+            bottom: 10px;
+            right: 10px;
             z-index: 20;
             display: flex;
             gap: 8px;
             pointer-events: none;
         }
-
         .right-controls button {
             pointer-events: auto;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,215,0,0.4);
-            padding: 8px 15px;
-            border-radius: 30px;
-            font-weight: 600;
-            cursor: pointer;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 25px;
             color: #ffdd88;
-            font-size: 12px;
+            font-size: 11px;
+            font-weight: 600;
         }
 
         #status3d {
             position: absolute;
-            bottom: 15px;
-            left: 15px;
+            bottom: 10px;
+            left: 10px;
             z-index: 20;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 30px;
-            padding: 8px 15px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            border-radius: 25px;
+            padding: 6px 12px;
             color: #ffdd88;
+            font-size: 11px;
             font-weight: 600;
-            font-size: 12px;
             pointer-events: none;
-            border: 1px solid rgba(255,215,0,0.3);
         }
 
-        /* ========== INSTRUCCIONES ========== */
-        #instructionsScreen {
+        /* INSTRUCCIONES */
+        #instructionsScreen, #comingScreen {
             background: linear-gradient(135deg, #1a2a4a 0%, #0f1a2e 100%);
             padding: 20px;
+            overflow-y: auto;
         }
 
-        .instructions-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-
-        .instructions-title {
-            font-size: 24px;
-            font-weight: 800;
-            color: white;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
+        .instructions-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .instructions-title { font-size: 22px; font-weight: 800; color: white; }
 
         .master-moves-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
         }
-
         .master-card {
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 15px;
+            border-radius: 18px;
+            padding: 12px;
             border: 1px solid rgba(255,255,255,0.2);
-            transition: all 0.2s;
             cursor: pointer;
         }
+        .master-icon { font-size: 36px; }
+        .master-name { font-size: 16px; font-weight: 700; color: #ffdd88; }
+        .master-description { font-size: 11px; color: rgba(255,255,255,0.8); margin: 5px 0; }
+        .master-moves { font-family: monospace; font-size: 11px; color: #aaffaa; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 8px; }
 
-        .master-card:active { transform: scale(0.98); background: rgba(255,255,255,0.15); }
-
-        .master-icon { font-size: 40px; margin-bottom: 8px; }
-        .master-name { font-size: 18px; font-weight: 700; color: #ffdd88; margin-bottom: 6px; }
-        .master-description { color: rgba(255,255,255,0.8); font-size: 12px; line-height: 1.4; margin-bottom: 10px; }
-        .master-moves { font-family: monospace; font-size: 13px; color: #aaffaa; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 10px; }
-        .learn-tip { font-size: 11px; color: #ffaa66; margin-top: 8px; display: flex; align-items: center; gap: 5px; }
-
-        /* Modal */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -293,45 +242,20 @@
             visibility: hidden;
             transition: all 0.3s;
         }
-
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
+        .modal-overlay.active { opacity: 1; visibility: visible; }
         .modal-content {
             background: linear-gradient(135deg, #1a2a4a, #0f1a2e);
-            border-radius: 28px;
+            border-radius: 24px;
             padding: 20px;
             max-width: 90%;
-            width: 350px;
+            width: 320px;
             border: 1px solid rgba(255,215,0,0.4);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
-
-        .modal-icon { font-size: 56px; text-align: center; margin-bottom: 12px; }
-        .modal-title { font-size: 20px; font-weight: 800; color: #ffdd88; text-align: center; margin-bottom: 12px; }
-        .modal-moves { background: rgba(0,0,0,0.4); border-radius: 16px; padding: 12px; font-family: monospace; font-size: 14px; margin: 12px 0; color: #aaffaa; text-align: center; }
-        .modal-explanation { color: rgba(255,255,255,0.85); line-height: 1.5; margin-bottom: 18px; font-size: 13px; text-align: center; }
-        .close-modal {
-            background: #ffdd88;
-            border: none;
-            width: 100%;
-            padding: 10px;
-            border-radius: 30px;
-            font-weight: 700;
-            cursor: pointer;
-            color: #1a2a4a;
-        }
-
-        #comingScreen {
-            background: linear-gradient(135deg, #1a2a4a 0%, #0f1a2e 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
+        .modal-icon { font-size: 48px; text-align: center; }
+        .modal-title { font-size: 18px; font-weight: 800; color: #ffdd88; text-align: center; margin: 8px 0; }
+        .modal-moves { background: rgba(0,0,0,0.4); border-radius: 12px; padding: 8px; font-family: monospace; font-size: 12px; margin: 10px 0; text-align: center; }
+        .modal-explanation { font-size: 12px; color: rgba(255,255,255,0.85); text-align: center; margin-bottom: 15px; }
+        .close-modal { background: #ffdd88; border: none; width: 100%; padding: 8px; border-radius: 25px; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -352,75 +276,70 @@
         <div class="game-ui">
             <button class="back-btn" id="backFromGameBtn">←</button>
             <div class="timer-compact">
-                <div class="timer-item"><div class="timer-label">⚪</div><div class="timer-value" id="whiteTimer">10:00</div></div>
-                <div class="timer-item"><div class="timer-label">⚫</div><div class="timer-value" id="blackTimer">10:00</div></div>
+                <div><div class="timer-label">⚪</div><div class="timer-value" id="whiteTimer">10:00</div></div>
+                <div><div class="timer-label">⚫</div><div class="timer-value" id="blackTimer">10:00</div></div>
             </div>
-            <div class="energy-compact"><span>⚡</span><span id="energyValue">100</span><span>%</span></div>
+            <div class="energy-compact"><span>⚡</span><span id="energyValue">100</span></div>
         </div>
         <div id="status3d">🎮 Turno: Blancas</div>
-        <div class="right-controls"><button id="reset3dBtn">🔄 Reiniciar</button><button id="sound3dBtn">🔊 Sonido</button></div>
+        <div class="right-controls">
+            <button id="reset3dBtn">🔄</button>
+            <button id="sound3dBtn">🔊</button>
+        </div>
     </div>
 
     <div id="instructionsScreen" class="screen screen-hidden">
         <div class="instructions-header">
-            <button class="back-btn" id="backFromInstructionsBtn" style="background:rgba(0,0,0,0.5); color:white;">←</button>
+            <button class="back-btn" id="backFromInstructionsBtn" style="background:rgba(0,0,0,0.5);">←</button>
             <div class="instructions-title">📚 JUGADAS MAESTRAS</div>
         </div>
         <div class="master-moves-grid">
             <div class="master-card" data-move="italiana">
                 <div class="master-icon">♔</div>
                 <div class="master-name">Apertura Italiana</div>
-                <div class="master-description">Apertura clásica y sólida. Controla el centro con peones y desarrolla el alfil.</div>
+                <div class="master-description">Clásica y sólida. Controla el centro.</div>
                 <div class="master-moves">1.e4 e5 2.Cf3 Cc6 3.Ac4</div>
-                <div class="learn-tip">💡 Toca para aprender</div>
             </div>
             <div class="master-card" data-move="espanola">
                 <div class="master-icon">♕</div>
                 <div class="master-name">Apertura Española</div>
-                <div class="master-description">Presiona el caballo negro y prepara el enroque. Muy usada por expertos.</div>
+                <div class="master-description">Presiona el caballo rival.</div>
                 <div class="master-moves">1.e4 e5 2.Cf3 Cc6 3.Ab5</div>
-                <div class="learn-tip">💡 Toca para aprender</div>
             </div>
             <div class="master-card" data-move="enroque">
                 <div class="master-icon">♖</div>
                 <div class="master-name">Enroque</div>
-                <div class="master-description">Mueve rey y torre a la vez. Protege a tu rey y activa la torre.</div>
-                <div class="master-moves">Corto: 0-0 | Largo: 0-0-0</div>
-                <div class="learn-tip">💡 Toca para aprender</div>
+                <div class="master-description">Protege al rey y activa la torre.</div>
+                <div class="master-moves">0-0 (corto) | 0-0-0 (largo)</div>
             </div>
             <div class="master-card" data-move="alfil">
                 <div class="master-icon">♝</div>
                 <div class="master-name">Alfil a c4</div>
-                <div class="master-description">Apunta directamente a f7, el punto más débil al inicio.</div>
-                <div class="master-moves">Ac4 (Ataque a f7)</div>
-                <div class="learn-tip">💡 Toca para aprender</div>
+                <div class="master-description">Apunta a f7, punto débil.</div>
+                <div class="master-moves">Ac4</div>
             </div>
             <div class="master-card" data-move="caballo">
                 <div class="master-icon">♞</div>
                 <div class="master-name">Caballo a f3</div>
-                <div class="master-description">Controla el centro y prepara el enroque. Jugada fundamental.</div>
-                <div class="master-moves">Cf3 (Controla e5 y d4)</div>
-                <div class="learn-tip">💡 Toca para aprender</div>
+                <div class="master-description">Controla el centro.</div>
+                <div class="master-moves">Cf3</div>
             </div>
             <div class="master-card" data-move="peon">
                 <div class="master-icon">♟</div>
                 <div class="master-name">Peón al Centro</div>
-                <div class="master-description">Controlar el centro es clave para dominar la partida.</div>
+                <div class="master-description">Dominar el centro es clave.</div>
                 <div class="master-moves">1.e4 o 1.d4</div>
-                <div class="learn-tip">💡 Toca para aprender</div>
             </div>
         </div>
     </div>
 
     <div id="comingScreen" class="screen screen-hidden">
-        <button class="back-btn" id="backFromComingBtn" style="position:absolute; top:20px; left:20px; background:rgba(0,0,0,0.5); color:white;">←</button>
-        <div style="padding: 30px;">
-            <div style="font-size: 70px; margin-bottom: 20px;">🎮</div>
-            <div style="font-size: 28px; font-weight: 800; color: white;">PRÓXIMAMENTE</div>
-            <div style="color: rgba(255,255,255,0.8); margin: 20px; line-height: 1.8;">
-                ⚡ Modo Torneo<br>🏆 Ranking Global<br>👥 Jugar con Amigos
-            </div>
-            <button class="play-btn" id="volverHomeBtn" style="width:auto; padding:10px 25px; font-size:16px;">Volver</button>
+        <button class="back-btn" id="backFromComingBtn" style="position:absolute; top:15px; left:15px; background:rgba(0,0,0,0.5);">←</button>
+        <div style="height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px;">
+            <div style="font-size:60px;">🎮</div>
+            <div style="font-size:24px; font-weight:800; color:white; margin:15px 0;">PRÓXIMAMENTE</div>
+            <div style="color:rgba(255,255,255,0.7); line-height:1.8;">⚡ Modo Torneo<br>🏆 Ranking Global<br>👥 Jugar con Amigos</div>
+            <button class="play-btn" id="volverHomeBtn" style="width:auto; padding:8px 25px; font-size:14px; margin-top:25px;">Volver</button>
         </div>
     </div>
 
@@ -429,10 +348,7 @@
             <div class="modal-icon" id="modalIcon">♔</div>
             <div class="modal-title" id="modalTitle">Apertura Italiana</div>
             <div class="modal-moves" id="modalMoves">1.e4 e5 2.Cf3 Cc6 3.Ac4</div>
-            <div class="modal-explanation" id="modalExplanation">
-                La Apertura Italiana es ideal para principiantes. Desarrollas el alfil a c4 apuntando a f7,
-                el punto más débil de las negras. Controlas el centro y preparas el enroque.
-            </div>
+            <div class="modal-explanation" id="modalExplanation">Ideal para principiantes. El alfil a c4 apunta a f7, controlas el centro y preparas enroque.</div>
             <button class="close-modal" id="closeModal">Entendido ✓</button>
         </div>
     </div>
@@ -444,23 +360,20 @@
     <script type="module">
         import * as THREE from 'three';
         
-        // Modal aprendizaje
+        // ========== MODAL ==========
         const modalData = {
-            italiana: { icon: '♔', title: 'Apertura Italiana', moves: '1.e4 e5 2.Cf3 Cc6 3.Ac4', explanation: 'Ideal para principiantes. El alfil a c4 apunta a f7 (punto débil). Controlas el centro y preparas enroque rápido.' },
-            espanola: { icon: '♕', title: 'Apertura Española', moves: '1.e4 e5 2.Cf3 Cc6 3.Ab5', explanation: 'El alfil a b5 presiona el caballo que defiende e5. Puedes cambiar o retirarte ganando tiempo para desarrollar.' },
-            enroque: { icon: '♖', title: 'El Enroque', moves: 'Corto: 0-0 | Largo: 0-0-0', explanation: 'Único movimiento donde mueves dos piezas. Protege a tu rey en una esquina y activa la torre en el centro.' },
-            alfil: { icon: '♝', title: 'Alfil a c4', moves: 'Ac4', explanation: 'Apunta directamente a f7. Es una de las ideas más agresivas y efectivas para principiantes.' },
-            caballo: { icon: '♞', title: 'Caballo a f3', moves: 'Cf3', explanation: 'Desarrolla el caballo a su mejor casilla. Controla e5 y d4, y permite enrocar rápido.' },
+            italiana: { icon: '♔', title: 'Apertura Italiana', moves: '1.e4 e5 2.Cf3 Cc6 3.Ac4', explanation: 'Ideal para principiantes. El alfil a c4 apunta a f7, controlas el centro y preparas enroque.' },
+            espanola: { icon: '♕', title: 'Apertura Española', moves: '1.e4 e5 2.Cf3 Cc6 3.Ab5', explanation: 'El alfil a b5 presiona el caballo que defiende e5, ganando tiempo para desarrollar.' },
+            enroque: { icon: '♖', title: 'El Enroque', moves: 'Corto: 0-0 | Largo: 0-0-0', explanation: 'Protege a tu rey en una esquina y activa la torre. Es el único movimiento con dos piezas.' },
+            alfil: { icon: '♝', title: 'Alfil a c4', moves: 'Ac4', explanation: 'Apunta directamente a f7, el punto más débil al inicio. Una de las ideas más agresivas.' },
+            caballo: { icon: '♞', title: 'Caballo a f3', moves: 'Cf3', explanation: 'Desarrolla el caballo a su mejor casilla. Controla e5 y d4, permite enrocar rápido.' },
             peon: { icon: '♟', title: 'Peón al Centro', moves: '1.e4 o 1.d4', explanation: 'El centro es el corazón del tablero. Controlarlo da espacio y movilidad a tus piezas.' }
         };
-
-        const modal = document.getElementById('learnModal');
-        const closeModal = document.getElementById('closeModal');
         
+        const modal = document.getElementById('learnModal');
         document.querySelectorAll('.master-card').forEach(card => {
             card.addEventListener('click', () => {
-                const move = card.dataset.move;
-                const data = modalData[move];
+                const data = modalData[card.dataset.move];
                 if(data) {
                     document.getElementById('modalIcon').textContent = data.icon;
                     document.getElementById('modalTitle').textContent = data.title;
@@ -470,17 +383,16 @@
                 }
             });
         });
-        closeModal.onclick = () => modal.classList.remove('active');
+        document.getElementById('closeModal').onclick = () => modal.classList.remove('active');
         modal.onclick = (e) => { if(e.target === modal) modal.classList.remove('active'); };
-
-        // Navegación
+        
+        // ========== NAVEGACIÓN ==========
         const screens = {
             home: document.getElementById('homeScreen'),
             game: document.getElementById('gameScreen'),
             instructions: document.getElementById('instructionsScreen'),
             coming: document.getElementById('comingScreen')
         };
-        
         function showScreen(name) {
             Object.keys(screens).forEach(k => {
                 screens[k].classList.add('screen-hidden');
@@ -488,9 +400,8 @@
             });
             screens[name].classList.remove('screen-hidden');
             screens[name].classList.add('screen-visible');
-            if (name === 'game') setTimeout(() => { if (window.onResize3D) window.onResize3D(); }, 100);
+            if (name === 'game') setTimeout(() => updateCameraForOrientation(), 50);
         }
-        
         document.getElementById('playBtn').onclick = () => showScreen('game');
         document.getElementById('instructionsHomeBtn').onclick = () => showScreen('instructions');
         document.getElementById('comingHomeBtn').onclick = () => showScreen('coming');
@@ -499,19 +410,37 @@
         document.getElementById('backFromComingBtn').onclick = () => showScreen('home');
         document.getElementById('volverHomeBtn').onclick = () => showScreen('home');
         
-        // ========== AJEDREZ 3D - CÁMARA ALEJADA ==========
+        // ========== THREE.JS CON ORIENTACIÓN DINÁMICA ==========
         const canvas = document.getElementById('canvas3d');
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setClearColor(0x0a0a0a);
         renderer.shadowMap.enabled = true;
         
         const scene = new THREE.Scene();
         
-        // Cámara FRONTAL - SIN ZOOM (alejada)
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 5, 7);
-        camera.lookAt(0, 0, 0);
+        // Cámara que se ajusta según orientación
+        let camera;
+        
+        function updateCameraForOrientation() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const isLandscape = width > height;
+            
+            if (camera) scene.remove(camera);
+            
+            if (isLandscape) {
+                // Horizontal: tablero más grande, cámara más cerca pero ajustada
+                camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
+                camera.position.set(0, 4.5, 5.5);
+            } else {
+                // Vertical: cámara más alejada para que quepa todo
+                camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 1000);
+                camera.position.set(0, 5, 6.5);
+            }
+            camera.lookAt(0, 0, 0);
+            
+            renderer.setSize(width, height);
+        }
         
         // Luces
         const ambientLight = new THREE.AmbientLight(0x404060);
@@ -568,7 +497,6 @@
                 squares.push(square);
             }
         }
-        
         scene.add(boardGroup);
         
         // Piezas
@@ -583,38 +511,27 @@
             const mat = isWhite ? whiteMat : blackMat;
             switch(type) {
                 case 'p':
-                    const base = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.27, 0.26, 24), mat);
-                    base.position.y = 0.13; group.add(base);
-                    const body = new THREE.Mesh(new THREE.SphereGeometry(0.2, 24, 16), mat);
-                    body.position.y = 0.36; group.add(body);
+                    new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.27, 0.26, 24), mat).position.y = 0.13, group.add(_);
+                    new THREE.Mesh(new THREE.SphereGeometry(0.2, 24, 16), mat).position.y = 0.36, group.add(_);
                     break;
                 case 'n':
-                    const nBody = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.36, 0.44), mat);
-                    nBody.position.y = 0.23; group.add(nBody);
+                    new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.36, 0.44), mat).position.y = 0.23, group.add(_);
                     break;
                 case 'b':
-                    const bBase = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.29, 0.22, 24), mat);
-                    bBase.position.y = 0.13; group.add(bBase);
-                    const bBody = new THREE.Mesh(new THREE.ConeGeometry(0.23, 0.5, 16), mat);
-                    bBody.position.y = 0.45; group.add(bBody);
+                    new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.29, 0.22, 24), mat).position.y = 0.13, group.add(_);
+                    new THREE.Mesh(new THREE.ConeGeometry(0.23, 0.5, 16), mat).position.y = 0.45, group.add(_);
                     break;
                 case 'r':
-                    const rBase = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.16, 0.44), mat);
-                    rBase.position.y = 0.1; group.add(rBase);
-                    const rBody = new THREE.Mesh(new THREE.BoxGeometry(0.39, 0.5, 0.39), mat);
-                    rBody.position.y = 0.38; group.add(rBody);
+                    new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.16, 0.44), mat).position.y = 0.1, group.add(_);
+                    new THREE.Mesh(new THREE.BoxGeometry(0.39, 0.5, 0.39), mat).position.y = 0.38, group.add(_);
                     break;
                 case 'q':
-                    const qBase = new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.34, 0.22, 24), mat);
-                    qBase.position.y = 0.13; group.add(qBase);
-                    const qBody = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.29, 0.42, 16), mat);
-                    qBody.position.y = 0.41; group.add(qBody);
+                    new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.34, 0.22, 24), mat).position.y = 0.13, group.add(_);
+                    new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.29, 0.42, 16), mat).position.y = 0.41, group.add(_);
                     break;
                 case 'k':
-                    const kBase = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.37, 0.24, 24), mat);
-                    kBase.position.y = 0.13; group.add(kBase);
-                    const kBody = new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.33, 0.46, 16), mat);
-                    kBody.position.y = 0.44; group.add(kBody);
+                    new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.37, 0.24, 24), mat).position.y = 0.13, group.add(_);
+                    new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.33, 0.46, 16), mat).position.y = 0.44, group.add(_);
                     break;
             }
             return group;
@@ -638,7 +555,7 @@
             }
         }
         
-        // Lógica del juego simplificada
+        // Lógica del juego
         const chessGame = new Chess();
         let selectedPiece = null;
         let selectedPos = null;
@@ -656,15 +573,15 @@
             if(chessGame.game_over()) {
                 statusEl.innerHTML = chessGame.in_checkmate() ? '🏆 Jaque Mate!' : '♾️ Tablas';
             } else {
-                statusEl.innerHTML = `🎮 Turno: ${chessGame.turn() === 'w' ? 'Blancas' : 'Negras'}${chessGame.in_check() ? ' ⚠️ Jaque' : ''}`;
+                statusEl.innerHTML = `🎮 ${chessGame.turn() === 'w' ? 'Blancas' : 'Negras'}${chessGame.in_check() ? ' ⚠️' : ''}`;
             }
             document.getElementById('energyValue').innerHTML = Math.floor(energy);
             updateTimerDisplay();
         }
         
         function updateTimerDisplay() {
-            document.getElementById('whiteTimer').innerText = `${Math.floor(whiteTime/60)}:${(whiteTime%60).toString().padStart(2,'0')}`;
-            document.getElementById('blackTimer').innerText = `${Math.floor(blackTime/60)}:${(blackTime%60).toString().padStart(2,'0')}`;
+            document.getElementById('whiteTimer').innerHTML = `${Math.floor(whiteTime/60)}:${(whiteTime%60).toString().padStart(2,'0')}`;
+            document.getElementById('blackTimer').innerHTML = `${Math.floor(blackTime/60)}:${(blackTime%60).toString().padStart(2,'0')}`;
         }
         
         function startTimer() {
@@ -776,7 +693,7 @@
         
         function toggleSound() {
             soundEnabled = !soundEnabled;
-            document.getElementById('sound3dBtn').innerHTML = soundEnabled ? '🔊 Sonido' : '🔇 Sonido';
+            document.getElementById('sound3dBtn').innerHTML = soundEnabled ? '🔊' : '🔇';
         }
         
         canvas.addEventListener('click', onCanvasClick);
@@ -784,24 +701,31 @@
         document.getElementById('reset3dBtn').onclick = resetGame;
         document.getElementById('sound3dBtn').onclick = toggleSound;
         
+        // Animación y resize
         let time = 0;
         function animate() {
             requestAnimationFrame(animate);
             time += 0.016;
             piecesGroup.children.forEach((piece, idx) => { piece.position.y = -0.08 + Math.sin(time * 2 + idx) * 0.005; });
-            renderer.render(scene, camera);
+            if(camera) renderer.render(scene, camera);
         }
         animate();
         
         function handleResize() {
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            if(camera) {
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+                updateCameraForOrientation();
+            }
+            renderer.setSize(width, height);
         }
-        window.onResize3D = handleResize;
-        window.addEventListener('resize', handleResize);
-        handleResize();
         
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('orientationchange', () => setTimeout(updateCameraForOrientation, 50));
+        
+        updateCameraForOrientation();
         updatePiecePositions(chessGame.board());
         updateUI();
         startTimer();
