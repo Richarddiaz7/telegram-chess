@@ -2,8 +2,8 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>⚡ CHESS KOMBAT ⚡</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>⚡ CHESS MASTERS ⚡</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <style>
         * {
@@ -17,245 +17,511 @@
         body {
             background: radial-gradient(ellipse at 30% 40%, #0f0c29, #24243e, #0a0a0a);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            padding: 16px;
-        }
-
-        /* Contenedor principal con efecto glass */
-        .game-container {
-            max-width: 500px;
-            width: 100%;
-            background: rgba(10, 10, 20, 0.6);
-            backdrop-filter: blur(20px);
-            border-radius: 48px;
-            padding: 20px;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        }
-
-        /* Header estilo Hamster Kombat */
-        .stats-row {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .stat-box {
-            flex: 1;
-            background: linear-gradient(135deg, #1a1a2e, #0d0d1a);
-            border-radius: 28px;
-            padding: 12px;
-            text-align: center;
-            border: 1px solid rgba(255, 215, 0, 0.4);
+            overflow-x: hidden;
             position: relative;
-            overflow: hidden;
         }
 
-        .stat-box.active {
-            border-color: #ffd700;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
-            transform: scale(1.02);
-            transition: all 0.2s ease;
-        }
-
-        .stat-box.active::before {
-            content: '';
-            position: absolute;
+        /* Pantallas / Páginas */
+        .screen {
+            position: fixed;
             top: 0;
-            left: -100%;
+            left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
-            animation: shine 1.5s infinite;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
-        @keyframes shine {
-            100% { left: 100%; }
+        .screen-hidden {
+            transform: translateX(100%);
+            opacity: 0;
+            pointer-events: none;
         }
 
-        .stat-label {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: #ffd700;
+        .screen-visible {
+            transform: translateX(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Scroll bonito */
+        .screen::-webkit-scrollbar {
+            width: 4px;
+        }
+        .screen::-webkit-scrollbar-track {
+            background: #1a1a2e;
+        }
+        .screen::-webkit-scrollbar-thumb {
+            background: #ffd700;
+            border-radius: 10px;
+        }
+
+        /* ========== PANTALLA DE INICIO ========== */
+        #homeScreen {
+            background: radial-gradient(ellipse at 50% 40%, #1a1a3e, #0a0a1a);
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-            gap: 6px;
+            align-items: center;
+            padding: 20px;
         }
 
-        .stat-time {
-            font-size: 28px;
+        .logo-container {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: float 3s ease infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .main-logo {
+            font-size: 80px;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
+        }
+
+        .game-title {
+            font-size: 42px;
             font-weight: 800;
-            font-family: 'Courier New', monospace;
-            background: linear-gradient(135deg, #fff, #ffd700);
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+            letter-spacing: 2px;
+            margin-top: 10px;
         }
 
-        /* Canvas - Tablero con animaciones fluidas */
-        .board-canvas-wrapper {
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 24px;
+        .game-subtitle {
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        /* Botón PLAY grande */
+        .play-btn {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            border: none;
+            width: 200px;
+            padding: 18px;
+            border-radius: 60px;
+            font-size: 24px;
+            font-weight: 800;
+            color: #1a1a2e;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .play-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Botones secundarios home */
+        .home-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .home-btn {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,215,0,0.3);
+            padding: 12px 24px;
+            border-radius: 40px;
+            color: #ffd700;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .home-btn:active {
+            transform: scale(0.95);
+            background: rgba(255,215,0,0.2);
+        }
+
+        /* ========== PANTALLA DE JUEGO ========== */
+        #gameScreen {
+            background: #0a0a0a;
             padding: 12px;
-            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header compacto */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-shrink: 0;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 30px;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timer-compact {
+            background: linear-gradient(135deg, #1a1a2e, #0d0d1a);
+            border-radius: 30px;
+            padding: 6px 12px;
+            display: flex;
+            gap: 12px;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+
+        .timer-item {
+            text-align: center;
+        }
+
+        .timer-label {
+            font-size: 9px;
+            color: #ffd700;
+            font-weight: 700;
+        }
+
+        .timer-value {
+            font-size: 18px;
+            font-weight: 800;
+            font-family: monospace;
+            color: white;
+        }
+
+        .energy-compact {
+            background: rgba(255,215,0,0.15);
+            border-radius: 30px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Tablero - OCUPA MÁS ESPACIO */
+        .board-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 0;
         }
 
         canvas {
-            width: 100%;
-            aspect-ratio: 1 / 1;
+            width: min(85vw, 85vh);
+            height: min(85vw, 85vh);
             display: block;
             border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             cursor: pointer;
             background: #2c1a12;
         }
 
-        /* Botón de estado */
-        .status-btn {
-            background: linear-gradient(135deg, #ffd700, #ff8c00);
-            border-radius: 60px;
-            padding: 16px;
-            text-align: center;
-            font-weight: 800;
-            font-size: 18px;
-            color: #1a1a2e;
-            margin-bottom: 16px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            border: none;
-            width: 100%;
-            cursor: pointer;
-            transition: all 0.1s ease;
+        /* Orientación horizontal */
+        @media (orientation: landscape) {
+            #gameScreen {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+            
+            .game-header {
+                flex-direction: column;
+                width: auto;
+                margin-bottom: 0;
+            }
+            
+            .board-wrapper {
+                flex: 2;
+            }
+            
+            canvas {
+                width: min(60vh, 60vw);
+                height: min(60vh, 60vw);
+            }
+            
+            .right-panel {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
         }
 
-        .status-btn:active {
-            transform: scale(0.97);
-        }
-
-        /* Barra de energía estilo juego clicker */
-        .energy-bar {
-            background: #1a1a2e;
-            border-radius: 40px;
-            padding: 12px 20px;
+        /* Botones de juego */
+        .game-controls {
             display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-            border: 1px solid rgba(255, 215, 0, 0.2);
+            gap: 8px;
+            margin-top: 12px;
+            flex-shrink: 0;
         }
 
-        .energy-icon {
-            font-size: 28px;
-            animation: pulse 1s ease infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); text-shadow: 0 0 10px #ffd700; }
-        }
-
-        .energy-track {
-            flex: 1;
-            height: 12px;
-            background: #333;
-            border-radius: 20px;
-            overflow: hidden;
-        }
-
-        .energy-fill {
-            height: 100%;
-            width: 100%;
-            background: linear-gradient(90deg, #ffd700, #ff6b6b);
-            border-radius: 20px;
-            transition: width 0.2s ease;
-        }
-
-        .energy-number {
-            font-weight: 800;
-            color: #ffd700;
-            font-size: 16px;
-            min-width: 50px;
-            text-align: right;
-        }
-
-        /* Botones de acción */
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-        }
-
-        .action-btn {
+        .game-btn {
             flex: 1;
             background: linear-gradient(135deg, #ffd700, #ff8c00);
             border: none;
-            padding: 14px;
-            border-radius: 40px;
-            font-weight: 800;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            padding: 10px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 12px;
             cursor: pointer;
-            transition: all 0.1s ease;
-            color: #1a1a2e;
         }
 
-        .action-btn:active {
-            transform: scale(0.95);
-        }
-
-        .reset-btn {
+        .game-btn.reset {
             background: linear-gradient(135deg, #ff6b6b, #c92a2a);
             color: white;
+        }
+
+        #statusText {
+            background: rgba(0,0,0,0.6);
+            border-radius: 30px;
+            padding: 8px 12px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #ffd700;
+        }
+
+        /* ========== PANTALLA DE INSTRUCCIONES ========== */
+        #instructionsScreen {
+            background: #0f0c29;
+            padding: 20px;
+        }
+
+        .instructions-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .instructions-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #ffd700;
+        }
+
+        .moves-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .move-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(255,215,0,0.2);
+        }
+
+        .move-icon {
+            font-size: 36px;
+        }
+
+        .move-name {
+            color: #ffd700;
+            font-weight: 700;
+            margin: 8px 0;
+        }
+
+        .move-desc {
+            color: rgba(255,255,255,0.6);
+            font-size: 11px;
+        }
+
+        /* ========== PANTALLA "PRÓXIMAMENTE" ========== */
+        #comingScreen {
+            background: #0f0c29;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .coming-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .coming-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .coming-text {
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 30px;
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <!-- Timer stats -->
-        <div class="stats-row">
-            <div class="stat-box" id="whiteBox">
-                <div class="stat-label">👑 BLANCAS</div>
-                <div class="stat-time" id="whiteTimer">10:00</div>
-            </div>
-            <div class="stat-box" id="blackBox">
-                <div class="stat-label">💀 NEGRAS</div>
-                <div class="stat-time" id="blackTimer">10:00</div>
-            </div>
+    <!-- PANTALLA DE INICIO -->
+    <div id="homeScreen" class="screen screen-visible">
+        <div class="logo-container">
+            <div class="main-logo">♔</div>
+            <div class="game-title">CHESS MASTERS</div>
+            <div class="game-subtitle">⚡ Play to Earn ⚡</div>
         </div>
-
-        <!-- Canvas board -->
-        <div class="board-canvas-wrapper">
-            <canvas id="chessCanvas" width="500" height="500"></canvas>
-        </div>
-
-        <!-- Status button -->
-        <button class="status-btn" id="statusBtn">🎮 TURNO: BLANCAS</button>
-
-        <!-- Energy bar -->
-        <div class="energy-bar">
-            <div class="energy-icon">⚡</div>
-            <div class="energy-track">
-                <div class="energy-fill" id="energyFill"></div>
-            </div>
-            <div class="energy-number" id="energyText">100%</div>
-        </div>
-
-        <!-- Action buttons -->
-        <div class="action-buttons">
-            <button class="action-btn reset-btn" id="resetBtn">🔄 REINICIAR</button>
-            <button class="action-btn" id="soundBtn">🔊 SONIDO</button>
+        
+        <button class="play-btn" id="playBtn">▶ PLAY</button>
+        
+        <div class="home-buttons">
+            <button class="home-btn" id="instructionsHomeBtn">📖 MASTER MOVES</button>
+            <button class="home-btn" id="comingHomeBtn">🔜 PRÓXIMAMENTE</button>
         </div>
     </div>
 
+    <!-- PANTALLA DE JUEGO -->
+    <div id="gameScreen" class="screen screen-hidden">
+        <div class="game-header">
+            <button class="back-btn" id="backFromGameBtn">←</button>
+            <div class="timer-compact">
+                <div class="timer-item">
+                    <div class="timer-label">⚪</div>
+                    <div class="timer-value" id="whiteTimer">10:00</div>
+                </div>
+                <div class="timer-item">
+                    <div class="timer-label">⚫</div>
+                    <div class="timer-value" id="blackTimer">10:00</div>
+                </div>
+            </div>
+            <div class="energy-compact">
+                <span>⚡</span>
+                <span id="energyValue">100</span><span>%</span>
+            </div>
+        </div>
+
+        <div class="board-wrapper">
+            <canvas id="chessCanvas" width="600" height="600"></canvas>
+        </div>
+
+        <div class="right-panel">
+            <div id="statusText">🎮 Turno: Blancas</div>
+            <div class="game-controls">
+                <button class="game-btn reset" id="resetGameBtn">🔄 Reiniciar</button>
+                <button class="game-btn" id="soundGameBtn">🔊 Sonido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA DE INSTRUCCIONES -->
+    <div id="instructionsScreen" class="screen screen-hidden">
+        <div class="instructions-header">
+            <button class="back-btn" id="backFromInstructionsBtn">←</button>
+            <div class="instructions-title">JUGADAS MAESTRAS</div>
+        </div>
+        
+        <div class="moves-grid">
+            <div class="move-card">
+                <div class="move-icon">♔</div>
+                <div class="move-name">Apertura Italiana</div>
+                <div class="move-desc">1.e4 e5 2.Cf3 Cc6 3.Ac4</div>
+            </div>
+            <div class="move-card">
+                <div class="move-icon">♕</div>
+                <div class="move-name">Apertura Española</div>
+                <div class="move-desc">1.e4 e5 2.Cf3 Cc6 3.Ab5</div>
+            </div>
+            <div class="move-card">
+                <div class="move-icon">♖</div>
+                <div class="move-name">Enroque</div>
+                <div class="move-desc">Mover rey 2 casillas hacia torre</div>
+            </div>
+            <div class="move-card">
+                <div class="move-icon">♝</div>
+                <div class="move-name">Alfil de Rey</div>
+                <div class="move-desc">Controla diagonales largas</div>
+            </div>
+            <div class="move-card">
+                <div class="move-icon">♞</div>
+                <div class="move-name">Caballo a f3</div>
+                <div class="move-desc">Controla el centro</div>
+            </div>
+            <div class="move-card">
+                <div class="move-icon">♟</div>
+                <div class="move-name">Peón al centro</div>
+                <div class="move-desc">Controla e4/d4</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA PRÓXIMAMENTE -->
+    <div id="comingScreen" class="screen screen-hidden">
+        <button class="back-btn" id="backFromComingBtn" style="position: absolute; top: 20px; left: 20px;">←</button>
+        <div class="coming-icon">🎮</div>
+        <div class="coming-title">PRÓXIMAMENTE</div>
+        <div class="coming-text">
+            ⚡ Modo Torneo<br>
+            🏆 Ranking Global<br>
+            👥 Jugar con Amigos<br>
+            💰 Recompensas Diarias
+        </div>
+        <button class="play-btn" id="volverHomeBtn" style="width: auto; padding: 12px 30px; font-size: 16px;">Volver al Inicio</button>
+    </div>
+
     <script>
-        // ========== INICIALIZACIÓN ==========
+        // ========== SISTEMA DE NAVEGACIÓN ==========
+        const screens = {
+            home: document.getElementById('homeScreen'),
+            game: document.getElementById('gameScreen'),
+            instructions: document.getElementById('instructionsScreen'),
+            coming: document.getElementById('comingScreen')
+        };
+
+        function showScreen(screenName) {
+            Object.keys(screens).forEach(key => {
+                screens[key].classList.add('screen-hidden');
+                screens[key].classList.remove('screen-visible');
+            });
+            screens[screenName].classList.remove('screen-hidden');
+            screens[screenName].classList.add('screen-visible');
+            
+            // Si entramos al juego, redimensionar canvas
+            if (screenName === 'game') {
+                setTimeout(() => {
+                    if (window.resizeCanvas) window.resizeCanvas();
+                    if (window.drawBoard) window.drawBoard();
+                }, 100);
+            }
+        }
+
+        // Eventos de navegación
+        document.getElementById('playBtn').onclick = () => showScreen('game');
+        document.getElementById('instructionsHomeBtn').onclick = () => showScreen('instructions');
+        document.getElementById('comingHomeBtn').onclick = () => showScreen('coming');
+        document.getElementById('backFromGameBtn').onclick = () => showScreen('home');
+        document.getElementById('backFromInstructionsBtn').onclick = () => showScreen('home');
+        document.getElementById('backFromComingBtn').onclick = () => showScreen('home');
+        document.getElementById('volverHomeBtn').onclick = () => showScreen('home');
+
+        // ========== LÓGICA DEL AJEDREZ ==========
         const game = new Chess();
         let selectedSquare = null;
         let legalMoves = [];
@@ -266,27 +532,33 @@
         let currentTimer = 'w';
         let timerInterval = null;
 
-        // Canvas elements
+        // Canvas
         const canvas = document.getElementById('chessCanvas');
-        const ctx = canvas.getContext('2d');
+        let ctx = canvas.getContext('2d');
         let squareSize = canvas.width / 8;
 
-        // Elementos DOM
+        // Elementos DOM juego
         const whiteTimerEl = document.getElementById('whiteTimer');
         const blackTimerEl = document.getElementById('blackTimer');
-        const whiteBox = document.getElementById('whiteBox');
-        const blackBox = document.getElementById('blackBox');
-        const statusBtn = document.getElementById('statusBtn');
-        const energyFill = document.getElementById('energyFill');
-        const energyText = document.getElementById('energyText');
+        const energyValueEl = document.getElementById('energyValue');
+        const statusText = document.getElementById('statusText');
 
-        // ========== MAPA DE PIEZAS (ICONOS UNICODE) ==========
+        // Mapa de piezas (tamaño más grande)
         const pieceIcons = {
             'k': '♔', 'q': '♕', 'r': '♖', 'b': '♗', 'n': '♘', 'p': '♙',
             'K': '♚', 'Q': '♛', 'R': '♜', 'B': '♝', 'N': '♞', 'P': '♟'
         };
 
-        // ========== DIBUJAR TABLERO EN CANVAS ==========
+        function resizeCanvas() {
+            const wrapper = canvas.parentElement;
+            const size = Math.min(wrapper.clientWidth, wrapper.clientHeight);
+            canvas.width = size;
+            canvas.height = size;
+            squareSize = canvas.width / 8;
+            ctx = canvas.getContext('2d');
+            drawBoard();
+        }
+
         function drawBoard() {
             const board = game.board();
             squareSize = canvas.width / 8;
@@ -298,7 +570,6 @@
                     const isLight = (i + j) % 2 === 0;
                     const squareName = String.fromCharCode(97 + j) + (8 - i);
 
-                    // Color de casilla
                     if (selectedSquare === squareName) {
                         ctx.fillStyle = '#ffd700';
                     } else if (legalMoves.includes(squareName)) {
@@ -308,22 +579,18 @@
                     } else {
                         ctx.fillStyle = '#b58863';
                     }
-
                     ctx.fillRect(x, y, squareSize, squareSize);
 
-                    // Dibujar pieza
                     const piece = board[i][j];
                     if (piece) {
                         let pieceKey = piece.type;
-                        if (piece.color === 'b') {
-                            pieceKey = piece.type.toUpperCase();
-                        }
+                        if (piece.color === 'b') pieceKey = piece.type.toUpperCase();
                         const icon = pieceIcons[pieceKey];
-                        ctx.font = `${squareSize * 0.6}px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`;
+                        ctx.font = `${squareSize * 0.65}px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`;
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
                         ctx.fillStyle = piece.color === 'w' ? '#2c2c2c' : '#1a1a1a';
-                        ctx.shadowBlur = 4;
+                        ctx.shadowBlur = 3;
                         ctx.shadowColor = 'rgba(0,0,0,0.3)';
                         ctx.fillText(icon, x + squareSize / 2, y + squareSize / 2);
                         ctx.shadowBlur = 0;
@@ -332,90 +599,20 @@
             }
         }
 
-        // ========== ANIMACIÓN DE PARTÍCULA AL HACER CLIC ==========
-        function createParticle(x, y) {
-            // Efecto visual temporal al hacer clic
-            const originalFillStyle = ctx.fillStyle;
-            ctx.fillStyle = 'rgba(255, 215, 0, 0.6)';
-            ctx.beginPath();
-            ctx.arc(x, y, squareSize * 0.3, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = originalFillStyle;
-            
-            setTimeout(() => drawBoard(), 80);
-        }
-
-        // ========== SISTEMA DE SONIDO ==========
-        function playSound(type) {
-            if (!soundEnabled) return;
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-
-                if (type === 'move') {
-                    osc.frequency.value = 523.25;
-                    gain.gain.value = 0.1;
-                    osc.start();
-                    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.2);
-                    osc.stop(audioCtx.currentTime + 0.2);
-                } else if (type === 'capture') {
-                    osc.frequency.value = 392;
-                    gain.gain.value = 0.15;
-                    osc.start();
-                    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.15);
-                    osc.stop(audioCtx.currentTime + 0.15);
-                } else if (type === 'check') {
-                    osc.frequency.value = 659.25;
-                    gain.gain.value = 0.2;
-                    osc.start();
-                    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.3);
-                    osc.stop(audioCtx.currentTime + 0.3);
-                    statusBtn.style.animation = 'none';
-                    setTimeout(() => statusBtn.style.animation = '', 100);
-                }
-                setTimeout(() => audioCtx.close(), 400);
-            } catch(e) {}
-        }
-
-        // ========== ACTUALIZAR ENERGÍA ==========
         function updateEnergy() {
             energy = Math.max(0, Math.min(100, energy));
-            energyFill.style.width = `${energy}%`;
-            energyText.textContent = `${Math.floor(energy)}%`;
-            
-            if (energy <= 20) {
-                energyFill.style.background = 'linear-gradient(90deg, #ff6b6b, #c92a2a)';
-            } else {
-                energyFill.style.background = 'linear-gradient(90deg, #ffd700, #ff8c00)';
-            }
+            energyValueEl.textContent = Math.floor(energy);
         }
 
-        // ========== ACTUALIZAR TIMER ==========
         function updateTimerDisplay() {
             const whiteMins = Math.floor(whiteTime / 60);
             const whiteSecs = whiteTime % 60;
             const blackMins = Math.floor(blackTime / 60);
             const blackSecs = blackTime % 60;
-
             whiteTimerEl.textContent = `${whiteMins.toString().padStart(2, '0')}:${whiteSecs.toString().padStart(2, '0')}`;
             blackTimerEl.textContent = `${blackMins.toString().padStart(2, '0')}:${blackSecs.toString().padStart(2, '0')}`;
-
-            if (currentTimer === 'w' && !game.game_over()) {
-                whiteBox.classList.add('active');
-                blackBox.classList.remove('active');
-            } else if (currentTimer === 'b' && !game.game_over()) {
-                blackBox.classList.add('active');
-                whiteBox.classList.remove('active');
-            } else {
-                whiteBox.classList.remove('active');
-                blackBox.classList.remove('active');
-            }
         }
 
-        // ========== INICIAR TIMER ==========
         function startTimer() {
             if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(() => {
@@ -424,21 +621,11 @@
                     if (whiteTime > 0) {
                         whiteTime--;
                         updateTimerDisplay();
-                        if (whiteTime === 0) {
-                            clearInterval(timerInterval);
-                            statusBtn.innerHTML = '⏰ ¡TIEMPO AGOTADO! GANAN NEGRAS ⏰';
-                            playSound('capture');
-                        }
                     }
                 } else {
                     if (blackTime > 0) {
                         blackTime--;
                         updateTimerDisplay();
-                        if (blackTime === 0) {
-                            clearInterval(timerInterval);
-                            statusBtn.innerHTML = '⏰ ¡TIEMPO AGOTADO! GANAN BLANCAS ⏰';
-                            playSound('capture');
-                        }
                     }
                 }
             }, 1000);
@@ -446,57 +633,66 @@
 
         function switchTimer() {
             currentTimer = game.turn();
-            updateTimerDisplay();
             startTimer();
         }
 
-        // ========== ACTUALIZAR ESTADO ==========
         function updateStatus() {
             if (game.game_over()) {
-                clearInterval(timerInterval);
                 if (game.in_checkmate()) {
-                    const winner = game.turn() === 'w' ? '⚫ NEGRAS' : '⚪ BLANCAS';
-                    statusBtn.innerHTML = `🏆 ¡JAQUE MATE! GANAN ${winner} 🏆`;
-                    playSound('capture');
+                    const winner = game.turn() === 'w' ? 'NEGRAS' : 'BLANCAS';
+                    statusText.innerHTML = `🏆 ¡JAQUE MATE! Ganan ${winner}`;
                 } else if (game.in_stalemate()) {
-                    statusBtn.innerHTML = '♾️ TABLAS - AHOGADO ♾️';
+                    statusText.innerHTML = '♾️ TABLAS';
                 } else {
-                    statusBtn.innerHTML = '⏸️ JUEGO TERMINADO';
+                    statusText.innerHTML = '⏸️ FIN DEL JUEGO';
                 }
             } else {
-                const turnText = game.turn() === 'w' ? '⚪ BLANCAS' : '⚫ NEGRAS';
-                const checkText = game.in_check() ? ' ⚠️ ¡JAQUE! ⚠️' : '';
-                statusBtn.innerHTML = `🎮 TURNO: ${turnText}${checkText}`;
-                if (game.in_check()) playSound('check');
+                const turn = game.turn() === 'w' ? 'BLANCAS' : 'NEGRAS';
+                const check = game.in_check() ? ' ⚠️ JAQUE' : '';
+                statusText.innerHTML = `🎮 Turno: ${turn}${check}`;
                 switchTimer();
             }
             drawBoard();
         }
 
-        // ========== MOVIMIENTO IA ==========
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.frequency.value = type === 'capture' ? 392 : 523.25;
+                gain.gain.value = 0.1;
+                osc.start();
+                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.2);
+                osc.stop(audioCtx.currentTime + 0.2);
+                setTimeout(() => audioCtx.close(), 300);
+            } catch(e) {}
+        }
+
         function makeAIMove() {
             if (!game.game_over() && game.turn() === 'b') {
                 setTimeout(() => {
                     const moves = game.moves();
-                    if (moves.length > 0) {
-                        const randomMove = moves[Math.floor(Math.random() * moves.length)];
-                        game.move(randomMove);
+                    if (moves.length) {
+                        game.move(moves[Math.floor(Math.random() * moves.length)]);
                         selectedSquare = null;
                         legalMoves = [];
                         drawBoard();
                         updateStatus();
                         playSound('move');
-                        energy = Math.min(100, energy + 3);
+                        energy = Math.min(100, energy + 5);
                         updateEnergy();
                     }
                 }, 200);
             }
         }
 
-        // ========== MANEJAR CLICK EN CANVAS ==========
         function handleCanvasClick(e) {
             if (game.game_over()) return;
-
+            
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
@@ -513,27 +709,19 @@
             
             const canvasX = (clientX - rect.left) * scaleX;
             const canvasY = (clientY - rect.top) * scaleY;
-            
             if (canvasX < 0 || canvasX > canvas.width || canvasY < 0 || canvasY > canvas.height) return;
             
             const col = Math.floor(canvasX / squareSize);
             const row = Math.floor(canvasY / squareSize);
             const square = String.fromCharCode(97 + col) + (8 - row);
             
-            createParticle(canvasX, canvasY);
-            
             if (selectedSquare) {
                 const move = { from: selectedSquare, to: square, promotion: 'q' };
                 const result = game.move(move);
-                
                 if (result) {
                     energy = Math.max(0, energy - 2);
                     updateEnergy();
-                    if (result.flags && result.flags.includes('c')) {
-                        playSound('capture');
-                    } else {
-                        playSound('move');
-                    }
+                    playSound(result.flags?.includes('c') ? 'capture' : 'move');
                     selectedSquare = null;
                     legalMoves = [];
                     drawBoard();
@@ -545,7 +733,6 @@
                         selectedSquare = square;
                         legalMoves = game.moves({ square, verbose: true }).map(m => m.to);
                         drawBoard();
-                        playSound('move');
                     } else {
                         selectedSquare = null;
                         legalMoves = [];
@@ -558,12 +745,10 @@
                     selectedSquare = square;
                     legalMoves = game.moves({ square, verbose: true }).map(m => m.to);
                     drawBoard();
-                    playSound('move');
                 }
             }
         }
 
-        // ========== REINICIAR JUEGO ==========
         function resetGame() {
             game.reset();
             selectedSquare = null;
@@ -580,39 +765,31 @@
             playSound('move');
         }
 
-        // ========== TOGGLE SONIDO ==========
         function toggleSound() {
             soundEnabled = !soundEnabled;
-            const btn = document.getElementById('soundBtn');
-            btn.innerHTML = soundEnabled ? '🔊 SONIDO' : '🔇 SONIDO';
+            const btn = document.getElementById('soundGameBtn');
+            btn.innerHTML = soundEnabled ? '🔊 Sonido' : '🔇 Sonido';
         }
 
-        // ========== EVENT LISTENERS ==========
+        // Eventos canvas
         canvas.addEventListener('click', handleCanvasClick);
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            const rect = canvas.getBoundingClientRect();
-            const touch = e.touches[0];
-            const canvasX = (touch.clientX - rect.left) * (canvas.width / rect.width);
-            const canvasY = (touch.clientY - rect.top) * (canvas.height / rect.height);
-            const col = Math.floor(canvasX / squareSize);
-            const row = Math.floor(canvasY / squareSize);
-            const square = String.fromCharCode(97 + col) + (8 - row);
-            createParticle(canvasX, canvasY);
-            setTimeout(() => handleCanvasClick(e), 10);
+            handleCanvasClick(e);
         });
         
-        document.getElementById('resetBtn').onclick = resetGame;
-        document.getElementById('soundBtn').onclick = toggleSound;
+        document.getElementById('resetGameBtn').onclick = resetGame;
+        document.getElementById('soundGameBtn').onclick = toggleSound;
 
-        // Redibujar en resize
-        window.addEventListener('resize', () => {
-            setTimeout(() => drawBoard(), 50);
-        });
-
-        // ========== INICIALIZAR ==========
+        // Redimensionar
+        window.resizeCanvas = resizeCanvas;
+        window.drawBoard = drawBoard;
+        window.addEventListener('resize', () => setTimeout(resizeCanvas, 100));
+        
+        // Inicializar
+        resizeCanvas();
         updateEnergy();
-        drawBoard();
+        updateTimerDisplay();
         updateStatus();
         startTimer();
     </script>
