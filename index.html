@@ -3,78 +3,482 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>♔ CHESS 3D - Vista Frontal ♚</title>
+    <title>♔ AJEDREZ MASTER - Aprende Jugando ♚</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
-        body { background: linear-gradient(135deg, #1a0f0a 0%, #0a0604 100%); font-family: 'Poppins', system-ui, sans-serif; overflow: hidden; position: fixed; width: 100%; height: 100%; }
-        .screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 10; overflow-y: auto; }
-        .screen-hidden { transform: translateX(100%); pointer-events: none; }
-        .screen-visible { transform: translateX(0); pointer-events: auto; }
-        #homeScreen { background: radial-gradient(ellipse at 50% 40%, #2a1a12, #0a0604); display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .logo-frame { background: linear-gradient(145deg, #d4a55a, #6b3a1a); border-radius: 80px; padding: 30px 50px; box-shadow: 0 25px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2); margin-bottom: 40px; animation: float 3s ease infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        .main-logo { font-size: 90px; filter: drop-shadow(4px 6px 8px rgba(0,0,0,0.5)); }
-        .game-title { font-size: 36px; font-weight: 800; background: linear-gradient(135deg, #ffd700, #ff8c00); -webkit-background-clip: text; background-clip: text; color: transparent; letter-spacing: 3px; }
-        .play-btn { background: linear-gradient(145deg, #d4a55a, #8b5a2b); border: none; width: 220px; padding: 18px; border-radius: 50px; font-size: 24px; font-weight: 800; color: #1a0f0a; margin: 20px 0; cursor: pointer; box-shadow: 0 8px 0 #4a2a10; transition: all 0.05s linear; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .play-btn:active { transform: translateY(4px); box-shadow: 0 4px 0 #4a2a10; }
-        .home-buttons { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
-        .home-btn { background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(218, 165, 32, 0.4); padding: 12px 24px; border-radius: 40px; color: #e8c97a; font-weight: 600; cursor: pointer; }
-        #gameScreen { background: #000; }
-        #canvas3d { width: 100%; height: 100%; display: block; }
-        .game-ui { position: absolute; top: 0; left: 0; right: 0; z-index: 20; padding: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent); pointer-events: none; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a2a 0%, #0a0a0a 100%);
+            font-family: 'Poppins', 'Segoe UI', system-ui, sans-serif;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Pantallas */
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+            overflow-y: auto;
+        }
+
+        .screen-hidden {
+            transform: translateX(100%);
+            pointer-events: none;
+        }
+
+        .screen-visible {
+            transform: translateX(0);
+            pointer-events: auto;
+        }
+
+        /* ========== HOME - Degradado Azul/Negro ========== */
+        #homeScreen {
+            background: linear-gradient(135deg, #0a0a2a 0%, #0a0a1a 50%, #0a0a0a 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Efecto de aurora boreal */
+        #homeScreen::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0,100,255,0.1), transparent 70%);
+            animation: aurora 12s ease infinite;
+            pointer-events: none;
+        }
+
+        @keyframes aurora {
+            0%, 100% { transform: translate(0%, 0%) rotate(0deg); opacity: 0.5; }
+            50% { transform: translate(10%, 5%) rotate(5deg); opacity: 1; }
+        }
+
+        .logo-frame {
+            background: linear-gradient(145deg, #1a1a3e, #0d0d2a);
+            border-radius: 80px;
+            padding: 30px 50px;
+            box-shadow: 0 25px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,215,0,0.2);
+            margin-bottom: 40px;
+            border: 1px solid rgba(255,215,0,0.3);
+            backdrop-filter: blur(5px);
+            z-index: 1;
+        }
+
+        .main-logo {
+            font-size: 90px;
+            filter: drop-shadow(4px 6px 8px rgba(0,0,0,0.5));
+        }
+
+        .game-title {
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 3px;
+        }
+
+        .play-btn {
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border: none;
+            width: 220px;
+            padding: 18px;
+            border-radius: 50px;
+            font-size: 24px;
+            font-weight: 800;
+            color: #0a0a1a;
+            margin: 20px 0;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #aa8800;
+            transition: all 0.05s linear;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            z-index: 1;
+        }
+
+        .play-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #aa8800;
+        }
+
+        .home-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .home-btn {
+            background: rgba(26,26,62,0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,215,0,0.4);
+            padding: 12px 24px;
+            border-radius: 40px;
+            color: #ffd700;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .home-btn:active { transform: scale(0.95); background: rgba(255,215,0,0.2); }
+
+        /* ========== JUEGO 3D ========== */
+        #gameScreen {
+            background: #0a0a0a;
+        }
+
+        #canvas3d {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .game-ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 20;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+            pointer-events: none;
+        }
+
         .game-ui button { pointer-events: auto; }
-        .back-btn { background: rgba(139, 90, 43, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(218, 165, 32, 0.4); width: 44px; height: 44px; border-radius: 30px; font-size: 22px; cursor: pointer; color: #e8c97a; }
-        .timer-compact { background: linear-gradient(145deg, #3a2518, #1f140a); border-radius: 40px; padding: 8px 20px; display: flex; gap: 20px; border: 1px solid rgba(218, 165, 32, 0.4); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        .timer-item { text-align: center; }
+
+        .back-btn {
+            background: rgba(26,26,62,0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,215,0,0.4);
+            width: 44px;
+            height: 44px;
+            border-radius: 30px;
+            font-size: 22px;
+            cursor: pointer;
+            color: #ffd700;
+        }
+
+        .timer-compact {
+            background: linear-gradient(145deg, #1a1a3e, #0d0d2a);
+            border-radius: 40px;
+            padding: 8px 20px;
+            display: flex;
+            gap: 20px;
+            border: 1px solid rgba(255,215,0,0.4);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
         .timer-label { font-size: 10px; color: #ffd700; font-weight: 600; }
         .timer-value { font-size: 20px; font-weight: 800; font-family: monospace; color: #f0e6c5; }
-        .energy-compact { background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); border-radius: 40px; padding: 8px 18px; display: flex; align-items: center; gap: 10px; border: 1px solid rgba(218, 165, 32, 0.3); }
-        .right-controls { position: absolute; bottom: 20px; right: 20px; z-index: 20; display: flex; gap: 10px; pointer-events: none; }
-        .right-controls button { pointer-events: auto; background: linear-gradient(145deg, #d4a55a, #8b5a2b); border: none; padding: 10px 18px; border-radius: 30px; font-weight: 700; cursor: pointer; box-shadow: 0 3px 0 #4a2a10; }
-        .right-controls button:active { transform: translateY(2px); box-shadow: 0 1px 0 #4a2a10; }
-        #status3d { position: absolute; bottom: 20px; left: 20px; z-index: 20; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); border-radius: 30px; padding: 10px 20px; color: #ffd700; font-weight: 600; font-size: 14px; pointer-events: none; border: 1px solid rgba(218,165,32,0.3); }
-        @media (max-width: 600px) { .timer-value { font-size: 16px; } .timer-compact { padding: 5px 12px; gap: 10px; } .right-controls button { padding: 6px 12px; font-size: 11px; } #status3d { font-size: 11px; padding: 6px 12px; } }
+
+        .energy-compact {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 40px;
+            padding: 8px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+
+        .right-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 20;
+            display: flex;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .right-controls button {
+            pointer-events: auto;
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 30px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #aa8800;
+            color: #0a0a1a;
+        }
+
+        .right-controls button:active { transform: translateY(2px); box-shadow: 0 1px 0 #aa8800; }
+
+        #status3d {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 20;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 10px 20px;
+            color: #ffd700;
+            font-weight: 600;
+            font-size: 14px;
+            pointer-events: none;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+
+        @media (max-width: 600px) {
+            .timer-value { font-size: 14px; }
+            .timer-compact { padding: 5px 12px; gap: 8px; }
+            .right-controls button { padding: 5px 10px; font-size: 10px; }
+            #status3d { font-size: 10px; padding: 6px 12px; }
+        }
+
+        /* ========== INSTRUCCIONES - APRENDIZAJE INTERACTIVO ========== */
+        #instructionsScreen {
+            background: linear-gradient(135deg, #0a0a2a 0%, #0a0a1a 100%);
+            padding: 20px;
+        }
+
+        .instructions-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .instructions-title {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .master-moves-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .master-card {
+            background: rgba(26,26,62,0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid rgba(255,215,0,0.3);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .master-card:active { transform: scale(0.98); background: rgba(26,26,62,0.9); }
+
+        .master-icon { font-size: 48px; margin-bottom: 10px; }
+        .master-name { font-size: 20px; font-weight: 700; color: #ffd700; margin-bottom: 8px; }
+        .master-description { color: rgba(255,255,255,0.7); font-size: 13px; line-height: 1.4; margin-bottom: 12px; }
+        .master-moves { font-family: monospace; font-size: 14px; color: #88ff88; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 12px; }
+        .learn-tip { font-size: 12px; color: #ffaa00; margin-top: 10px; display: flex; align-items: center; gap: 5px; }
+
+        /* Modal de aprendizaje */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a3e, #0d0d2a);
+            border-radius: 32px;
+            padding: 25px;
+            max-width: 90%;
+            width: 400px;
+            border: 1px solid rgba(255,215,0,0.4);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .modal-icon { font-size: 64px; text-align: center; margin-bottom: 15px; }
+        .modal-title { font-size: 24px; font-weight: 800; color: #ffd700; text-align: center; margin-bottom: 15px; }
+        .modal-moves { background: rgba(0,0,0,0.4); border-radius: 20px; padding: 15px; font-family: monospace; font-size: 16px; margin: 15px 0; }
+        .modal-explanation { color: rgba(255,255,255,0.8); line-height: 1.5; margin-bottom: 20px; }
+        .close-modal {
+            background: linear-gradient(145deg, #ffd700, #ffaa00);
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 40px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Próximamente */
+        #comingScreen {
+            background: linear-gradient(135deg, #0a0a2a 0%, #0a0a1a 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
+    <!-- HOME -->
     <div id="homeScreen" class="screen screen-visible">
-        <div class="logo-frame"><div class="main-logo">♔</div><div class="game-title">CHESS 3D</div></div>
-        <button class="play-btn" id="playBtn">▶ PLAY</button>
-        <div class="home-buttons"><button class="home-btn" id="instructionsHomeBtn">📖 JUGADAS</button><button class="home-btn" id="comingHomeBtn">🔜 PRÓXIMAMENTE</button></div>
+        <div class="logo-frame">
+            <div class="main-logo">♔</div>
+            <div class="game-title">AJEDREZ MASTER</div>
+        </div>
+        <button class="play-btn" id="playBtn">▶ JUGAR</button>
+        <div class="home-buttons">
+            <button class="home-btn" id="instructionsHomeBtn">📖 APRENDER</button>
+            <button class="home-btn" id="comingHomeBtn">🔜 PROXIMAMENTE</button>
+        </div>
     </div>
 
+    <!-- JUEGO 3D -->
     <div id="gameScreen" class="screen screen-hidden">
         <canvas id="canvas3d"></canvas>
         <div class="game-ui">
             <button class="back-btn" id="backFromGameBtn">←</button>
-            <div class="timer-compact"><div class="timer-item"><div class="timer-label">⚪ BLANCAS</div><div class="timer-value" id="whiteTimer">10:00</div></div><div class="timer-item"><div class="timer-label">⚫ NEGRAS</div><div class="timer-value" id="blackTimer">10:00</div></div></div>
+            <div class="timer-compact">
+                <div class="timer-item"><div class="timer-label">⚪ BLANCAS</div><div class="timer-value" id="whiteTimer">10:00</div></div>
+                <div class="timer-item"><div class="timer-label">⚫ NEGRAS</div><div class="timer-value" id="blackTimer">10:00</div></div>
+            </div>
             <div class="energy-compact"><span>⚡</span><span id="energyValue">100</span><span>%</span></div>
         </div>
         <div id="status3d">🎮 Turno: Blancas</div>
         <div class="right-controls"><button id="reset3dBtn">🔄 Reiniciar</button><button id="sound3dBtn">🔊 Sonido</button></div>
     </div>
 
+    <!-- INSTRUCCIONES - APRENDIZAJE -->
     <div id="instructionsScreen" class="screen screen-hidden">
-        <div style="background: linear-gradient(135deg,#1a0f0a,#0a0604); min-height:100vh; padding:20px;">
-            <button class="back-btn" id="backFromInstructionsBtn" style="margin-bottom:20px;">←</button>
-            <div style="color:#e8c97a; font-size:28px; font-weight:800; margin-bottom:20px;">JUGADAS MAESTRAS</div>
-            <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:15px;">
-                <div style="background:rgba(0,0,0,0.4); border-radius:20px; padding:15px; text-align:center;"><div style="font-size:42px;">♔</div><div>Apertura Italiana</div></div>
-                <div style="background:rgba(0,0,0,0.4); border-radius:20px; padding:15px; text-align:center;"><div style="font-size:42px;">♕</div><div>Apertura Española</div></div>
-                <div style="background:rgba(0,0,0,0.4); border-radius:20px; padding:15px; text-align:center;"><div style="font-size:42px;">♖</div><div>Enroque</div></div>
-                <div style="background:rgba(0,0,0,0.4); border-radius:20px; padding:15px; text-align:center;"><div style="font-size:42px;">♝</div><div>Alfil de Rey</div></div>
+        <div class="instructions-header">
+            <button class="back-btn" id="backFromInstructionsBtn">←</button>
+            <div class="instructions-title">📚 JUGADAS MAESTRAS</div>
+        </div>
+
+        <div class="master-moves-grid">
+            <div class="master-card" data-move="italiana">
+                <div class="master-icon">♔</div>
+                <div class="master-name">Apertura Italiana</div>
+                <div class="master-description">Una de las aperturas más antiguas y sólidas. Controla el centro y desarrolla el alfil.</div>
+                <div class="master-moves">1.e4 e5 2.Cf3 Cc6 3.Ac4</div>
+                <div class="learn-tip">💡 Toca para aprender más</div>
+            </div>
+
+            <div class="master-card" data-move="espanola">
+                <div class="master-icon">♕</div>
+                <div class="master-name">Apertura Española</div>
+                <div class="master-description">También llamada "Ruy López". Presiona el caballo negro y prepara el enroque.</div>
+                <div class="master-moves">1.e4 e5 2.Cf3 Cc6 3.Ab5</div>
+                <div class="learn-tip">💡 Toca para aprender más</div>
+            </div>
+
+            <div class="master-card" data-move="enroque">
+                <div class="master-icon">♖</div>
+                <div class="master-name">Enroque</div>
+                <div class="master-description">Mueve el rey 2 casillas hacia la torre, y la torre salta al lado del rey.</div>
+                <div class="master-moves">Enroque corto: 0-0 | Enroque largo: 0-0-0</div>
+                <div class="learn-tip">💡 Protege a tu rey y activa la torre</div>
+            </div>
+
+            <div class="master-card" data-move="alfil">
+                <div class="master-icon">♝</div>
+                <div class="master-name">Alfil de Rey</div>
+                <div class="master-description">Desarrolla el alfil a c4 o b5 para controlar diagonales largas.</div>
+                <div class="master-moves">Ac4 (ataque a f7) o Ab5 (presión al caballo)</div>
+                <div class="learn-tip">💡 El alfil ama las diagonales abiertas</div>
+            </div>
+
+            <div class="master-card" data-move="caballo">
+                <div class="master-icon">♞</div>
+                <div class="master-name">Caballo a f3</div>
+                <div class="master-description">Desarrolla el caballo a f3 para controlar el centro y preparar el enroque.</div>
+                <div class="master-moves">Cf3 (ataca e5 y controla d4)</div>
+                <div class="learn-tip">💡 "Caballo antes que alfil"</div>
+            </div>
+
+            <div class="master-card" data-move="peon">
+                <div class="master-icon">♟</div>
+                <div class="master-name">Peón al Centro</div>
+                <div class="master-description">Controla las casillas centrales e4/d4 para dominar la partida.</div>
+                <div class="master-moves">1.e4 o 1.d4 son las jugadas más populares</div>
+                <div class="learn-tip">💡 El centro es el corazón del tablero</div>
             </div>
         </div>
     </div>
 
+    <!-- PRÓXIMAMENTE -->
     <div id="comingScreen" class="screen screen-hidden">
-        <div style="background:linear-gradient(135deg,#1a0f0a,#0a0604); min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-            <button class="back-btn" id="backFromComingBtn" style="position:absolute; top:20px; left:20px;">←</button>
-            <div style="font-size:80px; margin-bottom:20px;">🎮</div>
-            <div style="font-size:32px; font-weight:800; color:#e8c97a;">PRÓXIMAMENTE</div>
-            <div style="color:white; margin:20px; text-align:center;">⚡ Modo Torneo<br>🏆 Ranking Global<br>👥 Jugar con Amigos</div>
-            <button class="play-btn" id="volverHomeBtn" style="width:auto; padding:12px 30px;">Volver</button>
+        <button class="back-btn" id="backFromComingBtn" style="position:absolute; top:20px; left:20px;">←</button>
+        <div style="padding: 30px;">
+            <div style="font-size: 80px; margin-bottom: 20px;">🎮</div>
+            <div style="font-size: 32px; font-weight: 800; color: #ffd700;">PRÓXIMAMENTE</div>
+            <div style="color: white; margin: 20px; line-height: 2;">
+                ⚡ Modo Torneo<br>
+                🏆 Ranking Global<br>
+                👥 Jugar con Amigos<br>
+                💰 Recompensas Diarias<br>
+                🎯 Desafíos Rápidos
+            </div>
+            <button class="play-btn" id="volverHomeBtn" style="width:auto; padding:12px 30px; font-size:18px;">Volver al Inicio</button>
+        </div>
+    </div>
+
+    <!-- MODAL APRENDIZAJE -->
+    <div id="learnModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-icon" id="modalIcon">♔</div>
+            <div class="modal-title" id="modalTitle">Apertura Italiana</div>
+            <div class="modal-moves" id="modalMoves">1.e4 e5 2.Cf3 Cc6 3.Ac4</div>
+            <div class="modal-explanation" id="modalExplanation">
+                La Apertura Italiana es ideal para principiantes. Desarrollas el alfil a c4 apuntando a f7,
+                el punto más débil de las negras al inicio. Controlas el centro y preparas el enroque.
+            </div>
+            <button class="close-modal" id="closeModal">Entendido ✓</button>
         </div>
     </div>
 
@@ -85,6 +489,60 @@
     <script type="module">
         import * as THREE from 'three';
         
+        // ========== MODAL APRENDIZAJE ==========
+        const modalData = {
+            italiana: {
+                icon: '♔', title: 'Apertura Italiana',
+                moves: '1.e4 e5 2.Cf3 Cc6 3.Ac4',
+                explanation: 'La Apertura Italiana es ideal para principiantes. Desarrollas el alfil a c4 apuntando a f7, el punto más débil de las negras al inicio. Controlas el centro y preparas el enroque rápido.'
+            },
+            espanola: {
+                icon: '♕', title: 'Apertura Española (Ruy López)',
+                moves: '1.e4 e5 2.Cf3 Cc6 3.Ab5',
+                explanation: 'Una de las aperturas más profundas. El alfil a b5 presiona el caballo que defiende e5. Puedes cambiar o retirarte, ganando tiempo para desarrollar.'
+            },
+            enroque: {
+                icon: '♖', title: 'El Enroque',
+                moves: 'Enroque corto: 0-0 | Enroque largo: 0-0-0',
+                explanation: 'El enroque es el único movimiento donde mueves dos piezas a la vez. Protege a tu rey en una esquina y activa la torre en el centro del tablero.'
+            },
+            alfil: {
+                icon: '♝', title: 'Alfil de Rey',
+                moves: 'Ac4 o Ab5',
+                explanation: 'El alfil de rey a c4 es muy activo, apuntando a f7 (debilidad). A b5 presiona al cabillo y prepara la española. Nunca lo encierres con peones.'
+            },
+            caballo: {
+                icon: '♞', title: 'Caballo a f3',
+                moves: '1.Cf3',
+                explanation: 'Desarrollar el caballo a f3 controla las casillas centrales e5 y d4. Además, permite enrocar rápido y prepara el avance de peones centrales.'
+            },
+            peon: {
+                icon: '♟', title: 'Control del Centro',
+                moves: '1.e4  o  1.d4',
+                explanation: 'Controlar el centro es clave. Desde e4 o d4 tus piezas tienen más movilidad. El 80% de las aperturas comienzan con estos peones.'
+            }
+        };
+
+        const modal = document.getElementById('learnModal');
+        const closeModal = document.getElementById('closeModal');
+        
+        document.querySelectorAll('.master-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const move = card.dataset.move;
+                const data = modalData[move];
+                if(data) {
+                    document.getElementById('modalIcon').textContent = data.icon;
+                    document.getElementById('modalTitle').textContent = data.title;
+                    document.getElementById('modalMoves').textContent = data.moves;
+                    document.getElementById('modalExplanation').textContent = data.explanation;
+                    modal.classList.add('active');
+                }
+            });
+        });
+        
+        closeModal.onclick = () => modal.classList.remove('active');
+        modal.onclick = (e) => { if(e.target === modal) modal.classList.remove('active'); };
+
         // ========== NAVEGACIÓN ==========
         const screens = {
             home: document.getElementById('homeScreen'),
@@ -92,11 +550,21 @@
             instructions: document.getElementById('instructionsScreen'),
             coming: document.getElementById('comingScreen')
         };
+        
         function showScreen(name) {
-            Object.keys(screens).forEach(k => { screens[k].classList.add('screen-hidden'); screens[k].classList.remove('screen-visible'); });
-            screens[name].classList.remove('screen-hidden'); screens[name].classList.add('screen-visible');
-            if (name === 'game') setTimeout(() => { if (window.onResize3D) window.onResize3D(); }, 100);
+            Object.keys(screens).forEach(k => {
+                screens[k].classList.add('screen-hidden');
+                screens[k].classList.remove('screen-visible');
+            });
+            screens[name].classList.remove('screen-hidden');
+            screens[name].classList.add('screen-visible');
+            if (name === 'game') {
+                setTimeout(() => {
+                    if (window.onResize3D) window.onResize3D();
+                }, 100);
+            }
         }
+        
         document.getElementById('playBtn').onclick = () => showScreen('game');
         document.getElementById('instructionsHomeBtn').onclick = () => showScreen('instructions');
         document.getElementById('comingHomeBtn').onclick = () => showScreen('coming');
@@ -105,44 +573,38 @@
         document.getElementById('backFromComingBtn').onclick = () => showScreen('home');
         document.getElementById('volverHomeBtn').onclick = () => showScreen('home');
         
-        // ========== CONFIGURACIÓN 3D - VISTA FRONTAL ==========
+        // ========== AJEDREZ 3D - CÁMARA SIN ZOOM ==========
         const canvas = document.getElementById('canvas3d');
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x0a0604);
+        renderer.setClearColor(0x0a0a0a);
         renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x0a0604, 0.008);
+        scene.fog = new THREE.FogExp2(0x0a0a0a, 0.015);
         
-        // CAMBIO IMPORTANTE: Vista frontal (cenital)
-        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 9, 0.01);
+        // Cámara FRONTAL - ALEJADA para ver todo el tablero
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 7.5, 3.5);
         camera.lookAt(0, 0, 0);
         
         // Luces
-        const ambientLight = new THREE.AmbientLight(0x404040);
+        const ambientLight = new THREE.AmbientLight(0x404060);
         scene.add(ambientLight);
-        const mainLight = new THREE.DirectionalLight(0xfff5e6, 1.2);
-        mainLight.position.set(5, 10, 3);
+        const mainLight = new THREE.DirectionalLight(0xfff5e6, 1.0);
+        mainLight.position.set(3, 8, 4);
         mainLight.castShadow = true;
-        mainLight.receiveShadow = true;
         mainLight.shadow.mapSize.width = 1024;
         mainLight.shadow.mapSize.height = 1024;
         scene.add(mainLight);
-        const fillLight = new THREE.PointLight(0x8b5a3c, 0.5);
+        
+        const fillLight = new THREE.PointLight(0x4466cc, 0.4);
         fillLight.position.set(-2, 3, 4);
         scene.add(fillLight);
-        const backLight = new THREE.PointLight(0xd4a55a, 0.3);
-        backLight.position.set(0, 2, -5);
-        scene.add(backLight);
         
-        const floorHelper = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.ShadowMaterial({ opacity: 0.4, color: 0x000000, transparent: true, side: THREE.DoubleSide }));
-        floorHelper.rotation.x = -Math.PI / 2;
-        floorHelper.position.y = -0.6;
-        floorHelper.receiveShadow = true;
-        scene.add(floorHelper);
+        const backLight = new THREE.PointLight(0xffaa66, 0.3);
+        backLight.position.set(0, 2, -4);
+        scene.add(backLight);
         
         // ========== TABLERO ==========
         const boardGroup = new THREE.Group();
@@ -176,8 +638,8 @@
         for(let i=0; i<8; i++) {
             for(let j=0; j<8; j++) {
                 const isLight = (i+j)%2 === 0;
-                const material = new THREE.MeshStandardMaterial({ map: isLight ? lightWoodTex : darkWoodTex, roughness: 0.4, metalness: 0.1, color: isLight ? 0xe8d5a3 : 0x8b5a3c });
-                const square = new THREE.Mesh(new THREE.BoxGeometry(squareSize, 0.15, squareSize), material);
+                const material = new THREE.MeshStandardMaterial({ map: isLight ? lightWoodTex : darkWoodTex, roughness: 0.4, metalness: 0.1 });
+                const square = new THREE.Mesh(new THREE.BoxGeometry(squareSize, 0.12, squareSize), material);
                 const x = (j - 3.5) * squareSize;
                 const z = (i - 3.5) * squareSize;
                 square.position.set(x, -0.2, z);
@@ -189,81 +651,84 @@
             }
         }
         
-        const borderMat = new THREE.MeshStandardMaterial({ color: 0x6b3a1a, roughness: 0.3, metalness: 0.2 });
-        const border = new THREE.Mesh(new THREE.BoxGeometry(7.8, 0.2, 7.8), borderMat);
-        border.position.set(0, -0.3, 0);
-        border.receiveShadow = true;
+        const borderMat = new THREE.MeshStandardMaterial({ color: 0x4a2a1a, roughness: 0.5 });
+        const border = new THREE.Mesh(new THREE.BoxGeometry(7.6, 0.15, 7.6), borderMat);
+        border.position.set(0, -0.28, 0);
         boardGroup.add(border);
         scene.add(boardGroup);
+        
+        // Suelo decorativo
+        const floorRing = new THREE.Mesh(new THREE.CircleGeometry(5.5, 16), new THREE.MeshStandardMaterial({ color: 0x1a1a2a, metalness: 0.1, roughness: 0.8 }));
+        floorRing.rotation.x = -Math.PI/2;
+        floorRing.position.y = -0.45;
+        floorRing.receiveShadow = true;
+        scene.add(floorRing);
         
         // ========== PIEZAS ==========
         const piecesGroup = new THREE.Group();
         scene.add(piecesGroup);
         
-        const whiteMat = new THREE.MeshStandardMaterial({ color: 0xf0e6c5, metalness: 0.7, roughness: 0.2, emissive: 0x221100 });
-        const blackMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, metalness: 0.6, roughness: 0.3 });
+        const whiteMat = new THREE.MeshStandardMaterial({ color: 0xf0e6d0, metalness: 0.6, roughness: 0.25 });
+        const blackMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, metalness: 0.5, roughness: 0.35 });
         
         function createPiece3D(type, isWhite) {
             const group = new THREE.Group();
             const mat = isWhite ? whiteMat : blackMat;
             switch(type) {
                 case 'p':
-                    const base = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 0.3, 24), mat);
-                    base.position.y = 0.15; group.add(base);
-                    const body = new THREE.Mesh(new THREE.SphereGeometry(0.22, 24, 16), mat);
-                    body.position.y = 0.4; group.add(body);
-                    const top = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.18, 0.2, 16), mat);
-                    top.position.y = 0.55; group.add(top);
+                    const base = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 0.28, 24), mat);
+                    base.position.y = 0.14; group.add(base);
+                    const body = new THREE.Mesh(new THREE.SphereGeometry(0.21, 24, 16), mat);
+                    body.position.y = 0.38; group.add(body);
+                    const top = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 0.18, 16), mat);
+                    top.position.y = 0.52; group.add(top);
                     break;
                 case 'n':
-                    const kBody = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.4, 0.45), mat);
-                    kBody.position.y = 0.25; group.add(kBody);
-                    const kHead = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.25, 0.35, 8), mat);
-                    kHead.position.y = 0.55; group.add(kHead);
+                    const nBody = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.38, 0.44), mat);
+                    nBody.position.y = 0.24; group.add(nBody);
+                    const nHead = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.24, 0.32, 8), mat);
+                    nHead.position.y = 0.52; group.add(nHead);
                     break;
                 case 'b':
-                    const bBase = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.25, 24), mat);
-                    bBase.position.y = 0.15; group.add(bBase);
-                    const bBody = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.55, 16), mat);
-                    bBody.position.y = 0.5; group.add(bBody);
+                    const bBase = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.29, 0.24, 24), mat);
+                    bBase.position.y = 0.14; group.add(bBase);
+                    const bBody = new THREE.Mesh(new THREE.ConeGeometry(0.23, 0.52, 16), mat);
+                    bBody.position.y = 0.47; group.add(bBody);
                     const bTop = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16), mat);
-                    bTop.position.y = 0.78; group.add(bTop);
+                    bTop.position.y = 0.74; group.add(bTop);
                     break;
                 case 'r':
-                    const rBase = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.2, 0.45), mat);
+                    const rBase = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.18, 0.44), mat);
                     rBase.position.y = 0.1; group.add(rBase);
-                    const rBody = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.55, 0.4), mat);
-                    rBody.position.y = 0.4; group.add(rBody);
-                    const rTop = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.1, 0.5), mat);
-                    rTop.position.y = 0.7; group.add(rTop);
+                    const rBody = new THREE.Mesh(new THREE.BoxGeometry(0.39, 0.52, 0.39), mat);
+                    rBody.position.y = 0.39; group.add(rBody);
+                    const rTop = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.1, 0.48), mat);
+                    rTop.position.y = 0.68; group.add(rTop);
                     break;
                 case 'q':
-                    const qBase = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.35, 0.25, 24), mat);
-                    qBase.position.y = 0.15; group.add(qBase);
-                    const qBody = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.45, 16), mat);
-                    qBody.position.y = 0.45; group.add(qBody);
-                    const qTop = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16), mat);
-                    qTop.position.y = 0.72; group.add(qTop);
+                    const qBase = new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.34, 0.24, 24), mat);
+                    qBase.position.y = 0.14; group.add(qBase);
+                    const qBody = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.29, 0.44, 16), mat);
+                    qBody.position.y = 0.43; group.add(qBody);
+                    const qTop = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16), mat);
+                    qTop.position.y = 0.69; group.add(qTop);
                     break;
                 case 'k':
-                    const kingBase = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.38, 0.28, 24), mat);
-                    kingBase.position.y = 0.15; group.add(kingBase);
-                    const kingBody = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.34, 0.5, 16), mat);
-                    kingBody.position.y = 0.48; group.add(kingBody);
-                    const kingTop = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.2, 0.15, 8), mat);
-                    kingTop.position.y = 0.75; group.add(kingTop);
-                    const cross = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.08, 0.08), mat);
-                    cross.position.y = 0.84; group.add(cross);
+                    const kBase = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.37, 0.26, 24), mat);
+                    kBase.position.y = 0.14; group.add(kBase);
+                    const kBody = new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.33, 0.48, 16), mat);
+                    kBody.position.y = 0.46; group.add(kBody);
+                    const kTop = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.19, 0.14, 8), mat);
+                    kTop.position.y = 0.72; group.add(kTop);
+                    const cross = new THREE.Mesh(new THREE.BoxGeometry(0.21, 0.07, 0.07), mat);
+                    cross.position.y = 0.81; group.add(cross);
                     break;
             }
             return group;
         }
         
-        const pieceObjects = new Map();
-        
         function updatePiecePositions(boardState) {
-            while(piecesGroup.children.length > 0) piecesGroup.remove(piecesGroup.children[0]);
-            pieceObjects.clear();
+            while(piecesGroup.children.length) piecesGroup.remove(piecesGroup.children[0]);
             for(let i=0; i<8; i++) {
                 for(let j=0; j<8; j++) {
                     const piece = boardState[i][j];
@@ -275,7 +740,6 @@
                         piece3D.castShadow = true;
                         piece3D.userData = { row: i, col: j, type: piece.type, color: piece.color };
                         piecesGroup.add(piece3D);
-                        pieceObjects.set(`${i},${j}`, piece3D);
                     }
                 }
             }
@@ -285,7 +749,6 @@
         const chessGame = new Chess();
         let selectedPiece = null;
         let selectedPos = null;
-        let legalMovesForSelected = [];
         let soundEnabled = true;
         let energy = 100;
         let whiteTime = 600, blackTime = 600, currentTimer = 'w', timerInterval = null;
@@ -293,17 +756,15 @@
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
         
-        function clearHighlights() { squares.forEach(square => { square.material.emissiveIntensity = 0; }); }
+        function clearHighlights() { squares.forEach(s => { s.material.emissiveIntensity = 0; }); }
         
         function updateUI() {
             const statusEl = document.getElementById('status3d');
             if(chessGame.game_over()) {
                 if(chessGame.in_checkmate()) statusEl.innerHTML = chessGame.turn() === 'w' ? '🏆 Ganan NEGRAS' : '🏆 Ganan BLANCAS';
-                else if(chessGame.in_stalemate()) statusEl.innerHTML = '♾️ TABLAS';
-                else statusEl.innerHTML = '⏸️ FIN DEL JUEGO';
+                else statusEl.innerHTML = '♾️ TABLAS';
             } else {
-                const turn = chessGame.turn() === 'w' ? 'BLANCAS' : 'NEGRAS';
-                statusEl.innerHTML = `🎮 Turno: ${turn}${chessGame.in_check() ? ' ⚠️ JAQUE' : ''}`;
+                statusEl.innerHTML = `🎮 Turno: ${chessGame.turn() === 'w' ? 'BLANCAS' : 'NEGRAS'}${chessGame.in_check() ? ' ⚠️ JAQUE' : ''}`;
             }
             document.getElementById('energyValue').innerText = Math.floor(energy);
             updateTimerDisplay();
@@ -321,7 +782,6 @@
                 if(currentTimer === 'w') { if(whiteTime>0) whiteTime--; }
                 else { if(blackTime>0) blackTime--; }
                 updateTimerDisplay();
-                if(whiteTime === 0 || blackTime === 0) clearInterval(timerInterval);
             }, 1000);
         }
         
@@ -334,8 +794,8 @@
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.frequency.value = type === 'capture' ? 392 : 523.25;
-                gain.gain.value = 0.1;
+                osc.frequency.value = type === 'capture' ? 392 : 523;
+                gain.gain.value = 0.08;
                 osc.start();
                 gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.2);
                 osc.stop(audioCtx.currentTime + 0.2);
@@ -358,7 +818,7 @@
                         document.getElementById('energyValue').innerText = Math.floor(energy);
                         switchTimer();
                     }
-                }, 300);
+                }, 250);
             }
         }
         
@@ -378,16 +838,15 @@
                 while(pieceObj.parent !== piecesGroup && pieceObj.parent !== pieceObj) pieceObj = pieceObj.parent;
                 if(pieceObj.userData) {
                     const { row, col, color } = pieceObj.userData;
-                    const currentTurn = chessGame.turn();
-                    if(selectedPiece === null && color === currentTurn) {
+                    if(selectedPiece === null && color === chessGame.turn()) {
                         selectedPiece = pieceObj;
                         selectedPos = { row, col };
-                        const squareName = String.fromCharCode(97+col)+(8-row);
-                        legalMovesForSelected = chessGame.moves({ square: squareName, verbose: true }).map(m => m.to);
                         clearHighlights();
                         const selectedSquare = squares.find(s => s.userData.row === row && s.userData.col === col);
                         if(selectedSquare) { selectedSquare.material.emissive = new THREE.Color(0xffaa00); selectedSquare.material.emissiveIntensity = 0.5; }
-                        legalMovesForSelected.forEach(moveTo => {
+                        const squareName = String.fromCharCode(97+col)+(8-row);
+                        const legalMoves = chessGame.moves({ square: squareName, verbose: true }).map(m => m.to);
+                        legalMoves.forEach(moveTo => {
                             const moveCol = moveTo.charCodeAt(0)-97;
                             const moveRow = 8-parseInt(moveTo[1]);
                             const targetSquare = squares.find(s => s.userData.row === moveRow && s.userData.col === moveCol);
@@ -440,12 +899,11 @@
         document.getElementById('reset3dBtn').onclick = resetGame;
         document.getElementById('sound3dBtn').onclick = toggleSound;
         
-        // Animación
         let time = 0;
         function animate() {
             requestAnimationFrame(animate);
             time += 0.016;
-            piecesGroup.children.forEach((piece, idx) => { piece.position.y = -0.05 + Math.sin(time * 2 + idx) * 0.008; });
+            piecesGroup.children.forEach((piece, idx) => { piece.position.y = -0.05 + Math.sin(time * 2 + idx) * 0.006; });
             renderer.render(scene, camera);
         }
         animate();
