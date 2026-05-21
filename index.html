@@ -1,758 +1,1147 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AJEDREZ MASTER</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>♔ Royal Chess Arena - Play & Earn</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none;
             -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
         body {
-            background: linear-gradient(135deg, #1a2a4a 0%, #0f1a2e 100%);
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0a0a2e 0%, #1a1a4e 30%, #2a1a3e 60%, #0a0a2e 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 16px;
+            overflow: hidden;
+            position: relative;
         }
 
-        /* Contenedor principal */
-        .app-container {
-            max-width: 550px;
-            width: 100%;
-            margin: 0 auto;
-        }
-
-        /* Pantallas */
-        .screen {
-            display: none;
-            width: 100%;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
-        /* ========== HOME ========== */
-        .home-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border-radius: 48px;
-            padding: 40px 20px;
-            text-align: center;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-        }
-
-        .chess-icon {
-            font-size: 80px;
-            margin-bottom: 20px;
-            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
-        }
-
-        .title {
-            font-size: 32px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #ffd700, #ffaa00);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 40px;
-        }
-
-        .btn-play {
-            background: linear-gradient(135deg, #ffd700, #ffaa00);
-            border: none;
-            width: 80%;
-            padding: 16px;
-            border-radius: 50px;
-            font-size: 22px;
-            font-weight: bold;
-            color: #1a2a4a;
-            margin-bottom: 25px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: transform 0.1s;
-        }
-
-        .btn-play:active {
-            transform: scale(0.97);
-        }
-
-        .home-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-        }
-
-        .btn-sec {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-weight: 600;
-            color: #ffd700;
-            cursor: pointer;
-        }
-
-        /* ========== JUEGO ========== */
-        .game-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(20px);
-            border-radius: 60px;
-            padding: 10px 20px;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-        }
-
-        .back-btn {
-            background: none;
-            border: none;
-            font-size: 28px;
-            cursor: pointer;
-            color: #ffd700;
-        }
-
-        .timers {
-            display: flex;
-            gap: 20px;
-        }
-
-        .timer {
-            text-align: center;
-        }
-
-        .timer-label {
-            font-size: 10px;
-            font-weight: bold;
-            color: #ffd700;
-        }
-
-        .timer-value {
-            font-size: 20px;
-            font-weight: bold;
-            font-family: monospace;
-            color: white;
-        }
-
-        .energy {
-            background: #ffd70020;
-            padding: 6px 14px;
-            border-radius: 40px;
-            color: #ffd700;
-            font-weight: bold;
-        }
-
-        /* Tablero */
-        .board-container {
-            background: #1a1a2e;
-            border-radius: 24px;
-            padding: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            margin-bottom: 16px;
-        }
-
-        canvas {
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            display: block;
-            border-radius: 16px;
-            cursor: pointer;
-            background: #2c1a12;
-        }
-
-        .game-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(20px);
-            border-radius: 60px;
-            padding: 10px 20px;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-        }
-
-        .status {
-            font-weight: bold;
-            color: #ffd700;
-            font-size: 14px;
-        }
-
-        .action-btn {
-            background: #ffd70020;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            padding: 8px 16px;
-            border-radius: 30px;
-            color: #ffd700;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        /* ========== INSTRUCCIONES ========== */
-        .learn-card {
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(20px);
-            border-radius: 32px;
-            padding: 20px;
-            min-height: 80vh;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-        }
-
-        .learn-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .learn-title {
-            font-size: 24px;
-            font-weight: 800;
-            color: #ffd700;
-        }
-
-        .moves-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .move-item {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.1s;
-        }
-
-        .move-item:active {
-            transform: scale(0.98);
-            background: rgba(255, 215, 0, 0.2);
-        }
-
-        .move-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #ffd700;
-        }
-
-        .move-algebra {
-            font-family: monospace;
-            font-size: 14px;
-            color: #88ff88;
-            margin-top: 5px;
-        }
-
-        .move-desc {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.7);
-            margin-top: 5px;
-        }
-
-        /* Modal */
-        .modal {
+        body::before {
+            content: '';
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(255,215,0,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(147,112,219,0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        .app-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            max-height: 900px;
+            background: rgba(10, 10, 30, 0.8);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 24px;
+            box-shadow: 
+                0 0 50px rgba(255, 215, 0, 0.2),
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                inset 0 0 30px rgba(255, 215, 0, 0.05);
+            overflow: hidden;
             display: flex;
+            flex-direction: column;
+        }
+
+        @media (orientation: landscape) {
+            .app-container {
+                max-width: 700px;
+                max-height: 500px;
+                flex-direction: row;
+            }
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* HOME SCREEN */
+        .home-screen {
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .logo-container {
+            text-align: center;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .crown-icon {
+            font-size: 80px;
+            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.6));
+        }
+
+        .title {
+            font-size: 36px;
+            font-weight: 900;
+            background: linear-gradient(45deg, #ffd700, #ffed4a, #daa520);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            color: #c0c0c0;
+            font-size: 14px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        .btn {
+            padding: 16px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-play {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #1a1a2e;
+            box-shadow: 0 10px 30px rgba(255, 140, 0, 0.4);
+            font-size: 24px;
+            padding: 20px 60px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 10px 30px rgba(255, 140, 0, 0.4); }
+            50% { box-shadow: 0 15px 50px rgba(255, 140, 0, 0.8); transform: scale(1.05); }
+            100% { box-shadow: 0 10px 30px rgba(255, 140, 0, 0.4); transform: scale(1); }
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: #ffd700;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+        }
+
+        .stats-container {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 15px;
+            padding: 15px 25px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            min-width: 100px;
+        }
+
+        .stat-value {
+            color: #ffd700;
+            font-size: 28px;
+            font-weight: 900;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 11px;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        /* GAME SCREEN */
+        .game-screen {
+            padding: 10px;
+            justify-content: space-between;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+
+        .player-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .timer-display {
+            font-size: 24px;
+            font-weight: 900;
+            color: #ffd700;
+            font-family: 'Courier New', monospace;
+        }
+
+        .timer-display.urgent {
+            color: #ff4444;
+            animation: blink 0.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .board-wrapper {
+            position: relative;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
+        }
+
+        canvas {
+            border-radius: 15px;
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(255, 215, 0, 0.2);
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        .energy-bar-container {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            margin-top: 5px;
+        }
+
+        .energy-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444, #ffd700, #44ff44);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+
+        .energy-label {
+            color: #ffd700;
+            font-size: 12px;
+            margin-top: 2px;
+            text-align: right;
+            font-weight: 700;
+        }
+
+        .combo-display {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            font-weight: 900;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .combo-display.active {
+            opacity: 1;
+            animation: comboPop 0.5s ease-out;
+        }
+
+        @keyframes comboPop {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.5); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+
+        .xp-gain {
+            position: absolute;
+            color: #44ff44;
+            font-weight: 900;
+            font-size: 20px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-50px); }
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 100;
             justify-content: center;
             align-items: center;
-            z-index: 100;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.2s;
         }
 
-        .modal.active {
-            opacity: 1;
-            visibility: visible;
+        .modal-overlay.active {
+            display: flex;
         }
 
-        .modal-content {
-            background: linear-gradient(135deg, #1a2a4a, #0f1a2e);
-            border-radius: 32px;
-            padding: 25px;
-            width: 85%;
-            max-width: 320px;
+        .modal {
+            background: linear-gradient(135deg, #1a1a3e, #2a2a5e);
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: white;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal h2 {
+            color: #ffd700;
+            font-size: 28px;
+            margin-bottom: 20px;
             text-align: center;
-            border: 1px solid rgba(255, 215, 0, 0.4);
         }
 
-        .modal-icon {
-            font-size: 50px;
-            margin-bottom: 10px;
+        .modal-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
         }
 
-        .modal-title {
-            font-size: 20px;
-            font-weight: bold;
+        .modal-section h3 {
             color: #ffd700;
             margin-bottom: 10px;
         }
 
-        .modal-moves {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 10px;
-            border-radius: 16px;
-            font-family: monospace;
-            font-size: 14px;
-            color: #88ff88;
-            margin: 15px 0;
+        .modal-section p {
+            color: #ccc;
+            line-height: 1.6;
         }
 
-        .modal-desc {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 20px;
-            line-height: 1.4;
-        }
-
-        .modal-close {
-            background: #ffd700;
-            border: none;
+        .btn-close {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            color: white;
             width: 100%;
-            padding: 10px;
-            border-radius: 30px;
-            font-weight: bold;
-            cursor: pointer;
-            color: #1a2a4a;
+            margin-top: 20px;
         }
 
-        /* Próximamente */
-        .coming-card {
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(20px);
-            border-radius: 48px;
-            padding: 40px 20px;
-            text-align: center;
-            border: 1px solid rgba(255, 215, 0, 0.3);
+        /* RESPONSIVE LANDSCAPE */
+        @media (orientation: landscape) {
+            .game-screen {
+                flex-direction: row;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .game-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .board-wrapper {
+                order: 1;
+            }
+
+            .energy-section {
+                order: 2;
+            }
         }
     </style>
 </head>
 <body>
-<div class="app-container">
-    <!-- HOME -->
-    <div id="homeScreen" class="screen active">
-        <div class="home-card">
-            <div class="chess-icon">♔</div>
-            <div class="title">AJEDREZ MASTER</div>
-            <div class="subtitle">Juega y Aprende</div>
-            <button class="btn-play" id="playBtn">▶ JUGAR</button>
-            <div class="home-buttons">
-                <button class="btn-sec" id="learnHomeBtn">📖 JUGADAS</button>
-                <button class="btn-sec" id="comingHomeBtn">🔜 PRÓXIMAMENTE</button>
+    <div class="stars" id="stars"></div>
+
+    <div class="app-container">
+        <!-- HOME SCREEN -->
+        <div class="screen active" id="homeScreen">
+            <div class="home-screen">
+                <div class="logo-container">
+                    <div class="crown-icon">👑</div>
+                    <h1 class="title">ROYAL CHESS</h1>
+                    <p class="subtitle">Play & Earn Arena</p>
+                </div>
+
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-value" id="level">1</div>
+                        <div class="stat-label">Nivel</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalXp">0</div>
+                        <div class="stat-label">XP Total</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="coins">0</div>
+                        <div class="stat-label">Monedas</div>
+                    </div>
+                </div>
+
+                <button class="btn btn-play" onclick="startGame()">
+                    ⚔️ PLAY NOW
+                </button>
+
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                    <button class="btn btn-secondary" onclick="showInstructions()">
+                        📚 MASTER CLASS
+                    </button>
+                    <button class="btn btn-secondary" onclick="showComingSoon()">
+                        🚀 PRÓXIMAMENTE
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAME SCREEN -->
+        <div class="screen" id="gameScreen">
+            <div class="game-screen">
+                <div class="game-header" style="flex-direction: column; gap: 10px;">
+                    <div class="player-info">
+                        <div class="player-avatar">🤖</div>
+                        <div>
+                            <div style="font-size: 12px; color: #888;">IA OPONENTE</div>
+                            <div class="timer-display" id="aiTimer">10:00</div>
+                        </div>
+                    </div>
+                    <div class="player-info">
+                        <div class="player-avatar">👤</div>
+                        <div>
+                            <div style="font-size: 12px; color: #888;">TÚ</div>
+                            <div class="timer-display" id="playerTimer">10:00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="board-wrapper">
+                    <canvas id="chessCanvas"></canvas>
+                    <div class="combo-display" id="comboDisplay"></div>
+                </div>
+
+                <div class="energy-section" style="width: 100%;">
+                    <div class="energy-bar-container">
+                        <div class="energy-bar" id="energyBar" style="width: 100%;"></div>
+                    </div>
+                    <div class="energy-label">⚡ Energía: <span id="energyValue">100</span>%</div>
+                </div>
+
+                <button class="btn btn-secondary" onclick="backToHome()" style="width: 100%; margin-top: 5px; padding: 10px;">
+                    🏠 MENÚ
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- JUEGO -->
-    <div id="gameScreen" class="screen">
-        <div class="game-header">
-            <button class="back-btn" id="gameBackBtn">←</button>
-            <div class="timers">
-                <div class="timer"><div class="timer-label">BLANCAS</div><div class="timer-value" id="whiteTimer">10:00</div></div>
-                <div class="timer"><div class="timer-label">NEGRAS</div><div class="timer-value" id="blackTimer">10:00</div></div>
+    <!-- MODALS -->
+    <div class="modal-overlay" id="instructionsModal">
+        <div class="modal">
+            <h2>📚 MASTER CLASS</h2>
+            <div class="modal-section">
+                <h3>🇮🇹 Apertura Italiana</h3>
+                <p>1.e4 e5 2.Cf3 Cc6 3.Ac4<br>
+                Controla el centro y apunta a f7, el punto más débil de las negras.</p>
             </div>
-            <div class="energy">⚡ <span id="energyVal">100</span>%</div>
-        </div>
-
-        <div class="board-container">
-            <canvas id="chessCanvas" width="500" height="500"></canvas>
-        </div>
-
-        <div class="game-footer">
-            <div class="status" id="statusText">🎮 Turno: Blancas</div>
-            <button class="action-btn" id="resetGameBtn">REINICIAR</button>
-            <button class="action-btn" id="soundGameBtn">🔊 SONIDO</button>
-        </div>
-    </div>
-
-    <!-- INSTRUCCIONES -->
-    <div id="learnScreen" class="screen">
-        <div class="learn-card">
-            <div class="learn-header">
-                <button class="back-btn" id="learnBackBtn">←</button>
-                <div class="learn-title">📚 JUGADAS MAESTRAS</div>
+            <div class="modal-section">
+                <h3>🇪🇸 Apertura Española</h3>
+                <p>1.e4 e5 2.Cf3 Cc6 3.Ab5<br>
+                Presión inmediata sobre el caballo que defiende e5.</p>
             </div>
-            <div class="moves-list" id="movesList"></div>
-        </div>
-    </div>
-
-    <!-- PRÓXIMAMENTE -->
-    <div id="comingScreen" class="screen">
-        <div class="coming-card">
-            <button class="back-btn" id="comingBackBtn" style="position: absolute; margin-top: -20px; margin-left: -10px;">←</button>
-            <div style="font-size: 60px; margin-bottom: 20px;">🎮</div>
-            <div style="font-size: 28px; font-weight: bold; color: #ffd700; margin-bottom: 20px;">PRÓXIMAMENTE</div>
-            <div style="color: rgba(255,255,255,0.7); line-height: 2;">
-                ⚡ Modo Torneo<br>
-                🏆 Ranking Global<br>
-                👥 Jugar con Amigos<br>
-                💰 Recompensas Diarias
+            <div class="modal-section">
+                <h3>🏰 El Enroque</h3>
+                <p>Rey mueve 2 casillas hacia la torre. Protege al rey y activa la torre.<br>
+                ¡Fundamental para la seguridad del rey!</p>
             </div>
-            <button class="btn-play" id="comingVolverBtn" style="width: auto; padding: 10px 30px; font-size: 16px; margin-top: 30px;">Volver</button>
+            <div class="modal-section">
+                <h3>⚡ Tenedor (Fork)</h3>
+                <p>Un caballo atacando dos piezas mayores simultáneamente.<br>
+                ¡La jugada más temida por los principiantes!</p>
+            </div>
+            <button class="btn btn-close" onclick="closeModal('instructionsModal')">CERRAR</button>
         </div>
     </div>
-</div>
 
-<!-- MODAL -->
-<div id="modal" class="modal">
-    <div class="modal-content">
-        <div class="modal-icon" id="modalIcon">♔</div>
-        <div class="modal-title" id="modalTitle">Apertura Italiana</div>
-        <div class="modal-moves" id="modalMoves">1.e4 e5 2.Cf3 Cc6 3.Ac4</div>
-        <div class="modal-desc" id="modalDesc">Controla el centro y desarrolla el alfil a c4, apuntando a f7.</div>
-        <button class="modal-close" id="closeModal">Entendido</button>
+    <div class="modal-overlay" id="comingSoonModal">
+        <div class="modal">
+            <h2>🚀 PRÓXIMAMENTE</h2>
+            <div class="modal-section">
+                <h3>🏆 Modo Torneo</h3>
+                <p>Compite en torneos diarios y gana grandes premios en monedas.</p>
+            </div>
+            <div class="modal-section">
+                <h3>👥 Multijugador</h3>
+                <p>Desafía a tus amigos de Telegram en partidas en tiempo real.</p>
+            </div>
+            <div class="modal-section">
+                <h3>🎨 Skins Legendarias</h3>
+                <p>Personaliza tu tablero y piezas con skins únicas.</p>
+            </div>
+            <div class="modal-section">
+                <h3>💰 Mercado NFT</h3>
+                <p>Compra y vende piezas de ajedrez como NFTs exclusivos.</p>
+            </div>
+            <button class="btn btn-close" onclick="closeModal('comingSoonModal')">¡QUIERO SER EL PRIMERO!</button>
+        </div>
     </div>
-</div>
 
-<script>
-    // ========== DATOS DE APRENDIZAJE ==========
-    const movesData = [
-        { icon: '♔', name: 'Apertura Italiana', moves: '1.e4 e5 2.Cf3 Cc6 3.Ac4', desc: 'Controla el centro y desarrolla el alfil a c4, apuntando a f7. Es ideal para principiantes.' },
-        { icon: '♕', name: 'Apertura Española', moves: '1.e4 e5 2.Cf3 Cc6 3.Ab5', desc: 'Presiona el caballo que defiende e5. Una de las aperturas más estudiadas.' },
-        { icon: '♖', name: 'Enroque', moves: 'Corto: 0-0 | Largo: 0-0-0', desc: 'Mueve el rey 2 casillas hacia la torre. Es el único movimiento con dos piezas.' },
-        { icon: '♝', name: 'Alfil a c4', moves: 'Ac4', desc: 'Apunta directamente a f7, el punto más débil al inicio del juego.' },
-        { icon: '♞', name: 'Caballo a f3', moves: 'Cf3', desc: 'Controla el centro y prepara el enroque. Jugada fundamental.' },
-        { icon: '♟', name: 'Peón al Centro', moves: '1.e4 o 1.d4', desc: 'El centro es el corazón del tablero. Controlarlo da espacio a tus piezas.' }
-    ];
+    <script>
+        // ============ STARS BACKGROUND ============
+        function createStars() {
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = star.style.height = (Math.random() * 3 + 1) + 'px';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                container.appendChild(star);
+            }
+        }
 
-    // Generar lista de movimientos
-    const movesList = document.getElementById('movesList');
-    movesData.forEach(m => {
-        const div = document.createElement('div');
-        div.className = 'move-item';
-        div.innerHTML = `<div class="move-name">${m.icon} ${m.name}</div><div class="move-algebra">${m.moves}</div><div class="move-desc">${m.desc}</div>`;
-        div.onclick = () => {
-            document.getElementById('modalIcon').textContent = m.icon;
-            document.getElementById('modalTitle').textContent = m.name;
-            document.getElementById('modalMoves').textContent = m.moves;
-            document.getElementById('modalDesc').textContent = m.desc;
-            document.getElementById('modal').classList.add('active');
+        // ============ AUDIO SYSTEM ============
+        class AudioSystem {
+            constructor() {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            play(freq, type, duration, vol = 0.1) {
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.frequency.value = freq;
+                osc.type = type;
+                gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+                osc.start(this.ctx.currentTime);
+                osc.stop(this.ctx.currentTime + duration);
+            }
+
+            moveSound() { this.play(600, 'sine', 0.1, 0.05); }
+            captureSound() { this.play(200, 'sawtooth', 0.3, 0.1); }
+            checkSound() { this.play(800, 'square', 0.2, 0.15); setTimeout(() => this.play(1000, 'square', 0.2, 0.15), 200); }
+            combo3Sound() { [600,800,1000].forEach((f, i) => setTimeout(() => this.play(f, 'triangle', 0.2, 0.1), i * 100)); }
+            gameOverSound() { [400,300,200].forEach((f, i) => setTimeout(() => this.play(f, 'sawtooth', 0.5, 0.3), i * 200)); }
+        }
+
+        const audio = new AudioSystem();
+
+        // ============ GAME STATE ============
+        let gameState = {
+            level: parseInt(localStorage.getItem('chessLevel') || '1'),
+            totalXp: parseInt(localStorage.getItem('chessXp') || '0'),
+            coins: parseInt(localStorage.getItem('chessCoins') || '0'),
+            combo: 0,
+            energy: 100,
+            selectedSquare: null,
+            playerTimer: 600,
+            aiTimer: 600,
+            gameOver: false,
+            playerColor: 'w',
+            currentTurn: 'w'
         };
-        movesList.appendChild(div);
-    });
 
-    document.getElementById('closeModal').onclick = () => document.getElementById('modal').classList.remove('active');
-    document.getElementById('modal').onclick = (e) => { if(e.target === document.getElementById('modal')) document.getElementById('modal').classList.remove('active'); };
+        // ============ CHESS LOGIC ============
+        const chess = {
+            board: [],
+            init() {
+                this.board = [
+                    ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
+                    ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+                    ['', '', '', '', '', '', '', ''],
+                    ['', '', '', '', '', '', '', ''],
+                    ['', '', '', '', '', '', '', ''],
+                    ['', '', '', '', '', '', '', ''],
+                    ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+                    ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+                ];
+            },
 
-    // ========== NAVEGACIÓN ==========
-    const screens = {
-        home: document.getElementById('homeScreen'),
-        game: document.getElementById('gameScreen'),
-        learn: document.getElementById('learnScreen'),
-        coming: document.getElementById('comingScreen')
-    };
+            getPiece(row, col) {
+                return this.board[row]?.[col] || '';
+            },
 
-    function showScreen(name) {
-        Object.keys(screens).forEach(k => screens[k].classList.remove('active'));
-        screens[name].classList.add('active');
-        if (name === 'game') {
-            setTimeout(() => resizeCanvasAndDraw(), 50);
-        }
-    }
+            isValidMove(fromRow, fromCol, toRow, toCol) {
+                const piece = this.getPiece(fromRow, fromCol);
+                if (!piece) return false;
+                const target = this.getPiece(toRow, toCol);
+                if (target && ((piece === piece.toUpperCase() && target === target.toUpperCase()) ||
+                    (piece === piece.toLowerCase() && target === target.toLowerCase()))) return false;
 
-    document.getElementById('playBtn').onclick = () => showScreen('game');
-    document.getElementById('learnHomeBtn').onclick = () => showScreen('learn');
-    document.getElementById('comingHomeBtn').onclick = () => showScreen('coming');
-    document.getElementById('gameBackBtn').onclick = () => showScreen('home');
-    document.getElementById('learnBackBtn').onclick = () => showScreen('home');
-    document.getElementById('comingBackBtn').onclick = () => showScreen('home');
-    document.getElementById('comingVolverBtn').onclick = () => showScreen('home');
+                const type = piece.toLowerCase();
+                const rowDiff = toRow - fromRow;
+                const colDiff = toCol - fromCol;
+                const absRowDiff = Math.abs(rowDiff);
+                const absColDiff = Math.abs(colDiff);
 
-    // ========== AJEDREZ ==========
-    const game = new Chess();
-    let selectedSquare = null;
-    let legalMoves = [];
-    let soundEnabled = true;
-    let energy = 100;
-    let whiteTime = 600;
-    let blackTime = 600;
-    let currentTimer = 'w';
-    let timerInterval = null;
-
-    // Canvas
-    const canvas = document.getElementById('chessCanvas');
-    let ctx = canvas.getContext('2d');
-    let squareSize = 0;
-
-    // PIEZAS SÓLIDAS Y BIEN DEFINIDAS
-    const pieces = {
-        'k': '♔', 'q': '♕', 'r': '♖', 'b': '♗', 'n': '♘', 'p': '♙',
-        'K': '♚', 'Q': '♛', 'R': '♜', 'B': '♝', 'N': '♞', 'P': '♟'
-    };
-
-    // Colores del tablero (claros para buen contraste)
-    const lightColor = '#f0e6d0';
-    const darkColor = '#b58863';
-    const selectedColor = '#ffd700';
-    const legalColor = '#90ee90';
-
-    function resizeCanvasAndDraw() {
-        const container = canvas.parentElement;
-        const size = container.clientWidth;
-        canvas.width = size;
-        canvas.height = size;
-        squareSize = canvas.width / 8;
-        drawBoard();
-    }
-
-    function drawBoard() {
-        if (!ctx) return;
-        const board = game.board();
-        
-        for (let i = 0; i < 8; i++) {
-            for (let j = 0; j < 8; j++) {
-                const x = j * squareSize;
-                const y = i * squareSize;
-                const isLight = (i + j) % 2 === 0;
-                const squareName = String.fromCharCode(97 + j) + (8 - i);
-                
-                // Color de fondo de la casilla
-                if (selectedSquare === squareName) {
-                    ctx.fillStyle = selectedColor;
-                } else if (legalMoves.includes(squareName)) {
-                    ctx.fillStyle = legalColor;
-                } else if (isLight) {
-                    ctx.fillStyle = lightColor;
-                } else {
-                    ctx.fillStyle = darkColor;
+                switch(type) {
+                    case 'p':
+                        const direction = piece === 'P' ? -1 : 1;
+                        if (colDiff === 0 && !target) {
+                            if (rowDiff === direction) return true;
+                            const startRow = piece === 'P' ? 6 : 1;
+                            if (fromRow === startRow && rowDiff === 2 * direction && !this.getPiece(fromRow + direction, fromCol)) return true;
+                        }
+                        if (absColDiff === 1 && rowDiff === direction && target) return true;
+                        return false;
+                    case 'r': return (rowDiff === 0 || colDiff === 0);
+                    case 'n': return (absRowDiff === 2 && absColDiff === 1) || (absRowDiff === 1 && absColDiff === 2);
+                    case 'b': return absRowDiff === absColDiff;
+                    case 'q': return (rowDiff === 0 || colDiff === 0 || absRowDiff === absColDiff);
+                    case 'k': return absRowDiff <= 1 && absColDiff <= 1;
+                    default: return false;
                 }
-                ctx.fillRect(x, y, squareSize, squareSize);
-                
-                // Borde sutil
-                ctx.strokeStyle = 'rgba(0,0,0,0.1)';
-                ctx.strokeRect(x, y, squareSize, squareSize);
-                
-                // Dibujar pieza (sólida y definida)
-                const piece = board[i][j];
-                if (piece) {
-                    let pieceKey = piece.type;
-                    if (piece.color === 'b') pieceKey = piece.type.toUpperCase();
-                    const icon = pieces[pieceKey];
-                    
-                    // Tamaño de la pieza: 65% de la casilla (grande y visible)
-                    const fontSize = squareSize * 0.6;
-                    ctx.font = `${fontSize}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif`;
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    
-                    // Color sólido: blanco puro o negro puro
-                    if (piece.color === 'w') {
-                        ctx.fillStyle = '#ffffff';
-                        ctx.shadowBlur = 3;
-                        ctx.shadowColor = 'rgba(0,0,0,0.3)';
-                        ctx.fillText(icon, x + squareSize / 2, y + squareSize / 2);
-                        // Borde oscuro para contraste
-                        ctx.fillStyle = '#2c2c2c';
-                        ctx.shadowBlur = 0;
-                        ctx.fillText(icon, x + squareSize / 2 - 1, y + squareSize / 2 - 1);
-                    } else {
-                        ctx.fillStyle = '#1a1a1a';
-                        ctx.shadowBlur = 3;
-                        ctx.shadowColor = 'rgba(0,0,0,0.5)';
-                        ctx.fillText(icon, x + squareSize / 2, y + squareSize / 2);
-                        ctx.fillStyle = '#000000';
-                        ctx.shadowBlur = 0;
-                        ctx.fillText(icon, x + squareSize / 2 - 0.5, y + squareSize / 2 - 0.5);
+            },
+
+            movePiece(fromRow, fromCol, toRow, toCol) {
+                const piece = this.getPiece(fromRow, fromCol);
+                const captured = this.getPiece(toRow, toCol);
+                this.board[toRow][toCol] = piece;
+                this.board[fromRow][fromCol] = '';
+                return { piece, captured };
+            },
+
+            findKing(color) {
+                const king = color === 'w' ? 'K' : 'k';
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        if (this.board[r][c] === king) return { row: r, col: c };
                     }
-                    ctx.shadowBlur = 0;
                 }
-            }
-        }
-    }
+                return null;
+            },
 
-    function updateUI() {
-        const statusDiv = document.getElementById('statusText');
-        if (game.game_over()) {
-            if (game.in_checkmate()) {
-                const winner = game.turn() === 'w' ? '⚫ NEGRAS' : '⚪ BLANCAS';
-                statusDiv.innerHTML = `🏆 JAQUE MATE! Ganan ${winner}`;
-            } else {
-                statusDiv.innerHTML = '♾️ TABLAS';
-            }
-        } else {
-            const turn = game.turn() === 'w' ? 'BLANCAS' : 'NEGRAS';
-            statusDiv.innerHTML = `🎮 Turno: ${turn}${game.in_check() ? ' ⚠️ JAQUE' : ''}`;
-            if (game.in_check()) playSound('check');
-            switchTimer();
-        }
-        document.getElementById('energyVal').innerText = Math.floor(energy);
-        updateTimerDisplay();
-        drawBoard();
-    }
-
-    function updateTimerDisplay() {
-        document.getElementById('whiteTimer').innerText = `${Math.floor(whiteTime/60)}:${(whiteTime%60).toString().padStart(2,'0')}`;
-        document.getElementById('blackTimer').innerText = `${Math.floor(blackTime/60)}:${(blackTime%60).toString().padStart(2,'0')}`;
-    }
-
-    function startTimer() {
-        if (timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            if (game.game_over()) return;
-            if (currentTimer === 'w') {
-                if (whiteTime > 0) whiteTime--;
-            } else {
-                if (blackTime > 0) blackTime--;
-            }
-            updateTimerDisplay();
-        }, 1000);
-    }
-
-    function switchTimer() {
-        currentTimer = game.turn();
-        startTimer();
-    }
-
-    function playSound(type) {
-        if (!soundEnabled) return;
-        try {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.frequency.value = type === 'capture' ? 392 : 523.25;
-            gain.gain.value = 0.1;
-            osc.start();
-            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.2);
-            osc.stop(audioCtx.currentTime + 0.2);
-            setTimeout(() => audioCtx.close(), 300);
-        } catch(e) {}
-    }
-
-    function makeAIMove() {
-        if (!game.game_over() && game.turn() === 'b') {
-            setTimeout(() => {
-                const moves = game.moves();
-                if (moves.length > 0) {
-                    const randomMove = moves[Math.floor(Math.random() * moves.length)];
-                    game.move(randomMove);
-                    selectedSquare = null;
-                    legalMoves = [];
-                    updateUI();
-                    playSound('move');
-                    energy = Math.min(100, energy + 5);
-                    document.getElementById('energyVal').innerText = Math.floor(energy);
+            isInCheck(color) {
+                const king = this.findKing(color);
+                if (!king) return false;
+                const opponentColor = color === 'w' ? 'b' : 'w';
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        const piece = this.board[r][c];
+                        if (piece && ((color === 'w' && piece === piece.toLowerCase()) || (color === 'b' && piece === piece.toUpperCase()))) {
+                            if (this.isValidMove(r, c, king.row, king.col)) return true;
+                        }
+                    }
                 }
-            }, 200);
-        }
-    }
+                return false;
+            },
 
-    function onCanvasClick(e) {
-        if (game.game_over()) return;
-        
-        const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-        
-        let clientX, clientY;
-        if (e.touches) {
-            clientX = e.touches[0].clientX;
-            clientY = e.touches[0].clientY;
-            e.preventDefault();
-        } else {
-            clientX = e.clientX;
-            clientY = e.clientY;
+            getAIMove() {
+                const moves = [];
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        const piece = this.board[r][c];
+                        if (piece && piece === piece.toLowerCase()) {
+                            for (let tr = 0; tr < 8; tr++) {
+                                for (let tc = 0; tc < 8; tc++) {
+                                    if (this.isValidMove(r, c, tr, tc)) {
+                                        moves.push({ fromRow: r, fromCol: c, toRow: tr, toCol: tc, piece, captured: this.board[tr][tc] });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (moves.length === 0) return null;
+                // Priorizar capturas
+                const captures = moves.filter(m => m.captured);
+                if (captures.length > 0) return captures[Math.floor(Math.random() * captures.length)];
+                return moves[Math.floor(Math.random() * moves.length)];
+            }
+        };
+
+        // ============ CANVAS RENDERER ============
+        const canvas = document.getElementById('chessCanvas');
+        const ctx = canvas.getContext('2d');
+        let boardSize = 0;
+        let squareSize = 0;
+
+        function resizeCanvas() {
+            const wrapper = document.querySelector('.board-wrapper');
+            const size = Math.min(wrapper.clientWidth - 20, wrapper.clientHeight - 20);
+            boardSize = Math.min(size, 500);
+            squareSize = boardSize / 8;
+            canvas.width = boardSize;
+            canvas.height = boardSize;
+            drawBoard();
         }
-        
-        const canvasX = (clientX - rect.left) * scaleX;
-        const canvasY = (clientY - rect.top) * scaleY;
-        
-        if (canvasX < 0 || canvasX > canvas.width || canvasY < 0 || canvasY > canvas.height) return;
-        
-        const col = Math.floor(canvasX / squareSize);
-        const row = Math.floor(canvasY / squareSize);
-        const square = String.fromCharCode(97 + col) + (8 - row);
-        
-        if (selectedSquare) {
-            const move = { from: selectedSquare, to: square, promotion: 'q' };
-            const result = game.move(move);
+
+        const pieceSymbols = {
+            'K': '♔', 'Q': '♕', 'R': '♖', 'B': '♗', 'N': '♘', 'P': '♙',
+            'k': '♚', 'q': '♛', 'r': '♜', 'b': '♝', 'n': '♞', 'p': '♟'
+        };
+
+        function drawBoard() {
+            ctx.clearRect(0, 0, boardSize, boardSize);
             
-            if (result) {
-                energy = Math.max(0, energy - 2);
-                playSound(result.flags && result.flags.includes('c') ? 'capture' : 'move');
-                selectedSquare = null;
-                legalMoves = [];
-                updateUI();
-                makeAIMove();
-            } else {
-                const piece = game.get(square);
-                if (piece && piece.color === game.turn()) {
-                    selectedSquare = square;
-                    legalMoves = game.moves({ square, verbose: true }).map(m => m.to);
-                    drawBoard();
-                } else {
-                    selectedSquare = null;
-                    legalMoves = [];
-                    drawBoard();
+            // Draw wood texture squares
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const x = col * squareSize;
+                    const y = row * squareSize;
+                    
+                    // Create wood grain effect
+                    const isLight = (row + col) % 2 === 0;
+                    const gradient = ctx.createLinearGradient(x, y, x + squareSize, y + squareSize);
+                    
+                    if (isLight) {
+                        gradient.addColorStop(0, '#f0d9b5');
+                        gradient.addColorStop(0.5, '#e8c99b');
+                        gradient.addColorStop(1, '#d4a76a');
+                    } else {
+                        gradient.addColorStop(0, '#8b5e3c');
+                        gradient.addColorStop(0.5, '#7a4e2d');
+                        gradient.addColorStop(1, '#6b3f1e');
+                    }
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(x, y, squareSize, squareSize);
+                    
+                    // Add subtle grain lines
+                    ctx.strokeStyle = isLight ? 'rgba(139,90,43,0.1)' : 'rgba(255,235,205,0.1)';
+                    ctx.lineWidth = 0.5;
+                    for (let i = 0; i < 3; i++) {
+                        ctx.beginPath();
+                        ctx.moveTo(x + Math.random() * squareSize, y);
+                        ctx.lineTo(x + Math.random() * squareSize, y + squareSize);
+                        ctx.stroke();
+                    }
                 }
             }
-        } else {
-            const piece = game.get(square);
-            if (piece && piece.color === game.turn()) {
-                selectedSquare = square;
-                legalMoves = game.moves({ square, verbose: true }).map(m => m.to);
-                drawBoard();
-                playSound('move');
+
+            // Draw coordinates
+            ctx.fillStyle = '#2a1a0a';
+            ctx.font = `${squareSize * 0.2}px Arial`;
+            ctx.textAlign = 'center';
+            for (let i = 0; i < 8; i++) {
+                ctx.fillText(String.fromCharCode(97 + i), i * squareSize + squareSize/2, boardSize - 2);
+                ctx.fillText(8 - i, 8, i * squareSize + squareSize * 0.8);
+            }
+
+            // Highlight selected square
+            if (gameState.selectedSquare) {
+                const { row, col } = gameState.selectedSquare;
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.5)';
+                ctx.fillRect(col * squareSize, row * squareSize, squareSize, squareSize);
+                ctx.strokeStyle = '#ffd700';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(col * squareSize, row * squareSize, squareSize, squareSize);
+            }
+
+            // Draw pieces
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const piece = chess.getPiece(row, col);
+                    if (piece) {
+                        const x = col * squareSize + squareSize / 2;
+                        const y = row * squareSize + squareSize / 2;
+                        
+                        // Piece shadow
+                        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                        ctx.shadowBlur = 8;
+                        ctx.shadowOffsetX = 2;
+                        ctx.shadowOffsetY = 2;
+                        
+                        // Piece background circle
+                        const radius = squareSize * 0.38;
+                        ctx.beginPath();
+                        ctx.arc(x, y, radius, 0, Math.PI * 2);
+                        const pieceGradient = ctx.createRadialGradient(x - 2, y - 2, radius * 0.1, x, y, radius);
+                        if (piece === piece.toUpperCase()) {
+                            pieceGradient.addColorStop(0, '#ffffff');
+                            pieceGradient.addColorStop(0.7, '#e8e8e8');
+                            pieceGradient.addColorStop(1, '#b0b0b0');
+                        } else {
+                            pieceGradient.addColorStop(0, '#4a4a4a');
+                            pieceGradient.addColorStop(0.7, '#2a2a2a');
+                            pieceGradient.addColorStop(1, '#0a0a0a');
+                        }
+                        ctx.fillStyle = pieceGradient;
+                        ctx.fill();
+                        
+                        // Reset shadow for text
+                        ctx.shadowColor = 'transparent';
+                        ctx.shadowBlur = 0;
+                        ctx.shadowOffsetX = 0;
+                        ctx.shadowOffsetY = 0;
+                        
+                        // Draw piece symbol
+                        ctx.fillStyle = piece === piece.toUpperCase() ? '#1a1a1a' : '#ffffff';
+                        ctx.font = `bold ${squareSize * 0.6}px "Segoe UI Symbol", Arial`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(pieceSymbols[piece], x, y + squareSize * 0.05);
+                    }
+                }
             }
         }
-    }
 
-    function resetGame() {
-        game.reset();
-        selectedSquare = null;
-        legalMoves = [];
-        whiteTime = 600;
-        blackTime = 600;
-        currentTimer = 'w';
-        energy = 100;
-        updateUI();
-        startTimer();
-        playSound('move');
-    }
+        // ============ GAME FUNCTIONS ============
+        function startGame() {
+            document.getElementById('homeScreen').classList.remove('active');
+            document.getElementById('gameScreen').classList.add('active');
+            chess.init();
+            gameState = {
+                ...gameState,
+                selectedSquare: null,
+                playerTimer: 600,
+                aiTimer: 600,
+                gameOver: false,
+                currentTurn: 'w',
+                combo: 0,
+                energy: 100
+            };
+            updateEnergyBar();
+            updateTimers();
+            resizeCanvas();
+            startTimers();
+        }
 
-    function toggleSound() {
-        soundEnabled = !soundEnabled;
-        document.getElementById('soundGameBtn').innerHTML = soundEnabled ? '🔊 SONIDO' : '🔇 SONIDO';
-    }
+        function backToHome() {
+            document.getElementById('gameScreen').classList.remove('active');
+            document.getElementById('homeScreen').classList.add('active');
+            updateStats();
+        }
 
-    canvas.addEventListener('click', onCanvasClick);
-    canvas.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        onCanvasClick(e);
-    });
-    
-    document.getElementById('resetGameBtn').onclick = resetGame;
-    document.getElementById('soundGameBtn').onclick = toggleSound;
-    
-    window.addEventListener('resize', () => {
-        resizeCanvasAndDraw();
-    });
-    
-    resizeCanvasAndDraw();
-    updateUI();
-    startTimer();
-</script>
+        let timerInterval;
+        function startTimers() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (gameState.gameOver) return;
+                if (gameState.currentTurn === 'w') {
+                    gameState.playerTimer--;
+                    if (gameState.playerTimer <= 0) endGame('time');
+                } else {
+                    gameState.aiTimer--;
+                    if (gameState.aiTimer <= 0) endGame('time');
+                }
+                updateTimers();
+            }, 1000);
+        }
+
+        function updateTimers() {
+            const pt = document.getElementById('playerTimer');
+            const at = document.getElementById('aiTimer');
+            pt.textContent = formatTime(gameState.playerTimer);
+            at.textContent = formatTime(gameState.aiTimer);
+            pt.className = 'timer-display' + (gameState.playerTimer < 60 ? ' urgent' : '');
+            at.className = 'timer-display' + (gameState.aiTimer < 60 ? ' urgent' : '');
+        }
+
+        function formatTime(secs) {
+            const m = Math.floor(secs / 60);
+            const s = secs % 60;
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function updateEnergyBar() {
+            const bar = document.getElementById('energyBar');
+            const val = document.getElementById('energyValue');
+            bar.style.width = gameState.energy + '%';
+            val.textContent = gameState.energy;
+        }
+
+        function updateStats() {
+            document.getElementById('level').textContent = gameState.level;
+            document.getElementById('totalXp').textContent = gameState.totalXp;
+            document.getElementById('coins').textContent = gameState.coins;
+            localStorage.setItem('chessLevel', gameState.level);
+            localStorage.setItem('chessXp', gameState.totalXp);
+            localStorage.setItem('chessCoins', gameState.coins);
+        }
+
+        function gainXP(amount) {
+            gameState.totalXp += amount;
+            const newLevel = Math.floor(Math.sqrt(gameState.totalXp / 100)) + 1;
+            if (newLevel > gameState.level) {
+                gameState.level = newLevel;
+                showCombo('⬆️ LEVEL UP!', 2000);
+                audio.combo3Sound();
+            }
+            updateStats();
+        }
+
+        function showCombo(text, duration = 1000) {
+            const display = document.getElementById('comboDisplay');
+            display.textContent = text;
+            display.classList.add('active');
+            setTimeout(() => display.classList.remove('active'), duration);
+        }
+
+        function showXpGain(x, y, amount) {
+            const el = document.createElement('div');
+            el.className = 'xp-gain';
+            el.textContent = `+${amount} XP`;
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            document.querySelector('.board-wrapper').appendChild(el);
+            setTimeout(() => el.remove(), 1000);
+        }
+
+        function makeMove(fromRow, fromCol, toRow, toCol) {
+            const result = chess.movePiece(fromRow, fromCol, toRow, toCol);
+            gameState.energy = Math.max(0, gameState.energy - 2);
+            updateEnergyBar();
+            
+            if (result.captured) {
+                gameState.combo++;
+                audio.captureSound();
+                const bonus = gameState.combo * 5;
+                gainXP(10 + bonus);
+                gameState.coins += bonus;
+                if (gameState.combo >= 3) {
+                    audio.combo3Sound();
+                    showCombo(`🔥 ${gameState.combo}x COMBO!`);
+                }
+                // Show XP gain at capture position
+                const rect = canvas.getBoundingClientRect();
+                showXpGain(toCol * squareSize + rect.left, toRow * squareSize + rect.top, 10 + bonus);
+            } else {
+                gameState.combo = 0;
+                audio.moveSound();
+                gainXP(2);
+            }
+
+            // Check for check
+            const opponentColor = gameState.currentTurn === 'w' ? 'b' : 'w';
+            if (chess.isInCheck(opponentColor)) {
+                audio.checkSound();
+                showCombo('⚠️ JAQUE!');
+            }
+        }
+
+        function endGame(reason) {
+            gameState.gameOver = true;
+            clearInterval(timerInterval);
+            audio.gameOverSound();
+            let bonus = 0;
+            if (reason === 'checkmate') {
+                bonus = 50;
+                showCombo('🏆 JAQUE MATE!', 3000);
+            } else if (reason === 'time') {
+                bonus = 20;
+                showCombo('⏰ TIEMPO AGOTADO!', 3000);
+            }
+            gameState.coins += bonus;
+            gainXP(bonus);
+            updateStats();
+            setTimeout(backToHome, 3000);
+        }
+
+        // ============ EVENT HANDLERS ============
+        canvas.addEventListener('click', (e) => {
+            if (gameState.gameOver || gameState.currentTurn !== 'w') return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = boardSize / rect.width;
+            const scaleY = boardSize / rect.height;
+            const x = (e.clientX - rect.left) * scaleX;
+            const y = (e.clientY - rect.top) * scaleY;
+            
+            const col = Math.floor(x / squareSize);
+            const row = Math.floor(y / squareSize);
+            
+            if (row < 0 || row > 7 || col < 0 || col > 7) return;
+
+            if (gameState.selectedSquare) {
+                const { row: fromRow, col: fromCol } = gameState.selectedSquare;
+                const piece = chess.getPiece(fromRow, fromCol);
+                
+                if (fromRow === row && fromCol === col) {
+                    gameState.selectedSquare = null;
+                } else if (chess.isValidMove(fromRow, fromCol, row, col)) {
+                    makeMove(fromRow, fromCol, row, col);
+                    gameState.selectedSquare = null;
+                    gameState.currentTurn = 'b';
+                    drawBoard();
+                    
+                    // AI move after delay
+                    setTimeout(() => {
+                        const aiMove = chess.getAIMove();
+                        if (aiMove) {
+                            makeMove(aiMove.fromRow, aiMove.fromCol, aiMove.toRow, aiMove.toCol);
+                            gameState.currentTurn = 'w';
+                            gameState.energy = Math.min(100, gameState.energy + 5);
+                            updateEnergyBar();
+                        }
+                        
+                        // Check for checkmate
+                        if (chess.isInCheck('w')) {
+                            endGame('checkmate');
+                        } else if (chess.isInCheck('b')) {
+                            // Player has AI in check
+                        }
+                        
+                        drawBoard();
+                    }, 500 + Math.random() * 1000);
+                } else {
+                    gameState.selectedSquare = null;
+                }
+            } else {
+                const piece = chess.getPiece(row, col);
+                if (piece && piece === piece.toUpperCase()) {
+                    gameState.selectedSquare = { row, col };
+                }
+            }
+            
+            drawBoard();
+        });
+
+        // Touch support
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('click', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        });
+
+        // ============ MODAL FUNCTIONS ============
+        function showInstructions() {
+            document.getElementById('instructionsModal').classList.add('active');
+        }
+
+        function showComingSoon() {
+            document.getElementById('comingSoonModal').classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // Close modals on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+
+        // ============ INITIALIZATION ============
+        window.addEventListener('resize', () => {
+            if (document.getElementById('gameScreen').classList.contains('active')) {
+                resizeCanvas();
+            }
+        });
+
+        window.addEventListener('orientationchange', () => {
+            setTimeout(resizeCanvas, 100);
+        });
+
+        createStars();
+        updateStats();
+    </script>
 </body>
 </html>
