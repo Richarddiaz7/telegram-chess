@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>♔ Royal Chess Arena - Play & Earn</title>
     <style>
         * {
@@ -13,68 +13,28 @@
             user-select: none;
         }
 
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #0a0a2e 0%, #1a1a4e 30%, #2a1a3e 60%, #0a0a2e 100%);
-            min-height: 100vh;
+            background: #0a0a1a;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
             position: relative;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 20%, rgba(255,215,0,0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(147,112,219,0.1) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .stars {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .star {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle 3s infinite;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.5); }
         }
 
         .app-container {
             position: relative;
             z-index: 1;
-            width: 100%;
-            max-width: 480px;
+            width: 100vw;
             height: 100vh;
-            max-height: 900px;
-            background: rgba(10, 10, 30, 0.8);
-            backdrop-filter: blur(20px);
-            border: 2px solid rgba(255, 215, 0, 0.3);
-            border-radius: 24px;
-            box-shadow: 
-                0 0 50px rgba(255, 215, 0, 0.2),
-                0 20px 60px rgba(0, 0, 0, 0.5),
-                inset 0 0 30px rgba(255, 215, 0, 0.05);
+            height: 100dvh;
+            background: #0a0a2e;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -82,8 +42,6 @@
 
         @media (orientation: landscape) {
             .app-container {
-                max-width: 700px;
-                max-height: 500px;
                 flex-direction: row;
             }
         }
@@ -93,7 +51,7 @@
             width: 100%;
             height: 100%;
             flex-direction: column;
-            animation: fadeIn 0.5s ease-out;
+            animation: fadeIn 0.4s ease-out;
         }
 
         .screen.active {
@@ -101,16 +59,17 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         /* HOME SCREEN */
         .home-screen {
             align-items: center;
             justify-content: center;
-            gap: 20px;
-            padding: 20px;
+            gap: 15px;
+            padding: 15px;
+            background: linear-gradient(180deg, #0a0a2e 0%, #1a1a4e 50%, #0a0a2e 100%);
         }
 
         .logo-container {
@@ -120,239 +79,267 @@
 
         @keyframes float {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            50% { transform: translateY(-8px); }
         }
 
         .crown-icon {
-            font-size: 80px;
-            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.6));
+            font-size: 60px;
+            filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.6));
         }
 
         .title {
-            font-size: 36px;
+            font-size: 30px;
             font-weight: 900;
             background: linear-gradient(45deg, #ffd700, #ffed4a, #daa520);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
             letter-spacing: 2px;
         }
 
         .subtitle {
             color: #c0c0c0;
-            font-size: 14px;
+            font-size: 12px;
             letter-spacing: 4px;
             text-transform: uppercase;
             margin-top: 5px;
         }
 
         .btn {
-            padding: 16px 40px;
+            padding: 14px 35px;
             border: none;
             border-radius: 50px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 2px;
             position: relative;
             overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: 0.5s;
-        }
-
-        .btn:hover::before {
-            left: 100%;
+        .btn:active {
+            transform: scale(0.95);
         }
 
         .btn-play {
             background: linear-gradient(135deg, #ffd700, #ff8c00);
             color: #1a1a2e;
-            box-shadow: 0 10px 30px rgba(255, 140, 0, 0.4);
-            font-size: 24px;
-            padding: 20px 60px;
+            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.5);
+            font-size: 22px;
+            padding: 18px 50px;
             animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
-            0% { box-shadow: 0 10px 30px rgba(255, 140, 0, 0.4); }
-            50% { box-shadow: 0 15px 50px rgba(255, 140, 0, 0.8); transform: scale(1.05); }
-            100% { box-shadow: 0 10px 30px rgba(255, 140, 0, 0.4); transform: scale(1); }
+            0% { box-shadow: 0 8px 25px rgba(255, 140, 0, 0.5); }
+            50% { box-shadow: 0 12px 40px rgba(255, 140, 0, 0.8); }
+            100% { box-shadow: 0 8px 25px rgba(255, 140, 0, 0.5); }
         }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
             color: white;
-            border: 2px solid rgba(255, 215, 0, 0.3);
-            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            font-size: 13px;
+            padding: 10px 20px;
         }
 
-        .btn-secondary:hover {
+        .btn-secondary:active {
             background: rgba(255, 215, 0, 0.2);
-            border-color: #ffd700;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
         }
 
         .stats-container {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            border-radius: 15px;
-            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            border-radius: 12px;
+            padding: 10px 18px;
             text-align: center;
-            backdrop-filter: blur(10px);
-            min-width: 100px;
+            min-width: 80px;
         }
 
         .stat-value {
             color: #ffd700;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 900;
         }
 
         .stat-label {
             color: #888;
-            font-size: 11px;
+            font-size: 10px;
             text-transform: uppercase;
-            margin-top: 5px;
         }
 
         /* GAME SCREEN */
         .game-screen {
-            padding: 10px;
-            justify-content: space-between;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: #0a0a1a;
         }
 
         .game-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 215, 0, 0.2);
+            padding: 8px 10px;
+            background: rgba(10, 10, 30, 0.95);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            flex-shrink: 0;
+            z-index: 10;
         }
 
         .player-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             color: white;
         }
 
         .player-avatar {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: linear-gradient(135deg, #ffd700, #ff8c00);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .player-name {
+            font-size: 11px;
+            color: #aaa;
+            white-space: nowrap;
         }
 
         .timer-display {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 900;
             color: #ffd700;
             font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
         }
 
         .timer-display.urgent {
-            color: #ff4444;
+            color: #ff3333;
             animation: blink 0.5s infinite;
         }
 
         @keyframes blink {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+            50% { opacity: 0.2; }
         }
 
-        .board-wrapper {
-            position: relative;
+        /* TABLERO - MÁXIMO TAMAÑO */
+        .board-container {
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 5px;
             min-height: 0;
+            position: relative;
         }
 
         canvas {
-            border-radius: 15px;
+            border-radius: 8px;
             box-shadow: 
-                0 10px 40px rgba(0, 0, 0, 0.5),
-                0 0 20px rgba(255, 215, 0, 0.2);
+                0 0 60px rgba(255, 215, 0, 0.15),
+                0 5px 30px rgba(0, 0, 0, 0.8);
             cursor: pointer;
             touch-action: manipulation;
+            /* OCUPA EL MÁXIMO POSIBLE */
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .game-footer {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            background: rgba(10, 10, 30, 0.95);
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+            flex-shrink: 0;
+            flex-wrap: wrap;
         }
 
         .energy-bar-container {
-            width: 100%;
-            height: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+            flex: 1;
+            min-width: 100px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
             overflow: hidden;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            margin-top: 5px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
         }
 
         .energy-bar {
             height: 100%;
-            background: linear-gradient(90deg, #ff4444, #ffd700, #44ff44);
-            border-radius: 10px;
-            transition: width 0.5s ease;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            background: linear-gradient(90deg, #ff3333, #ffaa00, #ffd700, #44ff44);
+            border-radius: 8px;
+            transition: width 0.4s ease;
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.3);
         }
 
         .energy-label {
             color: #ffd700;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+            padding: 8px 15px;
+            border-radius: 20px;
             font-size: 12px;
-            margin-top: 2px;
-            text-align: right;
+            cursor: pointer;
+            white-space: nowrap;
             font-weight: 700;
         }
 
+        .btn-back:active {
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        /* COMBO DISPLAY */
         .combo-display {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 48px;
+            font-size: 42px;
             font-weight: 900;
             color: #ffd700;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.9);
             pointer-events: none;
             opacity: 0;
             transition: all 0.3s ease;
-            z-index: 10;
+            z-index: 100;
+            text-align: center;
         }
 
         .combo-display.active {
             opacity: 1;
-            animation: comboPop 0.5s ease-out;
+            animation: comboPop 0.6s ease-out;
         }
 
         @keyframes comboPop {
-            0% { transform: translate(-50%, -50%) scale(0); }
-            50% { transform: translate(-50%, -50%) scale(1.5); }
+            0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+            40% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
             100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
         }
 
@@ -360,14 +347,17 @@
             position: absolute;
             color: #44ff44;
             font-weight: 900;
-            font-size: 20px;
+            font-size: 22px;
             pointer-events: none;
-            animation: floatUp 1s ease-out forwards;
+            z-index: 50;
+            animation: floatUp 1.2s ease-out forwards;
+            text-shadow: 0 0 15px rgba(68, 255, 68, 0.8);
         }
 
         @keyframes floatUp {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(-50px); }
+            0% { opacity: 1; transform: translateY(0) scale(0.5); }
+            30% { opacity: 1; transform: translateY(-30px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-70px) scale(0.8); }
         }
 
         /* MODAL */
@@ -378,11 +368,12 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            z-index: 100;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 200;
             justify-content: center;
             align-items: center;
+            padding: 15px;
         }
 
         .modal-overlay.active {
@@ -391,75 +382,104 @@
 
         .modal {
             background: linear-gradient(135deg, #1a1a3e, #2a2a5e);
-            border: 2px solid rgba(255, 215, 0, 0.5);
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 400px;
-            width: 90%;
-            max-height: 80vh;
+            border: 2px solid rgba(255, 215, 0, 0.4);
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 380px;
+            width: 100%;
+            max-height: 75vh;
             overflow-y: auto;
             color: white;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
         }
 
         .modal h2 {
             color: #ffd700;
-            font-size: 28px;
-            margin-bottom: 20px;
+            font-size: 24px;
+            margin-bottom: 15px;
             text-align: center;
         }
 
         .modal-section {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.04);
             border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: 1px solid rgba(255, 215, 0, 0.2);
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 215, 0, 0.15);
         }
 
         .modal-section h3 {
             color: #ffd700;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            font-size: 16px;
         }
 
         .modal-section p {
             color: #ccc;
-            line-height: 1.6;
+            line-height: 1.5;
+            font-size: 14px;
         }
 
         .btn-close {
-            background: linear-gradient(135deg, #ff4444, #cc0000);
+            background: linear-gradient(135deg, #cc0000, #880000);
             color: white;
             width: 100%;
-            margin-top: 20px;
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 25px;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
         }
 
-        /* RESPONSIVE LANDSCAPE */
+        /* LANDSCAPE - Tablero aún más grande */
         @media (orientation: landscape) {
             .game-screen {
                 flex-direction: row;
-                align-items: center;
-                gap: 10px;
+                align-items: stretch;
             }
 
             .game-header {
                 flex-direction: column;
+                justify-content: center;
+                gap: 15px;
+                padding: 10px;
+                border-bottom: none;
+                border-right: 1px solid rgba(255, 215, 0, 0.2);
+                width: auto;
+                min-width: 120px;
+            }
+
+            .board-container {
+                flex: 1;
+                padding: 5px;
+            }
+
+            .game-footer {
+                flex-direction: column;
+                justify-content: center;
                 gap: 10px;
+                border-top: none;
+                border-left: 1px solid rgba(255, 215, 0, 0.2);
+                width: auto;
+                min-width: 120px;
+                padding: 10px;
             }
 
-            .board-wrapper {
-                order: 1;
+            .energy-bar-container {
+                width: 100%;
+                min-width: auto;
             }
 
-            .energy-section {
-                order: 2;
+            canvas {
+                max-width: 100%;
+                max-height: 100%;
             }
         }
     </style>
 </head>
 <body>
-    <div class="stars" id="stars"></div>
-
     <div class="app-container">
         <!-- HOME SCREEN -->
         <div class="screen active" id="homeScreen">
@@ -477,7 +497,7 @@
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="totalXp">0</div>
-                        <div class="stat-label">XP Total</div>
+                        <div class="stat-label">XP</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="coins">0</div>
@@ -489,9 +509,9 @@
                     ⚔️ PLAY NOW
                 </button>
 
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
                     <button class="btn btn-secondary" onclick="showInstructions()">
-                        📚 MASTER CLASS
+                        📚 CLASES
                     </button>
                     <button class="btn btn-secondary" onclick="showComingSoon()">
                         🚀 PRÓXIMAMENTE
@@ -503,38 +523,39 @@
         <!-- GAME SCREEN -->
         <div class="screen" id="gameScreen">
             <div class="game-screen">
-                <div class="game-header" style="flex-direction: column; gap: 10px;">
+                <!-- HEADER -->
+                <div class="game-header">
                     <div class="player-info">
                         <div class="player-avatar">🤖</div>
                         <div>
-                            <div style="font-size: 12px; color: #888;">IA OPONENTE</div>
+                            <div class="player-name">IA OPONENTE</div>
                             <div class="timer-display" id="aiTimer">10:00</div>
                         </div>
                     </div>
                     <div class="player-info">
                         <div class="player-avatar">👤</div>
                         <div>
-                            <div style="font-size: 12px; color: #888;">TÚ</div>
+                            <div class="player-name">TÚ</div>
                             <div class="timer-display" id="playerTimer">10:00</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="board-wrapper">
+                <!-- TABLERO ENORME -->
+                <div class="board-container" id="boardContainer">
                     <canvas id="chessCanvas"></canvas>
                     <div class="combo-display" id="comboDisplay"></div>
                 </div>
 
-                <div class="energy-section" style="width: 100%;">
+                <!-- FOOTER -->
+                <div class="game-footer">
+                    <span class="energy-label">⚡</span>
                     <div class="energy-bar-container">
                         <div class="energy-bar" id="energyBar" style="width: 100%;"></div>
                     </div>
-                    <div class="energy-label">⚡ Energía: <span id="energyValue">100</span>%</div>
+                    <span class="energy-label" id="energyValue">100%</span>
+                    <button class="btn-back" onclick="backToHome()">🏠 MENÚ</button>
                 </div>
-
-                <button class="btn btn-secondary" onclick="backToHome()" style="width: 100%; margin-top: 5px; padding: 10px;">
-                    🏠 MENÚ
-                </button>
             </div>
         </div>
     </div>
@@ -546,24 +567,24 @@
             <div class="modal-section">
                 <h3>🇮🇹 Apertura Italiana</h3>
                 <p>1.e4 e5 2.Cf3 Cc6 3.Ac4<br>
-                Controla el centro y apunta a f7, el punto más débil de las negras.</p>
+                Controla el centro y apunta a f7.</p>
             </div>
             <div class="modal-section">
                 <h3>🇪🇸 Apertura Española</h3>
                 <p>1.e4 e5 2.Cf3 Cc6 3.Ab5<br>
-                Presión inmediata sobre el caballo que defiende e5.</p>
+                Presión inmediata sobre el caballo defensor.</p>
             </div>
             <div class="modal-section">
                 <h3>🏰 El Enroque</h3>
-                <p>Rey mueve 2 casillas hacia la torre. Protege al rey y activa la torre.<br>
-                ¡Fundamental para la seguridad del rey!</p>
+                <p>Mueve el rey 2 casillas hacia la torre.<br>
+                ¡Protege a tu rey y activa la torre!</p>
             </div>
             <div class="modal-section">
                 <h3>⚡ Tenedor (Fork)</h3>
-                <p>Un caballo atacando dos piezas mayores simultáneamente.<br>
-                ¡La jugada más temida por los principiantes!</p>
+                <p>Caballo atacando 2 piezas mayores.<br>
+                ¡La jugada más devastadora!</p>
             </div>
-            <button class="btn btn-close" onclick="closeModal('instructionsModal')">CERRAR</button>
+            <button class="btn-close" onclick="closeModal('instructionsModal')">CERRAR</button>
         </div>
     </div>
 
@@ -572,65 +593,59 @@
             <h2>🚀 PRÓXIMAMENTE</h2>
             <div class="modal-section">
                 <h3>🏆 Modo Torneo</h3>
-                <p>Compite en torneos diarios y gana grandes premios en monedas.</p>
+                <p>Compite en torneos diarios y gana premios.</p>
             </div>
             <div class="modal-section">
                 <h3>👥 Multijugador</h3>
-                <p>Desafía a tus amigos de Telegram en partidas en tiempo real.</p>
+                <p>Desafía a amigos en tiempo real.</p>
             </div>
             <div class="modal-section">
                 <h3>🎨 Skins Legendarias</h3>
-                <p>Personaliza tu tablero y piezas con skins únicas.</p>
+                <p>Personaliza tu tablero y piezas.</p>
             </div>
             <div class="modal-section">
                 <h3>💰 Mercado NFT</h3>
-                <p>Compra y vende piezas de ajedrez como NFTs exclusivos.</p>
+                <p>Compra y vende piezas como NFTs.</p>
             </div>
-            <button class="btn btn-close" onclick="closeModal('comingSoonModal')">¡QUIERO SER EL PRIMERO!</button>
+            <button class="btn-close" onclick="closeModal('comingSoonModal')">¡QUIERO SER EL PRIMERO!</button>
         </div>
     </div>
 
     <script>
-        // ============ STARS BACKGROUND ============
-        function createStars() {
-            const container = document.getElementById('stars');
-            for (let i = 0; i < 100; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.width = star.style.height = (Math.random() * 3 + 1) + 'px';
-                star.style.animationDelay = Math.random() * 3 + 's';
-                star.style.animationDuration = (Math.random() * 3 + 2) + 's';
-                container.appendChild(star);
-            }
-        }
-
         // ============ AUDIO SYSTEM ============
         class AudioSystem {
             constructor() {
-                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                this.ctx = null;
             }
 
-            play(freq, type, duration, vol = 0.1) {
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
                 if (this.ctx.state === 'suspended') this.ctx.resume();
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.frequency.value = freq;
-                osc.type = type;
-                gain.gain.setValueAtTime(vol, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
-                osc.start(this.ctx.currentTime);
-                osc.stop(this.ctx.currentTime + duration);
             }
 
-            moveSound() { this.play(600, 'sine', 0.1, 0.05); }
-            captureSound() { this.play(200, 'sawtooth', 0.3, 0.1); }
-            checkSound() { this.play(800, 'square', 0.2, 0.15); setTimeout(() => this.play(1000, 'square', 0.2, 0.15), 200); }
-            combo3Sound() { [600,800,1000].forEach((f, i) => setTimeout(() => this.play(f, 'triangle', 0.2, 0.1), i * 100)); }
-            gameOverSound() { [400,300,200].forEach((f, i) => setTimeout(() => this.play(f, 'sawtooth', 0.5, 0.3), i * 200)); }
+            play(freq, type, duration, vol = 0.08) {
+                try {
+                    this.init();
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.frequency.value = freq;
+                    osc.type = type;
+                    gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+                    osc.start(this.ctx.currentTime);
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e) {}
+            }
+
+            moveSound() { this.play(500, 'sine', 0.08, 0.04); }
+            captureSound() { this.play(180, 'sawtooth', 0.25, 0.15); }
+            checkSound() { this.play(700, 'square', 0.15, 0.12); setTimeout(() => this.play(900, 'square', 0.15, 0.12), 150); }
+            combo3Sound() { [500,700,900].forEach((f, i) => setTimeout(() => this.play(f, 'triangle', 0.15, 0.1), i * 80)); }
+            gameOverSound() { [350,250,150].forEach((f, i) => setTimeout(() => this.play(f, 'sawtooth', 0.4, 0.25), i * 180)); }
         }
 
         const audio = new AudioSystem();
@@ -646,7 +661,6 @@
             playerTimer: 600,
             aiTimer: 600,
             gameOver: false,
-            playerColor: 'w',
             currentTurn: 'w'
         };
 
@@ -683,20 +697,32 @@
                 const absRowDiff = Math.abs(rowDiff);
                 const absColDiff = Math.abs(colDiff);
 
+                // Clear path check for sliding pieces
+                const checkClearPath = (dr, dc) => {
+                    const steps = Math.max(Math.abs(dr), Math.abs(dc));
+                    const stepR = dr === 0 ? 0 : dr / Math.abs(dr);
+                    const stepC = dc === 0 ? 0 : dc / Math.abs(dc);
+                    for (let i = 1; i < steps; i++) {
+                        if (this.getPiece(fromRow + stepR * i, fromCol + stepC * i)) return false;
+                    }
+                    return true;
+                };
+
                 switch(type) {
                     case 'p':
                         const direction = piece === 'P' ? -1 : 1;
+                        const startRow = piece === 'P' ? 6 : 1;
                         if (colDiff === 0 && !target) {
                             if (rowDiff === direction) return true;
-                            const startRow = piece === 'P' ? 6 : 1;
-                            if (fromRow === startRow && rowDiff === 2 * direction && !this.getPiece(fromRow + direction, fromCol)) return true;
+                            if (fromRow === startRow && rowDiff === 2 * direction && 
+                                !this.getPiece(fromRow + direction, fromCol)) return true;
                         }
                         if (absColDiff === 1 && rowDiff === direction && target) return true;
                         return false;
-                    case 'r': return (rowDiff === 0 || colDiff === 0);
+                    case 'r': return (rowDiff === 0 || colDiff === 0) && checkClearPath(rowDiff, colDiff);
                     case 'n': return (absRowDiff === 2 && absColDiff === 1) || (absRowDiff === 1 && absColDiff === 2);
-                    case 'b': return absRowDiff === absColDiff;
-                    case 'q': return (rowDiff === 0 || colDiff === 0 || absRowDiff === absColDiff);
+                    case 'b': return absRowDiff === absColDiff && checkClearPath(rowDiff, colDiff);
+                    case 'q': return (rowDiff === 0 || colDiff === 0 || absRowDiff === absColDiff) && checkClearPath(rowDiff, colDiff);
                     case 'k': return absRowDiff <= 1 && absColDiff <= 1;
                     default: return false;
                 }
@@ -723,12 +749,38 @@
             isInCheck(color) {
                 const king = this.findKing(color);
                 if (!king) return false;
-                const opponentColor = color === 'w' ? 'b' : 'w';
                 for (let r = 0; r < 8; r++) {
                     for (let c = 0; c < 8; c++) {
                         const piece = this.board[r][c];
-                        if (piece && ((color === 'w' && piece === piece.toLowerCase()) || (color === 'b' && piece === piece.toUpperCase()))) {
+                        if (piece && ((color === 'w' && piece === piece.toLowerCase()) || 
+                            (color === 'b' && piece === piece.toUpperCase()))) {
                             if (this.isValidMove(r, c, king.row, king.col)) return true;
+                        }
+                    }
+                }
+                return false;
+            },
+
+            hasLegalMoves(color) {
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        const piece = this.board[r][c];
+                        const isWhitePiece = piece && piece === piece.toUpperCase();
+                        if ((color === 'w' && isWhitePiece) || (color === 'b' && !isWhitePiece && piece)) {
+                            for (let tr = 0; tr < 8; tr++) {
+                                for (let tc = 0; tc < 8; tc++) {
+                                    if (this.isValidMove(r, c, tr, tc)) {
+                                        // Try move
+                                        const saved = this.board[tr][tc];
+                                        this.board[tr][tc] = piece;
+                                        this.board[r][c] = '';
+                                        const stillInCheck = this.isInCheck(color);
+                                        this.board[r][c] = piece;
+                                        this.board[tr][tc] = saved;
+                                        if (!stillInCheck) return true;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -744,7 +796,20 @@
                             for (let tr = 0; tr < 8; tr++) {
                                 for (let tc = 0; tc < 8; tc++) {
                                     if (this.isValidMove(r, c, tr, tc)) {
-                                        moves.push({ fromRow: r, fromCol: c, toRow: tr, toCol: tc, piece, captured: this.board[tr][tc] });
+                                        // Test if move leaves own king safe
+                                        const saved = this.board[tr][tc];
+                                        this.board[tr][tc] = piece;
+                                        this.board[r][c] = '';
+                                        const inCheck = this.isInCheck('b');
+                                        this.board[r][c] = piece;
+                                        this.board[tr][tc] = saved;
+                                        if (!inCheck) {
+                                            moves.push({ 
+                                                fromRow: r, fromCol: c, toRow: tr, toCol: tc, 
+                                                piece, captured: saved,
+                                                score: saved ? (saved === 'Q' || saved === 'q' ? 9 : saved === 'R' || saved === 'r' ? 5 : saved === 'B' || saved === 'b' || saved === 'N' || saved === 'n' ? 3 : 1) : 0
+                                            });
+                                        }
                                     }
                                 }
                             }
@@ -752,26 +817,41 @@
                     }
                 }
                 if (moves.length === 0) return null;
-                // Priorizar capturas
-                const captures = moves.filter(m => m.captured);
-                if (captures.length > 0) return captures[Math.floor(Math.random() * captures.length)];
-                return moves[Math.floor(Math.random() * moves.length)];
+                
+                // Sort by score (captures first, higher value captures first)
+                moves.sort((a, b) => b.score - a.score);
+                
+                // 70% chance to take the best move, 30% random from top 5
+                if (Math.random() < 0.7) {
+                    return moves[0];
+                } else {
+                    const topN = moves.slice(0, Math.min(5, moves.length));
+                    return topN[Math.floor(Math.random() * topN.length)];
+                }
             }
         };
 
-        // ============ CANVAS RENDERER ============
+        // ============ CANVAS RENDERER - PIEZAS GIGANTES ============
         const canvas = document.getElementById('chessCanvas');
         const ctx = canvas.getContext('2d');
         let boardSize = 0;
         let squareSize = 0;
 
         function resizeCanvas() {
-            const wrapper = document.querySelector('.board-wrapper');
-            const size = Math.min(wrapper.clientWidth - 20, wrapper.clientHeight - 20);
-            boardSize = Math.min(size, 500);
+            const container = document.getElementById('boardContainer');
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+            
+            // USAR EL 98% DEL ESPACIO DISPONIBLE - MÁXIMO POSIBLE
+            const size = Math.floor(Math.min(containerWidth, containerHeight) * 0.98);
+            boardSize = size;
             squareSize = boardSize / 8;
+            
             canvas.width = boardSize;
             canvas.height = boardSize;
+            canvas.style.width = boardSize + 'px';
+            canvas.style.height = boardSize + 'px';
+            
             drawBoard();
         }
 
@@ -783,61 +863,83 @@
         function drawBoard() {
             ctx.clearRect(0, 0, boardSize, boardSize);
             
-            // Draw wood texture squares
+            // Draw squares with wood effect
             for (let row = 0; row < 8; row++) {
                 for (let col = 0; col < 8; col++) {
                     const x = col * squareSize;
                     const y = row * squareSize;
-                    
-                    // Create wood grain effect
                     const isLight = (row + col) % 2 === 0;
-                    const gradient = ctx.createLinearGradient(x, y, x + squareSize, y + squareSize);
                     
+                    const gradient = ctx.createLinearGradient(x, y, x + squareSize, y + squareSize);
                     if (isLight) {
-                        gradient.addColorStop(0, '#f0d9b5');
-                        gradient.addColorStop(0.5, '#e8c99b');
-                        gradient.addColorStop(1, '#d4a76a');
+                        gradient.addColorStop(0, '#f5deb3');
+                        gradient.addColorStop(0.4, '#eed9b0');
+                        gradient.addColorStop(1, '#d2b48c');
                     } else {
-                        gradient.addColorStop(0, '#8b5e3c');
-                        gradient.addColorStop(0.5, '#7a4e2d');
-                        gradient.addColorStop(1, '#6b3f1e');
+                        gradient.addColorStop(0, '#8b6914');
+                        gradient.addColorStop(0.4, '#7a5a12');
+                        gradient.addColorStop(1, '#5c3d0e');
                     }
                     
                     ctx.fillStyle = gradient;
                     ctx.fillRect(x, y, squareSize, squareSize);
                     
-                    // Add subtle grain lines
-                    ctx.strokeStyle = isLight ? 'rgba(139,90,43,0.1)' : 'rgba(255,235,205,0.1)';
+                    // Subtle border
+                    ctx.strokeStyle = isLight ? 'rgba(139,90,43,0.15)' : 'rgba(255,235,205,0.1)';
                     ctx.lineWidth = 0.5;
-                    for (let i = 0; i < 3; i++) {
-                        ctx.beginPath();
-                        ctx.moveTo(x + Math.random() * squareSize, y);
-                        ctx.lineTo(x + Math.random() * squareSize, y + squareSize);
-                        ctx.stroke();
-                    }
+                    ctx.strokeRect(x, y, squareSize, squareSize);
                 }
             }
 
-            // Draw coordinates
-            ctx.fillStyle = '#2a1a0a';
-            ctx.font = `${squareSize * 0.2}px Arial`;
-            ctx.textAlign = 'center';
-            for (let i = 0; i < 8; i++) {
-                ctx.fillText(String.fromCharCode(97 + i), i * squareSize + squareSize/2, boardSize - 2);
-                ctx.fillText(8 - i, 8, i * squareSize + squareSize * 0.8);
+            // Draw grid lines
+            ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 8; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * squareSize, 0);
+                ctx.lineTo(i * squareSize, boardSize);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, i * squareSize);
+                ctx.lineTo(boardSize, i * squareSize);
+                ctx.stroke();
+            }
+
+            // Coordinates
+            if (squareSize > 25) {
+                ctx.fillStyle = '#3a2a1a';
+                ctx.font = `bold ${Math.max(10, squareSize * 0.18)}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                for (let i = 0; i < 8; i++) {
+                    // Files (a-h)
+                    ctx.fillText(String.fromCharCode(97 + i), i * squareSize + squareSize/2, boardSize - squareSize * 0.12);
+                    // Ranks (1-8) - fixed: row 7 is 1, row 0 is 8
+                    ctx.fillText(8 - i, squareSize * 0.12, i * squareSize + squareSize/2);
+                }
             }
 
             // Highlight selected square
             if (gameState.selectedSquare) {
                 const { row, col } = gameState.selectedSquare;
-                ctx.fillStyle = 'rgba(255, 215, 0, 0.5)';
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.45)';
                 ctx.fillRect(col * squareSize, row * squareSize, squareSize, squareSize);
                 ctx.strokeStyle = '#ffd700';
-                ctx.lineWidth = 3;
-                ctx.strokeRect(col * squareSize, row * squareSize, squareSize, squareSize);
+                ctx.lineWidth = Math.max(2, squareSize * 0.04);
+                ctx.strokeRect(col * squareSize + 2, row * squareSize + 2, squareSize - 4, squareSize - 4);
+                
+                // Glow effect
+                ctx.shadowColor = 'rgba(255, 215, 0, 0.6)';
+                ctx.shadowBlur = squareSize * 0.3;
+                ctx.strokeStyle = 'rgba(255, 215, 0, 0.5)';
+                ctx.strokeRect(col * squareSize + 2, row * squareSize + 2, squareSize - 4, squareSize - 4);
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
             }
 
-            // Draw pieces
+            // Draw pieces - ENORME, 85% del tamaño de la casilla
+            const pieceRadius = squareSize * 0.42;
+            
             for (let row = 0; row < 8; row++) {
                 for (let col = 0; col < 8; col++) {
                     const piece = chess.getPiece(row, col);
@@ -845,41 +947,66 @@
                         const x = col * squareSize + squareSize / 2;
                         const y = row * squareSize + squareSize / 2;
                         
-                        // Piece shadow
-                        ctx.shadowColor = 'rgba(0,0,0,0.5)';
-                        ctx.shadowBlur = 8;
-                        ctx.shadowOffsetX = 2;
-                        ctx.shadowOffsetY = 2;
+                        // Shadow
+                        ctx.shadowColor = 'rgba(0,0,0,0.6)';
+                        ctx.shadowBlur = squareSize * 0.12;
+                        ctx.shadowOffsetX = squareSize * 0.03;
+                        ctx.shadowOffsetY = squareSize * 0.04;
                         
-                        // Piece background circle
-                        const radius = squareSize * 0.38;
+                        // Piece base circle
                         ctx.beginPath();
-                        ctx.arc(x, y, radius, 0, Math.PI * 2);
-                        const pieceGradient = ctx.createRadialGradient(x - 2, y - 2, radius * 0.1, x, y, radius);
-                        if (piece === piece.toUpperCase()) {
+                        ctx.arc(x, y, pieceRadius, 0, Math.PI * 2);
+                        
+                        const isWhite = piece === piece.toUpperCase();
+                        const pieceGradient = ctx.createRadialGradient(
+                            x - pieceRadius * 0.3, y - pieceRadius * 0.3, pieceRadius * 0.05, 
+                            x, y, pieceRadius
+                        );
+                        
+                        if (isWhite) {
                             pieceGradient.addColorStop(0, '#ffffff');
-                            pieceGradient.addColorStop(0.7, '#e8e8e8');
-                            pieceGradient.addColorStop(1, '#b0b0b0');
+                            pieceGradient.addColorStop(0.5, '#f0f0f0');
+                            pieceGradient.addColorStop(0.8, '#d4d4d4');
+                            pieceGradient.addColorStop(1, '#a0a0a0');
                         } else {
-                            pieceGradient.addColorStop(0, '#4a4a4a');
-                            pieceGradient.addColorStop(0.7, '#2a2a2a');
-                            pieceGradient.addColorStop(1, '#0a0a0a');
+                            pieceGradient.addColorStop(0, '#606060');
+                            pieceGradient.addColorStop(0.5, '#2a2a2a');
+                            pieceGradient.addColorStop(0.8, '#1a1a1a');
+                            pieceGradient.addColorStop(1, '#000000');
                         }
+                        
                         ctx.fillStyle = pieceGradient;
                         ctx.fill();
                         
-                        // Reset shadow for text
+                        // Border
                         ctx.shadowColor = 'transparent';
                         ctx.shadowBlur = 0;
                         ctx.shadowOffsetX = 0;
                         ctx.shadowOffsetY = 0;
                         
-                        // Draw piece symbol
-                        ctx.fillStyle = piece === piece.toUpperCase() ? '#1a1a1a' : '#ffffff';
-                        ctx.font = `bold ${squareSize * 0.6}px "Segoe UI Symbol", Arial`;
+                        ctx.strokeStyle = isWhite ? '#888' : '#333';
+                        ctx.lineWidth = Math.max(1, squareSize * 0.02);
+                        ctx.stroke();
+                        
+                        // Piece symbol - GIGANTE
+                        const symbolSize = squareSize * 0.75;
+                        ctx.fillStyle = isWhite ? '#1a1a1a' : '#ffffff';
+                        ctx.font = `bold ${symbolSize}px "Segoe UI Symbol", "Apple Color Emoji", "Noto Color Emoji", Arial`;
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
-                        ctx.fillText(pieceSymbols[piece], x, y + squareSize * 0.05);
+                        
+                        // Slight shadow on text
+                        ctx.shadowColor = isWhite ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.15)';
+                        ctx.shadowBlur = squareSize * 0.04;
+                        ctx.shadowOffsetX = 0;
+                        ctx.shadowOffsetY = squareSize * 0.02;
+                        
+                        ctx.fillText(pieceSymbols[piece], x, y + squareSize * 0.04);
+                        
+                        ctx.shadowColor = 'transparent';
+                        ctx.shadowBlur = 0;
+                        ctx.shadowOffsetX = 0;
+                        ctx.shadowOffsetY = 0;
                     }
                 }
             }
@@ -889,6 +1016,9 @@
         function startGame() {
             document.getElementById('homeScreen').classList.remove('active');
             document.getElementById('gameScreen').classList.add('active');
+            
+            audio.init();
+            
             chess.init();
             gameState = {
                 ...gameState,
@@ -900,13 +1030,19 @@
                 combo: 0,
                 energy: 100
             };
+            
             updateEnergyBar();
             updateTimers();
-            resizeCanvas();
+            
+            setTimeout(resizeCanvas, 50);
+            setTimeout(resizeCanvas, 200);
+            setTimeout(resizeCanvas, 500);
+            
             startTimers();
         }
 
         function backToHome() {
+            clearInterval(timerInterval);
             document.getElementById('gameScreen').classList.remove('active');
             document.getElementById('homeScreen').classList.add('active');
             updateStats();
@@ -947,7 +1083,7 @@
             const bar = document.getElementById('energyBar');
             const val = document.getElementById('energyValue');
             bar.style.width = gameState.energy + '%';
-            val.textContent = gameState.energy;
+            val.textContent = gameState.energy + '%';
         }
 
         function updateStats() {
@@ -978,13 +1114,15 @@
         }
 
         function showXpGain(x, y, amount) {
+            const container = document.getElementById('boardContainer');
             const el = document.createElement('div');
             el.className = 'xp-gain';
             el.textContent = `+${amount} XP`;
-            el.style.left = x + 'px';
-            el.style.top = y + 'px';
-            document.querySelector('.board-wrapper').appendChild(el);
-            setTimeout(() => el.remove(), 1000);
+            const rect = container.getBoundingClientRect();
+            el.style.left = (x - rect.left) + 'px';
+            el.style.top = (y - rect.top) + 'px';
+            container.appendChild(el);
+            setTimeout(() => el.remove(), 1200);
         }
 
         function makeMove(fromRow, fromCol, toRow, toCol) {
@@ -1002,20 +1140,25 @@
                     audio.combo3Sound();
                     showCombo(`🔥 ${gameState.combo}x COMBO!`);
                 }
-                // Show XP gain at capture position
-                const rect = canvas.getBoundingClientRect();
-                showXpGain(toCol * squareSize + rect.left, toRow * squareSize + rect.top, 10 + bonus);
+                const canvasRect = canvas.getBoundingClientRect();
+                showXpGain(toCol * squareSize + canvasRect.left + squareSize/2, 
+                           toRow * squareSize + canvasRect.top, 10 + bonus);
             } else {
                 gameState.combo = 0;
                 audio.moveSound();
                 gainXP(2);
             }
 
-            // Check for check
             const opponentColor = gameState.currentTurn === 'w' ? 'b' : 'w';
             if (chess.isInCheck(opponentColor)) {
                 audio.checkSound();
-                showCombo('⚠️ JAQUE!');
+                if (!chess.hasLegalMoves(opponentColor)) {
+                    endGame('checkmate');
+                } else {
+                    showCombo('⚠️ JAQUE!');
+                }
+            } else if (!chess.hasLegalMoves(opponentColor)) {
+                endGame('stalemate');
             }
         }
 
@@ -1029,7 +1172,10 @@
                 showCombo('🏆 JAQUE MATE!', 3000);
             } else if (reason === 'time') {
                 bonus = 20;
-                showCombo('⏰ TIEMPO AGOTADO!', 3000);
+                showCombo('⏰ TIEMPO!', 3000);
+            } else if (reason === 'stalemate') {
+                bonus = 10;
+                showCombo('🤝 TABLAS!', 3000);
             }
             gameState.coins += bonus;
             gainXP(bonus);
@@ -1038,9 +1184,7 @@
         }
 
         // ============ EVENT HANDLERS ============
-        canvas.addEventListener('click', (e) => {
-            if (gameState.gameOver || gameState.currentTurn !== 'w') return;
-            
+        function getSquareFromEvent(e) {
             const rect = canvas.getBoundingClientRect();
             const scaleX = boardSize / rect.width;
             const scaleY = boardSize / rect.height;
@@ -1050,39 +1194,49 @@
             const col = Math.floor(x / squareSize);
             const row = Math.floor(y / squareSize);
             
-            if (row < 0 || row > 7 || col < 0 || col > 7) return;
+            if (row < 0 || row > 7 || col < 0 || col > 7) return null;
+            return { row, col };
+        }
+
+        function handleSquareClick(row, col) {
+            if (gameState.gameOver || gameState.currentTurn !== 'w') return;
 
             if (gameState.selectedSquare) {
                 const { row: fromRow, col: fromCol } = gameState.selectedSquare;
-                const piece = chess.getPiece(fromRow, fromCol);
                 
                 if (fromRow === row && fromCol === col) {
                     gameState.selectedSquare = null;
                 } else if (chess.isValidMove(fromRow, fromCol, row, col)) {
-                    makeMove(fromRow, fromCol, row, col);
-                    gameState.selectedSquare = null;
-                    gameState.currentTurn = 'b';
-                    drawBoard();
+                    // Test if move leaves own king safe
+                    const piece = chess.getPiece(fromRow, fromCol);
+                    const saved = chess.board[row][col];
+                    chess.board[row][col] = piece;
+                    chess.board[fromRow][fromCol] = '';
+                    const inCheck = chess.isInCheck('w');
+                    chess.board[fromRow][fromCol] = piece;
+                    chess.board[row][col] = saved;
                     
-                    // AI move after delay
-                    setTimeout(() => {
-                        const aiMove = chess.getAIMove();
-                        if (aiMove) {
-                            makeMove(aiMove.fromRow, aiMove.fromCol, aiMove.toRow, aiMove.toCol);
-                            gameState.currentTurn = 'w';
-                            gameState.energy = Math.min(100, gameState.energy + 5);
-                            updateEnergyBar();
-                        }
-                        
-                        // Check for checkmate
-                        if (chess.isInCheck('w')) {
-                            endGame('checkmate');
-                        } else if (chess.isInCheck('b')) {
-                            // Player has AI in check
-                        }
-                        
+                    if (!inCheck) {
+                        makeMove(fromRow, fromCol, row, col);
+                        gameState.selectedSquare = null;
+                        gameState.currentTurn = 'b';
                         drawBoard();
-                    }, 500 + Math.random() * 1000);
+                        
+                        // AI move
+                        setTimeout(() => {
+                            if (gameState.gameOver) return;
+                            const aiMove = chess.getAIMove();
+                            if (aiMove) {
+                                makeMove(aiMove.fromRow, aiMove.fromCol, aiMove.toRow, aiMove.toCol);
+                                gameState.currentTurn = 'w';
+                                gameState.energy = Math.min(100, gameState.energy + 5);
+                                updateEnergyBar();
+                            }
+                            drawBoard();
+                        }, 400 + Math.random() * 800);
+                    } else {
+                        gameState.selectedSquare = null;
+                    }
                 } else {
                     gameState.selectedSquare = null;
                 }
@@ -1094,18 +1248,19 @@
             }
             
             drawBoard();
+        }
+
+        canvas.addEventListener('click', (e) => {
+            const square = getSquareFromEvent(e);
+            if (square) handleSquareClick(square.row, square.col);
         });
 
-        // Touch support
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
             const touch = e.touches[0];
-            const mouseEvent = new MouseEvent('click', {
-                clientX: touch.clientX,
-                clientY: touch.clientY
-            });
-            canvas.dispatchEvent(mouseEvent);
-        });
+            const square = getSquareFromEvent(touch);
+            if (square) handleSquareClick(square.row, square.col);
+        }, { passive: false });
 
         // ============ MODAL FUNCTIONS ============
         function showInstructions() {
@@ -1120,27 +1275,29 @@
             document.getElementById(id).classList.remove('active');
         }
 
-        // Close modals on overlay click
         document.querySelectorAll('.modal-overlay').forEach(overlay => {
             overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) {
-                    overlay.classList.remove('active');
-                }
+                if (e.target === overlay) overlay.classList.remove('active');
             });
         });
 
-        // ============ INITIALIZATION ============
+        // ============ RESIZE HANDLER ============
+        let resizeTimeout;
         window.addEventListener('resize', () => {
-            if (document.getElementById('gameScreen').classList.contains('active')) {
-                resizeCanvas();
-            }
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                if (document.getElementById('gameScreen').classList.contains('active')) {
+                    resizeCanvas();
+                }
+            }, 150);
         });
 
         window.addEventListener('orientationchange', () => {
-            setTimeout(resizeCanvas, 100);
+            setTimeout(resizeCanvas, 200);
+            setTimeout(resizeCanvas, 500);
         });
 
-        createStars();
+        // ============ INITIALIZATION ============
         updateStats();
     </script>
 </body>
