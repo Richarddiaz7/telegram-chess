@@ -61,18 +61,35 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
-        }
-
-        /* HOME SCREEN */
         .home-screen {
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            padding: 15px;
-            background: linear-gradient(180deg, #0a0a2e 0%, #1a1a4e 50%, #0a0a2e 100%);
-            overflow-y: auto;
-        }
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding: 15px;
+    background-image: url('1779421764793.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    overflow-y: auto;
+}
 
+/* Capa oscura para que el texto y botones se lean bien */
+.home-screen::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.35); /* Ajusta la opacidad si quieres más o menos oscuridad */
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Asegura que el contenido esté sobre la capa oscura */
+.home-screen > * {
+    position: relative;
+    z-index: 1;
+}
         .logo-container {
             text-align: center;
             animation: float 3s ease-in-out infinite;
@@ -196,15 +213,32 @@
             color: #888;
             font-size: 10px;
             text-transform: uppercase;
-        }
-
-        /* GAME SCREEN - NO CAMBIA NADA DEL TABLERO */
         .game-screen {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            background: #0a0a1a;
-        }
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-image: url('1779422040370.png');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+/* Capa oscura (un poco más intensa para que el tablero resalte) */
+.game-screen::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Más oscuro para mejor contraste con el tablero */
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Asegura que los elementos (tablero, timers, etc.) estén sobre la capa */
+.game-screen > * {
+    position: relative;
+    z-index: 1;
+}
 
         .game-header {
             display: flex;
