@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>♔ Royal Chess Arena - Play & Earn</title>
-    <!-- PeerJS para multijugador -->
     <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
     <style>
         * {
@@ -562,7 +561,6 @@
     <div id="toastContainer"></div>
 
     <div class="app-container">
-        <!-- HOME SCREEN -->
         <div class="screen active" id="homeScreen">
             <div class="home-screen">
                 <div class="logo-container">
@@ -589,12 +587,10 @@
                     <button class="btn btn-secondary" onclick="openMultiplayerModal()">🌐 MULTIJUGADOR</button>
                 </div>
 
-                <!-- UN SOLO BOTÓN PLAY NOW, CENTRADO -->
                 <button class="btn btn-play" onclick="startGame('ai')">⚔️ PLAY NOW</button>
             </div>
         </div>
 
-        <!-- GAME SCREEN -->
         <div class="screen" id="gameScreen">
             <div class="game-screen">
                 <div class="game-header">
@@ -620,7 +616,6 @@
             </div>
         </div>
 
-        <!-- TRIVIA SCREEN -->
         <div class="screen" id="triviaScreen">
             <div class="trivia-screen">
                 <div class="trivia-header">
@@ -633,7 +628,6 @@
             </div>
         </div>
 
-        <!-- RANKING SCREEN -->
         <div class="screen" id="rankingScreen">
             <div class="ranking-screen">
                 <h2>🏆 TOP 10 GANADORES</h2>
@@ -643,7 +637,6 @@
         </div>
     </div>
 
-    <!-- MODAL INSTRUCCIONES -->
     <div class="modal-overlay" id="instructionsModal">
         <div class="modal">
             <h2>📚 MASTER CLASS</h2>
@@ -653,7 +646,6 @@
         </div>
     </div>
 
-    <!-- MODAL MULTIJUGADOR (PeerJS) -->
     <div class="modal-overlay" id="multiplayerModal">
         <div class="modal">
             <h2>🌐 Multijugador</h2>
@@ -696,7 +688,7 @@
         async function hostGame() {
             closeMultiplayerModal();
             roomCode = generateRoomCode();
-            peer = new Peer(roomCode);
+            peer = new Peer('royalchess-' + roomCode);
 
             peer.on('open', (id) => {
                 document.getElementById('roomCodeDisplay').textContent = roomCode;
@@ -727,7 +719,7 @@
             peer = new Peer();
 
             peer.on('open', () => {
-                conn = peer.connect(code, { reliable: true });
+                conn = peer.connect('royalchess-' + code, { reliable: true });
                 setupConnection();
                 gameState.mode = 'multiplayer';
                 playerColor = 'b';
@@ -1265,11 +1257,6 @@
                 if (!chess.hasLegalMoves(opp)) { endGame('checkmate'); return; }
                 showCombo('⚠️ JAQUE!');
             } else if (!chess.hasLegalMoves(opp)) { endGame('stalemate'); }
-
-            // Sincronizar en multijugador
-            if (gameState.mode === 'multiplayer') {
-                sendMoveToOpponent(chess.board, gameState.currentTurn);
-            }
         }
 
         function endGame(reason) {
@@ -1323,6 +1310,11 @@
                         gameState.selectedSquare = null;
                         gameState.currentTurn = gameState.currentTurn === 'w' ? 'b' : 'w';
                         drawBoard();
+
+                        if (gameState.mode === 'multiplayer') {
+                            sendMoveToOpponent(chess.board, gameState.currentTurn);
+                        }
+
                         if (gameState.mode === 'ai' && gameState.currentTurn === 'b' && !gameState.gameOver) {
                             setTimeout(() => {
                                 const aiMove = chess.getAIMove();
