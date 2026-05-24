@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>♔ Royal Chess Arena - Play & Earn</title>
+    <!-- PeerJS para multijugador -->
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -361,7 +363,120 @@
             100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
         }
 
-        /* MODAL MULTIJUGADOR */
+        /* TRIVIA SCREEN */
+        .trivia-screen {
+            background: linear-gradient(180deg, #0a0a2e, #1a1a4e);
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .trivia-header h2 { color: #ffd700; font-size: 22px; text-align: center; margin-bottom: 5px; }
+
+        .trivia-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .trivia-tab {
+            padding: 7px 12px;
+            border-radius: 18px;
+            border: 1px solid rgba(255,215,0,0.2);
+            background: rgba(255,255,255,0.04);
+            color: #ccc;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .trivia-tab.active {
+            background: rgba(255,215,0,0.2);
+            color: #ffd700;
+            border-color: #ffd700;
+        }
+
+        .fact-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,215,0,0.15);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+        }
+
+        .fact-card.locked { opacity: 0.5; }
+
+        .fact-category {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .cat-historia { background: #4a90d9; }
+        .cat-matematicas { background: #9b59b6; }
+        .cat-records { background: #e67e22; }
+        .cat-biografias { background: #2ecc71; }
+        .cat-estrategia { background: #e74c3c; }
+
+        .fact-text { color: #ddd; font-size: 13px; line-height: 1.6; margin-bottom: 6px; }
+        .fact-source { color: #888; font-size: 10px; font-style: italic; }
+
+        .quiz-btn {
+            background: linear-gradient(135deg, #4a90d9, #357abd);
+            color: #fff;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 18px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-top: 8px;
+            font-weight: 700;
+        }
+
+        /* RANKING SCREEN */
+        .ranking-screen {
+            background: linear-gradient(180deg, #0a0a2e, #1a1a4e);
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .ranking-screen h2 { color: #ffd700; text-align: center; font-size: 22px; margin-bottom: 15px; }
+
+        .lb-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 10px;
+            border-bottom: 1px solid rgba(255,215,0,0.08);
+            font-size: 13px;
+            color: #fff;
+        }
+
+        .lb-rank {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .lb-rank.gold { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a1a2e; }
+        .lb-rank.silver { background: linear-gradient(135deg, #c0c0c0, #909090); color: #1a1a2e; }
+        .lb-rank.bronze { background: linear-gradient(135deg, #cd7f32, #a0522d); color: #fff; }
+        .lb-rank.normal { background: rgba(255,255,255,0.08); color: #999; }
+
+        .lb-name { flex: 1; font-weight: 600; }
+        .lb-score { color: #ffd700; font-weight: 900; }
+
+        /* MODAL OVERLAY */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -390,13 +505,7 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.7);
         }
 
-        .modal h2 {
-            color: #ffd700;
-            font-size: 24px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
+        .modal h2 { color: #ffd700; font-size: 24px; margin-bottom: 15px; text-align: center; }
         .modal input {
             width: 100%;
             padding: 12px;
@@ -408,12 +517,7 @@
             text-align: center;
             font-size: 14px;
         }
-
-        .modal .btn {
-            margin: 5px 0;
-            width: 100%;
-        }
-
+        .modal .btn { margin: 5px 0; width: 100%; }
         .room-link {
             color: #ffd700;
             word-break: break-all;
@@ -424,8 +528,33 @@
             margin: 5px 0;
         }
 
-        /* Estilos de trivia, ranking, etc. se mantienen (no los incluyo por brevedad, están en tu versión) */
-        /* Los tienes completos en la versión anterior, no los modificaré */
+        /* LANDSCAPE */
+        @media (orientation: landscape) {
+            .game-screen { flex-direction: row; align-items: stretch; }
+            .game-header {
+                flex-direction: column;
+                justify-content: center;
+                gap: 15px;
+                padding: 10px;
+                border-bottom: none;
+                border-right: 1px solid rgba(255,215,0,0.2);
+                width: auto;
+                min-width: 120px;
+            }
+            .board-container { flex: 1; padding: 5px; }
+            .game-footer {
+                flex-direction: column;
+                justify-content: center;
+                gap: 10px;
+                border-top: none;
+                border-left: 1px solid rgba(255,215,0,0.2);
+                width: auto;
+                min-width: 120px;
+                padding: 10px;
+            }
+            .energy-bar-container { width: 100%; min-width: auto; }
+            canvas { max-width: 100%; max-height: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -448,7 +577,6 @@
                     <div class="stat-card"><div class="stat-value" id="coins">💰 500</div><div class="stat-label">Monedas</div></div>
                 </div>
 
-                <!-- Botones secundarios -->
                 <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
                     <button class="btn btn-secondary" onclick="startGame('local')">👥 2 LOCALES</button>
                     <button class="btn btn-secondary" onclick="showScreen('triviaScreen')">📚 TRIVIA</button>
@@ -461,12 +589,12 @@
                     <button class="btn btn-secondary" onclick="openMultiplayerModal()">🌐 MULTIJUGADOR</button>
                 </div>
 
-                <!-- BOTÓN PLAY NOW AL FINAL, CENTRADO Y ÚNICO -->
+                <!-- UN SOLO BOTÓN PLAY NOW, CENTRADO -->
                 <button class="btn btn-play" onclick="startGame('ai')">⚔️ PLAY NOW</button>
             </div>
         </div>
 
-        <!-- GAME SCREEN (se mantiene como antes) -->
+        <!-- GAME SCREEN -->
         <div class="screen" id="gameScreen">
             <div class="game-screen">
                 <div class="game-header">
@@ -492,137 +620,861 @@
             </div>
         </div>
 
-        <!-- TRIVIA SCREEN (sin cambios) -->
-        <!-- ... -->
-        <!-- RANKING SCREEN (sin cambios) -->
-        <!-- ... -->
-        <!-- MODALES DE INSTRUCCIONES (sin cambios) -->
-        <!-- ... -->
+        <!-- TRIVIA SCREEN -->
+        <div class="screen" id="triviaScreen">
+            <div class="trivia-screen">
+                <div class="trivia-header">
+                    <h2>📚 DATOS CURIOSOS</h2>
+                    <p style="color:#aaa;font-size:11px;text-align:center;">Desbloquea conocimiento al subir de nivel</p>
+                    <button class="btn-back" onclick="backToHome()" style="margin:8px auto;display:block;">🏠 VOLVER</button>
+                </div>
+                <div class="trivia-tabs" id="triviaTabs"><div class="trivia-tab active" onclick="filterTrivia('all', this)">Todos</div></div>
+                <div id="triviaContent"></div>
+            </div>
+        </div>
+
+        <!-- RANKING SCREEN -->
+        <div class="screen" id="rankingScreen">
+            <div class="ranking-screen">
+                <h2>🏆 TOP 10 GANADORES</h2>
+                <button class="btn-back" onclick="backToHome()" style="margin-bottom:12px;">🏠 VOLVER</button>
+                <div id="rankingContent"></div>
+            </div>
+        </div>
     </div>
 
-    <!-- MODAL MULTIJUGADOR -->
+    <!-- MODAL INSTRUCCIONES -->
+    <div class="modal-overlay" id="instructionsModal">
+        <div class="modal">
+            <h2>📚 MASTER CLASS</h2>
+            <div class="fact-card"><h3 style="color:#ffd700;">🇮🇹 Apertura Italiana</h3><p>1.e4 e5 2.Cf3 Cc6 3.Ac4</p></div>
+            <div class="fact-card"><h3 style="color:#ffd700;">🇪🇸 Apertura Española</h3><p>1.e4 e5 2.Cf3 Cc6 3.Ab5</p></div>
+            <button class="btn-back" onclick="closeModal('instructionsModal')" style="width:100%;margin-top:10px;">CERRAR</button>
+        </div>
+    </div>
+
+    <!-- MODAL MULTIJUGADOR (PeerJS) -->
     <div class="modal-overlay" id="multiplayerModal">
         <div class="modal">
             <h2>🌐 Multijugador</h2>
-            <button class="btn btn-secondary" onclick="createRoom()">🏠 Crear Sala</button>
-            <div id="roomLinkDisplay" class="room-link" style="display:none;"></div>
+            <button class="btn btn-secondary" onclick="hostGame()">🏠 Crear Sala</button>
+            <div id="hostInfo" style="display:none; margin:10px 0;">
+                <p style="color:#ffd700;">Código de sala:</p>
+                <div style="font-size:28px; font-weight:900; letter-spacing:4px; color:#fff;" id="roomCodeDisplay"></div>
+                <p style="color:#aaa; font-size:11px;">Comparte este código con tu amigo</p>
+                <p id="waitingMsg" style="color:#ffd700; font-size:12px;">Esperando oponente...</p>
+            </div>
             <hr style="border-color:rgba(255,215,0,0.2); margin:15px 0;">
-            <input type="text" id="roomIdInput" placeholder="Código de sala">
-            <button class="btn btn-secondary" onclick="joinRoom()">🔗 Unirse</button>
+            <input type="text" id="joinCodeInput" placeholder="Código de sala (4 letras)" maxlength="4" style="text-transform:uppercase;">
+            <button class="btn btn-secondary" onclick="joinGame()">🔗 Unirse</button>
             <button class="btn-back" onclick="closeMultiplayerModal()" style="width:100%; margin-top:10px;">CERRAR</button>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-        import { getDatabase, ref, set, onValue, update } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
-
-        // ⚠️ REEMPLAZA ESTOS DATOS CON LOS DE TU PROYECTO FIREBASE (abajo te explico cómo)
-        const firebaseConfig = {
-            apiKey: "AIzaSyDummyKey123456789",
-            authDomain: "tu-proyecto.firebaseapp.com",
-            databaseURL: "https://tu-proyecto-default-rtdb.firebaseio.com",
-            projectId: "tu-proyecto",
-            storageBucket: "tu-proyecto.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abc123"
-        };
-
-        try {
-            const app = initializeApp(firebaseConfig);
-            const db = getDatabase(app);
-            window.db = db;
-            console.log('Firebase conectado');
-        } catch (e) {
-            console.warn('Firebase no configurado. El multijugador no funcionará.');
-            window.db = null;
-        }
-    </script>
-
     <script>
-        // ============ MULTIJUGADOR ============
+        // ============ MULTIJUGADOR PEERJS ============
+        let peer = null;
+        let conn = null;
+        let roomCode = '';
+
+        function generateRoomCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code = '';
+            for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)];
+            return code;
+        }
+
         function openMultiplayerModal() {
             document.getElementById('multiplayerModal').classList.add('active');
+            document.getElementById('hostInfo').style.display = 'none';
         }
+
         function closeMultiplayerModal() {
             document.getElementById('multiplayerModal').classList.remove('active');
         }
 
-        function generateRoomId() {
-            return 'room_' + Math.random().toString(36).substr(2, 8);
-        }
-
-        async function createRoom() {
-            if (!window.db) {
-                alert('Firebase no está configurado. Sigue las instrucciones para activar el multijugador.');
-                return;
-            }
-            const roomId = generateRoomId();
-            const roomRef = ref(window.db, 'rooms/' + roomId);
-            await set(roomRef, {
-                board: chess.board,
-                turn: 'w',
-                white: getUserData().name,
-                black: null,
-                status: 'waiting'
-            });
-            document.getElementById('roomLinkDisplay').style.display = 'block';
-            const link = `${window.location.origin}${window.location.pathname}?room=${roomId}`;
-            document.getElementById('roomLinkDisplay').textContent = `Comparte este enlace: ${link}`;
-            // Escuchar cambios
-            listenToRoom(roomId, 'w');
-        }
-
-        async function joinRoom() {
-            const roomId = document.getElementById('roomIdInput').value.trim();
-            if (!roomId) return alert('Ingresa un código de sala');
-            if (!window.db) return alert('Firebase no configurado.');
-            const roomRef = ref(window.db, 'rooms/' + roomId);
-            const snapshot = await new Promise(resolve => onValue(roomRef, resolve, { onlyOnce: true }));
-            const room = snapshot.val();
-            if (!room) return alert('Sala no encontrada');
-            if (room.status !== 'waiting') return alert('Sala llena o en juego');
-            await update(roomRef, { black: getUserData().name, status: 'playing' });
-            listenToRoom(roomId, 'b');
+        async function hostGame() {
             closeMultiplayerModal();
-            startGame('multiplayer');
+            roomCode = generateRoomCode();
+            peer = new Peer(roomCode);
+
+            peer.on('open', (id) => {
+                document.getElementById('roomCodeDisplay').textContent = roomCode;
+                document.getElementById('hostInfo').style.display = 'block';
+                document.getElementById('waitingMsg').textContent = 'Esperando oponente...';
+                openMultiplayerModal();
+            });
+
+            peer.on('connection', (connection) => {
+                conn = connection;
+                setupConnection();
+                document.getElementById('waitingMsg').textContent = '¡Oponente conectado!';
+                gameState.mode = 'multiplayer';
+                playerColor = 'w';
+                closeMultiplayerModal();
+                startGame('multiplayer');
+            });
+
+            peer.on('error', (err) => {
+                alert('Error: ' + err.message);
+            });
         }
 
-        function listenToRoom(roomId, color) {
-            const roomRef = ref(window.db, 'rooms/' + roomId);
-            onValue(roomRef, (snapshot) => {
-                const room = snapshot.val();
-                if (!room) return;
-                if (room.board && room.turn !== gameState.currentTurn) {
-                    chess.board = room.board;
-                    gameState.currentTurn = room.turn;
+        function joinGame() {
+            const code = document.getElementById('joinCodeInput').value.trim().toUpperCase();
+            if (code.length !== 4) return alert('El código debe tener 4 letras');
+            closeMultiplayerModal();
+            peer = new Peer();
+
+            peer.on('open', () => {
+                conn = peer.connect(code, { reliable: true });
+                setupConnection();
+                gameState.mode = 'multiplayer';
+                playerColor = 'b';
+                startGame('multiplayer');
+            });
+
+            peer.on('error', (err) => {
+                alert('Error al conectar: ' + err.message);
+            });
+        }
+
+        function setupConnection() {
+            conn.on('data', (data) => {
+                if (data.type === 'move') {
+                    chess.board = data.board;
+                    gameState.currentTurn = data.turn;
                     drawBoard();
-                }
-                if (room.status === 'finished') {
+                } else if (data.type === 'gameOver') {
                     gameState.gameOver = true;
                     clearInterval(timerInterval);
-                    alert(room.winner ? `${room.winner} gana!` : 'Partida terminada');
+                    alert(data.message);
                 }
             });
-        }
-
-        function sendMoveToFirebase() {
-            if (!window.db || !currentRoomId) return;
-            update(ref(window.db, 'rooms/' + currentRoomId), {
-                board: chess.board,
-                turn: gameState.currentTurn
+            conn.on('close', () => {
+                if (!gameState.gameOver) alert('Oponente desconectado');
             });
         }
 
-        // ============ RESTO DEL CÓDIGO (AJEDREZ, CANVAS, TRIVIA, ETC.) ============
-        // Se mantiene exactamente igual a tu versión anterior. Solo se agrega la llamada a sendMoveToFirebase() después de cada movimiento en partidas multijugador.
-        // El código del juego no se modifica, excepto un pequeño ajuste en makeMove() para sincronizar Firebase.
+        function sendMoveToOpponent(board, turn) {
+            if (conn && conn.open) conn.send({ type: 'move', board, turn });
+        }
 
-        // ... (todo el código del juego, audio, trivia, ranking, etc. está incluido, pero no lo copio completo aquí por brevedad)
-        // *** NOTA: EN EL ARCHIVO REAL DEBES INCLUIR TODO EL CÓDIGO ORIGINAL COMPLETO ***
-        // Solo añade al final de la función makeMove() esta línea:
-        // if (gameState.mode === 'multiplayer') sendMoveToFirebase();
+        function sendGameOver(message) {
+            if (conn && conn.open) conn.send({ type: 'gameOver', message });
+        }
+
+        // ============ AUDIO SYSTEM ============
+        class AudioSystem {
+            constructor() {
+                this.ctx = null;
+                this.musicOn = true;
+                this.musicNodes = [];
+                this.musicPlaying = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+            }
+
+            play(freq, type, duration, vol = 0.08) {
+                try {
+                    this.init();
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.frequency.value = freq;
+                    osc.type = type;
+                    gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+                    osc.start(this.ctx.currentTime);
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e) {}
+            }
+
+            moveSound() { this.play(550, 'sine', 0.07, 0.04); }
+            captureSound() { this.play(160, 'sawtooth', 0.22, 0.14); }
+            checkSound() { this.play(750, 'square', 0.14, 0.11); setTimeout(() => this.play(950, 'square', 0.14, 0.11), 130); }
+            combo3Sound() { [550,700,900].forEach((f, i) => setTimeout(() => this.play(f, 'triangle', 0.13, 0.09), i * 70)); }
+            gameOverSound() { [320,220,120].forEach((f, i) => setTimeout(() => this.play(f, 'sawtooth', 0.35, 0.22), i * 160)); }
+            levelUpSound() { [400,600,800,1000].forEach((f, i) => setTimeout(() => this.play(f, 'sine', 0.1, 0.08), i * 100)); }
+            quizCorrectSound() { this.play(880, 'sine', 0.08, 0.06); setTimeout(() => this.play(1100, 'sine', 0.08, 0.06), 80); }
+            quizWrongSound() { this.play(200, 'triangle', 0.3, 0.2); }
+            coinSound() { this.play(1200, 'sine', 0.05, 0.03); }
+
+            startMusic() {
+                if (this.musicPlaying) return;
+                this.init();
+                this.musicPlaying = true;
+                this.playMelody();
+            }
+
+            stopMusic() {
+                this.musicPlaying = false;
+                this.musicNodes.forEach(n => {
+                    try { n.osc.stop(); n.gain.disconnect(); } catch(e) {}
+                });
+                this.musicNodes = [];
+            }
+
+            playNote(freq, startTime, dur, vol = 0.03) {
+                if (!this.musicPlaying) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.frequency.value = freq;
+                    osc.type = 'triangle';
+                    gain.gain.setValueAtTime(vol, startTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + dur);
+                    osc.start(startTime);
+                    osc.stop(startTime + dur);
+                    this.musicNodes.push({ osc, gain });
+                } catch(e) {}
+            }
+
+            playMelody() {
+                if (!this.musicPlaying) return;
+                this.musicNodes = [];
+                const now = this.ctx.currentTime;
+                const melody = [
+                    262, 294, 330, 349, 392, 349, 330, 294,
+                    262, 330, 392, 523, 392, 330, 294, 262,
+                    330, 349, 392, 440, 392, 349, 330, 294,
+                    262, 392, 330, 262, 294, 330, 523, 392
+                ];
+                const rhythm = [
+                    0.35,0.35,0.35,0.35,0.45,0.25,0.25,0.35,
+                    0.35,0.35,0.35,0.5,0.35,0.35,0.35,0.5,
+                    0.35,0.35,0.35,0.45,0.25,0.25,0.35,0.35,
+                    0.4,0.3,0.3,0.35,0.35,0.35,0.45,0.6
+                ];
+                let t = now;
+                melody.forEach((n, i) => {
+                    this.playNote(n, t, rhythm[i] * 0.85, 0.025);
+                    t += rhythm[i];
+                });
+                if (this.musicPlaying) {
+                    setTimeout(() => this.playMelody(), (t - now) * 1000);
+                }
+            }
+        }
+
+        const audio = new AudioSystem();
+
+        function toggleMusic() {
+            audio.musicOn = !audio.musicOn;
+            const btn = document.getElementById('musicBtn');
+            if (audio.musicOn) {
+                btn.textContent = '🎵';
+                audio.startMusic();
+            } else {
+                btn.textContent = '🔇';
+                audio.stopMusic();
+            }
+        }
+
+        // ============ DATOS PERSISTENTES ============
+        function getUserData() {
+            const d = localStorage.getItem('rc_data');
+            return d ? JSON.parse(d) : {
+                level: 1, xp: 0, coins: 500, wins: 0, losses: 0,
+                streak: 0, bestStreak: 0, name: 'Jugador' + Math.floor(Math.random() * 1000)
+            };
+        }
+
+        function saveUserData(data) {
+            localStorage.setItem('rc_data', JSON.stringify(data));
+        }
+
+        function getFacts() {
+            const d = localStorage.getItem('rc_facts');
+            if (d) return JSON.parse(d);
+            const seed = [
+                { id: 1, category: 'biografias', fact_text: 'Garry Kasparov fue el campeón mundial de ajedrez más joven de la historia, obteniendo el título en 1985 a los 22 años.', fact_source: 'FIDE', unlock_level: 1, unlocked: true },
+                { id: 2, category: 'matematicas', fact_text: 'El Número de Shannon (10^120) representa las partidas de ajedrez posibles. Mayor que los átomos del universo (10^80).', fact_source: 'Shannon, 1950', unlock_level: 2, unlocked: false },
+                { id: 3, category: 'historia', fact_text: '"Jaque Mate" viene del persa "Shah Mat" = "el rey está indefenso". El ajedrez nació en India s.VI como "Chaturanga".', fact_source: 'Murray, 1913', unlock_level: 1, unlocked: true },
+                { id: 4, category: 'records', fact_text: 'La partida más larga: 269 movimientos. Nikolic vs Arsovic, Belgrado 1989. Terminó en tablas.', fact_source: 'Guinness Records', unlock_level: 3, unlocked: false },
+                { id: 5, category: 'estrategia', fact_text: 'El Mate del Pastor es el jaque mate más rápido: 4 movimientos. 1.e4 e5 2.Ac4 Cc6 3.Dh5 Cf6 4.Dxf7#', fact_source: 'Manual de Ajedrez', unlock_level: 1, unlocked: true }
+            ];
+            localStorage.setItem('rc_facts', JSON.stringify(seed));
+            return seed;
+        }
+
+        function getQuestions() {
+            const d = localStorage.getItem('rc_questions');
+            if (d) return JSON.parse(d);
+            const seed = [
+                { id: 1, category: 'biografias', question: '¿A qué edad fue Kasparov campeón mundial?', A: '18 años', B: '22 años', C: '25 años', D: '30 años', correct: 'B', reward: 50, fact_id: 1 },
+                { id: 2, category: 'matematicas', question: '¿Cuál es el Número de Shannon?', A: '10^80', B: '10^100', C: '10^120', D: '10^150', correct: 'C', reward: 75, fact_id: 2 },
+                { id: 3, category: 'historia', question: '¿De qué idioma viene "Jaque Mate"?', A: 'Latín', B: 'Árabe', C: 'Persa', D: 'Sánscrito', correct: 'C', reward: 25, fact_id: 3 }
+            ];
+            localStorage.setItem('rc_questions', JSON.stringify(seed));
+            return seed;
+        }
+
+        function getProgress() {
+            const d = localStorage.getItem('rc_progress');
+            return d ? JSON.parse(d) : {};
+        }
+
+        function saveProgress(progress) {
+            localStorage.setItem('rc_progress', JSON.stringify(progress));
+        }
+
+        function getLeaderboard() {
+            const d = localStorage.getItem('rc_leaderboard');
+            return d ? JSON.parse(d) : [];
+        }
+
+        function updateLeaderboard(userData) {
+            const lb = getLeaderboard();
+            const idx = lb.findIndex(e => e.name === userData.name);
+            const entry = { name: userData.name, wins: userData.wins, level: userData.level, coins: userData.coins };
+            if (idx >= 0) lb[idx] = entry; else lb.push(entry);
+            lb.sort((a, b) => b.wins - a.wins || b.level - a.level);
+            localStorage.setItem('rc_leaderboard', JSON.stringify(lb.slice(0, 10)));
+        }
+
+        // ============ GAME STATE ============
+        let userData = getUserData();
+        let gameState = {
+            mode: 'ai',
+            selectedSquare: null,
+            playerTimer: 600,
+            aiTimer: 600,
+            gameOver: false,
+            currentTurn: 'w',
+            combo: 0,
+            energy: 100
+        };
+        let playerColor = 'w'; // para multijugador
+
+        // ============ CHESS ENGINE ============
+        const chess = {
+            board: [],
+            init() {
+                this.board = [
+                    ['r','n','b','q','k','b','n','r'],
+                    ['p','p','p','p','p','p','p','p'],
+                    ['','','','','','','',''],
+                    ['','','','','','','',''],
+                    ['','','','','','','',''],
+                    ['','','','','','','',''],
+                    ['P','P','P','P','P','P','P','P'],
+                    ['R','N','B','Q','K','B','N','R']
+                ];
+            },
+            getPiece(r, c) { return this.board[r]?.[c] || ''; },
+            isValidMove(fr, fc, tr, tc) {
+                const piece = this.getPiece(fr, fc);
+                if (!piece) return false;
+                const target = this.getPiece(tr, tc);
+                if (target && ((piece === piece.toUpperCase() && target === target.toUpperCase()) ||
+                    (piece === piece.toLowerCase() && target === target.toLowerCase()))) return false;
+                const type = piece.toLowerCase();
+                const rd = tr - fr, cd = tc - fc, ard = Math.abs(rd), acd = Math.abs(cd);
+                const clearPath = (dr, dc) => {
+                    const steps = Math.max(Math.abs(dr), Math.abs(dc));
+                    const sr = dr === 0 ? 0 : dr / Math.abs(dr);
+                    const sc = dc === 0 ? 0 : dc / Math.abs(dc);
+                    for (let i = 1; i < steps; i++) {
+                        if (this.getPiece(fr + sr * i, fc + sc * i)) return false;
+                    }
+                    return true;
+                };
+                switch(type) {
+                    case 'p':
+                        const dir = piece === 'P' ? -1 : 1;
+                        const sRow = piece === 'P' ? 6 : 1;
+                        if (cd === 0 && !target) {
+                            if (rd === dir) return true;
+                            if (fr === sRow && rd === 2 * dir && !this.getPiece(fr + dir, fc)) return true;
+                        }
+                        return acd === 1 && rd === dir && !!target;
+                    case 'r': return (rd === 0 || cd === 0) && clearPath(rd, cd);
+                    case 'n': return (ard === 2 && acd === 1) || (ard === 1 && acd === 2);
+                    case 'b': return ard === acd && clearPath(rd, cd);
+                    case 'q': return (rd === 0 || cd === 0 || ard === acd) && clearPath(rd, cd);
+                    case 'k': return ard <= 1 && acd <= 1;
+                    default: return false;
+                }
+            },
+            movePiece(fr, fc, tr, tc) {
+                const piece = this.getPiece(fr, fc);
+                const captured = this.getPiece(tr, tc);
+                this.board[tr][tc] = piece;
+                this.board[fr][fc] = '';
+                return { piece, captured };
+            },
+            findKing(color) {
+                const king = color === 'w' ? 'K' : 'k';
+                for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) if (this.board[r][c] === king) return { row: r, col: c };
+                return null;
+            },
+            isInCheck(color) {
+                const king = this.findKing(color);
+                if (!king) return false;
+                for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+                    const piece = this.board[r][c];
+                    if (piece && ((color === 'w' && piece === piece.toLowerCase()) || (color === 'b' && piece === piece.toUpperCase()))) {
+                        if (this.isValidMove(r, c, king.row, king.col)) return true;
+                    }
+                }
+                return false;
+            },
+            hasLegalMoves(color) {
+                for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+                    const piece = this.board[r][c];
+                    const isWhite = piece && piece === piece.toUpperCase();
+                    if ((color === 'w' && isWhite) || (color === 'b' && !isWhite && piece)) {
+                        for (let tr = 0; tr < 8; tr++) for (let tc = 0; tc < 8; tc++) {
+                            if (this.isValidMove(r, c, tr, tc)) {
+                                const saved = this.board[tr][tc];
+                                this.board[tr][tc] = piece; this.board[r][c] = '';
+                                const inCheck = this.isInCheck(color);
+                                this.board[r][c] = piece; this.board[tr][tc] = saved;
+                                if (!inCheck) return true;
+                            }
+                        }
+                    }
+                }
+                return false;
+            },
+            getAIMove() {
+                const moves = [];
+                for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+                    const piece = this.board[r][c];
+                    if (piece && piece === piece.toLowerCase()) {
+                        for (let tr = 0; tr < 8; tr++) for (let tc = 0; tc < 8; tc++) {
+                            if (this.isValidMove(r, c, tr, tc)) {
+                                const saved = this.board[tr][tc];
+                                this.board[tr][tc] = piece; this.board[r][c] = '';
+                                if (!this.isInCheck('b')) {
+                                    let score = saved ? (saved.toUpperCase() === 'Q' ? 9 : saved.toUpperCase() === 'R' ? 5 : 'BN'.includes(saved.toUpperCase()) ? 3 : 1) : 0;
+                                    moves.push({ fromRow: r, fromCol: c, toRow: tr, toCol: tc, piece, captured: saved, score });
+                                }
+                                this.board[r][c] = piece; this.board[tr][tc] = saved;
+                            }
+                        }
+                    }
+                }
+                if (!moves.length) return null;
+                moves.sort((a, b) => b.score - a.score);
+                return Math.random() < 0.7 ? moves[0] : moves[Math.floor(Math.random() * Math.min(5, moves.length))];
+            }
+        };
+
+        // ============ CANVAS ============
+        const canvas = document.getElementById('chessCanvas');
+        const ctx = canvas.getContext('2d');
+        let boardSize = 0, squareSize = 0;
+
+        function resizeCanvas() {
+            const container = document.getElementById('boardContainer');
+            const size = Math.floor(Math.min(container.clientWidth, container.clientHeight) * 0.98);
+            boardSize = size; squareSize = boardSize / 8;
+            canvas.width = boardSize; canvas.height = boardSize;
+            canvas.style.width = boardSize + 'px'; canvas.style.height = boardSize + 'px';
+            drawBoard();
+        }
+
+        const pieceSymbols = { K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟' };
+
+        function drawBoard() {
+            ctx.clearRect(0, 0, boardSize, boardSize);
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const x = col * squareSize, y = row * squareSize;
+                    const isLight = (row + col) % 2 === 0;
+                    const gradient = ctx.createLinearGradient(x, y, x + squareSize, y + squareSize);
+                    if (isLight) { gradient.addColorStop(0,'#f5deb3'); gradient.addColorStop(0.4,'#eed9b0'); gradient.addColorStop(1,'#d2b48c'); }
+                    else { gradient.addColorStop(0,'#8b6914'); gradient.addColorStop(0.4,'#7a5a12'); gradient.addColorStop(1,'#5c3d0e'); }
+                    ctx.fillStyle = gradient; ctx.fillRect(x, y, squareSize, squareSize);
+                    ctx.strokeStyle = isLight ? 'rgba(139,90,43,0.15)' : 'rgba(255,235,205,0.1)';
+                    ctx.lineWidth = 0.5; ctx.strokeRect(x, y, squareSize, squareSize);
+                }
+            }
+            ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 1;
+            for (let i = 0; i <= 8; i++) {
+                ctx.beginPath(); ctx.moveTo(i * squareSize, 0); ctx.lineTo(i * squareSize, boardSize); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, i * squareSize); ctx.lineTo(boardSize, i * squareSize); ctx.stroke();
+            }
+            if (squareSize > 25) {
+                ctx.fillStyle = '#3a2a1a'; ctx.font = `bold ${Math.max(10, squareSize * 0.18)}px Arial`;
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                for (let i = 0; i < 8; i++) {
+                    ctx.fillText(String.fromCharCode(97 + i), i * squareSize + squareSize/2, boardSize - squareSize * 0.12);
+                    ctx.fillText(8 - i, squareSize * 0.12, i * squareSize + squareSize/2);
+                }
+            }
+            if (gameState.selectedSquare) {
+                const { row, col } = gameState.selectedSquare;
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.45)';
+                ctx.fillRect(col * squareSize, row * squareSize, squareSize, squareSize);
+                ctx.strokeStyle = '#ffd700'; ctx.lineWidth = Math.max(2, squareSize * 0.04);
+                ctx.strokeRect(col * squareSize + 2, row * squareSize + 2, squareSize - 4, squareSize - 4);
+            }
+            const pieceRadius = squareSize * 0.42;
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const piece = chess.getPiece(row, col);
+                    if (piece) {
+                        const x = col * squareSize + squareSize / 2, y = row * squareSize + squareSize / 2;
+                        ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = squareSize * 0.12;
+                        ctx.shadowOffsetX = squareSize * 0.03; ctx.shadowOffsetY = squareSize * 0.04;
+                        ctx.beginPath(); ctx.arc(x, y, pieceRadius, 0, Math.PI * 2);
+                        const isWhite = piece === piece.toUpperCase();
+                        const pieceGradient = ctx.createRadialGradient(x - pieceRadius * 0.3, y - pieceRadius * 0.3, pieceRadius * 0.05, x, y, pieceRadius);
+                        if (isWhite) { pieceGradient.addColorStop(0,'#ffffff'); pieceGradient.addColorStop(0.5,'#f0f0f0'); pieceGradient.addColorStop(0.8,'#d4d4d4'); pieceGradient.addColorStop(1,'#a0a0a0'); }
+                        else { pieceGradient.addColorStop(0,'#606060'); pieceGradient.addColorStop(0.5,'#2a2a2a'); pieceGradient.addColorStop(0.8,'#1a1a1a'); pieceGradient.addColorStop(1,'#000000'); }
+                        ctx.fillStyle = pieceGradient; ctx.fill();
+                        ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+                        ctx.strokeStyle = isWhite ? '#888' : '#333'; ctx.lineWidth = Math.max(1, squareSize * 0.02); ctx.stroke();
+                        const symbolSize = squareSize * 0.75;
+                        ctx.fillStyle = isWhite ? '#1a1a1a' : '#ffffff';
+                        ctx.font = `bold ${symbolSize}px "Segoe UI Symbol", "Apple Color Emoji", "Noto Color Emoji", Arial`;
+                        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                        ctx.fillText(pieceSymbols[piece], x, y + squareSize * 0.04);
+                    }
+                }
+            }
+        }
+
+        // ============ GAME FUNCTIONS ============
+        function startGame(mode) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('gameScreen').classList.add('active');
+            audio.init();
+            if (audio.musicOn) audio.startMusic();
+            chess.init();
+            gameState = {
+                mode, selectedSquare: null,
+                playerTimer: 600, aiTimer: 600,
+                gameOver: false, currentTurn: 'w',
+                combo: 0, energy: 100
+            };
+            if (mode === 'multiplayer') {
+                document.getElementById('topName').textContent = 'OPONENTE';
+                document.getElementById('topAvatar').textContent = '🌐';
+                document.getElementById('topAvatar').className = 'player-avatar silver';
+            } else if (mode === 'ai') {
+                document.getElementById('topName').textContent = 'IA OPONENTE';
+                document.getElementById('topAvatar').textContent = '🤖';
+                document.getElementById('topAvatar').className = 'player-avatar silver';
+            } else {
+                document.getElementById('topName').textContent = 'JUGADOR 2';
+                document.getElementById('topAvatar').textContent = '👤';
+                document.getElementById('topAvatar').className = 'player-avatar silver';
+            }
+            updateEnergyBar(); updateTimers();
+            setTimeout(resizeCanvas, 50); setTimeout(resizeCanvas, 200); setTimeout(resizeCanvas, 500);
+            startTimers();
+        }
+
+        function backToHome() {
+            clearInterval(timerInterval);
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('homeScreen').classList.add('active');
+            updateStats();
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if (id === 'triviaScreen') { buildTriviaTabs(); filterTrivia('all'); }
+            if (id === 'rankingScreen') renderLeaderboard();
+        }
+
+        let timerInterval;
+        function startTimers() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (gameState.gameOver) return;
+                if (gameState.currentTurn === 'w') {
+                    gameState.playerTimer--;
+                    if (gameState.playerTimer <= 0) endGame('time');
+                } else {
+                    gameState.aiTimer--;
+                    if (gameState.aiTimer <= 0) endGame('time');
+                }
+                updateTimers();
+            }, 1000);
+        }
+
+        function updateTimers() {
+            const f = s => `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
+            document.getElementById('playerTimer').textContent = f(gameState.playerTimer);
+            document.getElementById('aiTimer').textContent = f(gameState.aiTimer);
+            document.getElementById('playerTimer').className = 'timer-display' + (gameState.playerTimer < 60 ? ' urgent' : '');
+            document.getElementById('aiTimer').className = 'timer-display' + (gameState.aiTimer < 60 ? ' urgent' : '');
+        }
+
+        function updateEnergyBar() {
+            document.getElementById('energyBar').style.width = gameState.energy + '%';
+            document.getElementById('energyValue').textContent = gameState.energy + '%';
+        }
+
+        function updateStats() {
+            userData = getUserData();
+            document.getElementById('level').textContent = userData.level;
+            document.getElementById('totalXp').textContent = userData.xp;
+            document.getElementById('coins').textContent = '💰 ' + userData.coins;
+        }
+
+        function showCombo(text, duration = 1000) {
+            const display = document.getElementById('comboDisplay');
+            display.textContent = text;
+            display.classList.add('active');
+            setTimeout(() => display.classList.remove('active'), duration);
+        }
+
+        function makeMove(fromRow, fromCol, toRow, toCol) {
+            const result = chess.movePiece(fromRow, fromCol, toRow, toCol);
+            gameState.energy = Math.max(0, gameState.energy - 2);
+            updateEnergyBar();
+            if (result.captured) {
+                gameState.combo++;
+                audio.captureSound();
+                const bonus = gameState.combo * 5;
+                userData.xp += 10 + bonus;
+                userData.coins += bonus;
+                if (gameState.combo >= 3) { audio.combo3Sound(); showCombo(`🔥 ${gameState.combo}x COMBO!`); }
+            } else {
+                gameState.combo = 0;
+                audio.moveSound();
+                userData.xp += 2;
+            }
+            saveUserData(userData);
+            const newLevel = Math.floor(Math.sqrt(userData.xp / 100)) + 1;
+            if (newLevel > userData.level) {
+                userData.level = newLevel;
+                userData.coins += 50;
+                showCombo('⬆️ LEVEL UP!', 2000);
+                audio.levelUpSound();
+                unlockFacts(newLevel);
+            }
+            const opp = gameState.currentTurn === 'w' ? 'b' : 'w';
+            if (chess.isInCheck(opp)) {
+                audio.checkSound();
+                if (!chess.hasLegalMoves(opp)) { endGame('checkmate'); return; }
+                showCombo('⚠️ JAQUE!');
+            } else if (!chess.hasLegalMoves(opp)) { endGame('stalemate'); }
+
+            // Sincronizar en multijugador
+            if (gameState.mode === 'multiplayer') {
+                sendMoveToOpponent(chess.board, gameState.currentTurn);
+            }
+        }
+
+        function endGame(reason) {
+            gameState.gameOver = true;
+            clearInterval(timerInterval);
+            audio.gameOverSound();
+            let bonus = 0;
+            if (reason === 'checkmate') { bonus = 50; showCombo('🏆 JAQUE MATE!', 3000); }
+            else if (reason === 'time') { bonus = 20; showCombo('⏰ TIEMPO!', 3000); }
+            else { bonus = 10; showCombo('🤝 TABLAS!', 3000); }
+            userData.coins += bonus;
+            if (reason === 'checkmate' || reason === 'time') {
+                userData.wins++;
+                userData.streak++;
+                if (userData.streak > userData.bestStreak) userData.bestStreak = userData.streak;
+            } else { userData.streak = 0; }
+            userData.xp += bonus;
+            saveUserData(userData);
+            updateLeaderboard(userData);
+            updateStats();
+            if (gameState.mode === 'multiplayer') {
+                sendGameOver('Partida terminada: ' + reason);
+            }
+            setTimeout(backToHome, 3000);
+        }
+
+        function getSquareFromEvent(e) {
+            const rect = canvas.getBoundingClientRect();
+            const sx = boardSize / rect.width, sy = boardSize / rect.height;
+            const col = Math.floor((e.clientX - rect.left) * sx / squareSize);
+            const row = Math.floor((e.clientY - rect.top) * sy / squareSize);
+            return (row >= 0 && row < 8 && col >= 0 && col < 8) ? { row, col } : null;
+        }
+
+        function handleSquareClick(row, col) {
+            if (gameState.gameOver) return;
+            if (gameState.mode === 'ai' && gameState.currentTurn !== 'w') return;
+            if (gameState.mode === 'multiplayer' && gameState.currentTurn !== playerColor) return;
+
+            if (gameState.selectedSquare) {
+                const { row: fr, col: fc } = gameState.selectedSquare;
+                if (fr === row && fc === col) { gameState.selectedSquare = null; }
+                else if (chess.isValidMove(fr, fc, row, col)) {
+                    const piece = chess.getPiece(fr, fc);
+                    const saved = chess.board[row][col];
+                    chess.board[row][col] = piece; chess.board[fr][fc] = '';
+                    const inCheck = chess.isInCheck(gameState.currentTurn);
+                    chess.board[fr][fc] = piece; chess.board[row][col] = saved;
+                    if (!inCheck) {
+                        makeMove(fr, fc, row, col);
+                        gameState.selectedSquare = null;
+                        gameState.currentTurn = gameState.currentTurn === 'w' ? 'b' : 'w';
+                        drawBoard();
+                        if (gameState.mode === 'ai' && gameState.currentTurn === 'b' && !gameState.gameOver) {
+                            setTimeout(() => {
+                                const aiMove = chess.getAIMove();
+                                if (aiMove) {
+                                    makeMove(aiMove.fromRow, aiMove.fromCol, aiMove.toRow, aiMove.toCol);
+                                    gameState.currentTurn = 'w';
+                                    gameState.energy = Math.min(100, gameState.energy + 5);
+                                    updateEnergyBar();
+                                }
+                                drawBoard();
+                            }, 350 + Math.random() * 700);
+                        } else if (gameState.mode === 'local' && !gameState.gameOver) {
+                            gameState.energy = Math.min(100, gameState.energy + 3);
+                            updateEnergyBar();
+                        }
+                    } else gameState.selectedSquare = null;
+                } else {
+                    const cp = chess.getPiece(row, col);
+                    if (cp && gameState.mode !== 'ai') {
+                        if ((gameState.currentTurn === 'w' && cp === cp.toUpperCase()) || (gameState.currentTurn === 'b' && cp === cp.toLowerCase()))
+                            gameState.selectedSquare = { row, col };
+                        else gameState.selectedSquare = null;
+                    } else gameState.selectedSquare = null;
+                }
+            } else {
+                const piece = chess.getPiece(row, col);
+                if (piece) {
+                    if (gameState.mode === 'ai') { if (piece === piece.toUpperCase()) gameState.selectedSquare = { row, col }; }
+                    else { if ((gameState.currentTurn === 'w' && piece === piece.toUpperCase()) || (gameState.currentTurn === 'b' && piece === piece.toLowerCase())) gameState.selectedSquare = { row, col }; }
+                }
+            }
+            drawBoard();
+        }
+
+        canvas.addEventListener('click', e => { const sq = getSquareFromEvent(e); if (sq) handleSquareClick(sq.row, sq.col); });
+        canvas.addEventListener('touchstart', e => { e.preventDefault(); const sq = getSquareFromEvent(e.touches[0]); if (sq) handleSquareClick(sq.row, sq.col); }, { passive: false });
+
+        // ============ TRIVIA ============
+        function buildTriviaTabs() {
+            const facts = getFacts();
+            const cats = ['all', ...new Set(facts.map(f => f.category))];
+            document.getElementById('triviaTabs').innerHTML = cats.map(c =>
+                `<div class="trivia-tab${c === 'all' ? ' active' : ''}" onclick="filterTrivia('${c}', this)">${c === 'all' ? 'Todos' : c.charAt(0).toUpperCase() + c.slice(1)}</div>`
+            ).join('');
+        }
+
+        function filterTrivia(cat, el) {
+            if (el) {
+                document.querySelectorAll('.trivia-tab').forEach(t => t.classList.remove('active'));
+                el.classList.add('active');
+            }
+            const facts = getFacts();
+            const questions = getQuestions();
+            const progress = getProgress();
+            userData = getUserData();
+            const filtered = cat === 'all' ? facts : facts.filter(f => f.category === cat);
+            document.getElementById('triviaContent').innerHTML = filtered.map(f => {
+                if (f.unlock_level > userData.level) {
+                    return `<div class="fact-card locked"><span class="fact-category" style="background:#555;">🔒 Nivel ${f.unlock_level}</span><p class="fact-text" style="color:#888;">Alcanza el nivel ${f.unlock_level} para desbloquear.</p></div>`;
+                }
+                const q = questions.find(q => q.fact_id === f.id);
+                const answered = progress['q_' + q?.id];
+                return `<div class="fact-card">
+                    <span class="fact-category cat-${f.category}">${f.category}</span>
+                    <p class="fact-text">${f.fact_text}</p>
+                    <p class="fact-source">📖 ${f.fact_source}</p>
+                    ${q && !answered ? `<button class="quiz-btn" onclick="openQuiz(${q.id})">🎯 Quiz (+${q.reward}💰)</button>` : answered ? `<p style="color:#2ecc71;font-size:11px;">✅ ${answered.correct ? 'Correcto' : 'Respondido'}</p>` : ''}
+                </div>`;
+            }).join('');
+        }
+
+        function unlockFacts(level) {
+            const facts = getFacts();
+            let changed = false;
+            facts.forEach(f => { if (f.unlock_level <= level && !f.unlocked) { f.unlocked = true; changed = true; } });
+            if (changed) localStorage.setItem('rc_facts', JSON.stringify(facts));
+        }
+
+        function openQuiz(qId) {
+            const q = getQuestions().find(x => x.id === qId);
+            if (!q) return;
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay active';
+            overlay.innerHTML = `<div class="modal">
+                <h3 style="color:#ffd700;">${q.question}</h3>
+                ${['A','B','C','D'].map(o => `<button class="btn btn-secondary" onclick="answerQuiz(${qId},'${o}', this)">${o}) ${q[o]}</button>`).join('')}
+                <div id="quizFeedback"></div>
+                <button class="btn-back" onclick="this.parentElement.parentElement.remove()">CERRAR</button>
+            </div>`;
+            document.body.appendChild(overlay);
+        }
+
+        function answerQuiz(qId, opt, btn) {
+            const q = getQuestions().find(x => x.id === qId);
+            const correct = opt === q.correct;
+            const fb = document.getElementById('quizFeedback');
+            if (!fb) return;
+            if (correct) {
+                audio.quizCorrectSound();
+                userData = getUserData();
+                userData.coins += q.reward;
+                userData.xp += 10;
+                saveUserData(userData);
+                const nl = Math.floor(Math.sqrt(userData.xp / 100)) + 1;
+                if (nl > userData.level) { userData.level = nl; userData.coins += 50; unlockFacts(nl); }
+                updateStats();
+                fb.innerHTML = '<p style="color:#2ecc71;">✅ ¡Correcto! +' + q.reward + ' 💰</p>';
+            } else {
+                audio.quizWrongSound();
+                fb.innerHTML = '<p style="color:#e74c3c;">❌ Incorrecto. Era ' + q.correct + '</p>';
+            }
+            const progress = getProgress();
+            progress['q_' + qId] = { answered: true, correct };
+            saveProgress(progress);
+            setTimeout(() => document.querySelector('.modal-overlay.active')?.remove(), 1500);
+        }
+
+        // ============ RANKING ============
+        function renderLeaderboard() {
+            const lb = getLeaderboard();
+            const content = document.getElementById('rankingContent');
+            if (!lb.length) { content.innerHTML = '<p style="color:#888;text-align:center;">¡Juega para aparecer!</p>'; return; }
+            content.innerHTML = lb.map((e, i) => {
+                let rc = 'normal';
+                if (i === 0) rc = 'gold'; else if (i === 1) rc = 'silver'; else if (i === 2) rc = 'bronze';
+                return `<div class="lb-item">
+                    <div class="lb-rank ${rc}">${i + 1}</div>
+                    <div class="lb-name">${e.name} ${e.name === userData.name ? '⭐' : ''}</div>
+                    <div class="lb-score">🏆${e.wins} Nv${e.level}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function showInstructions() {
+            document.getElementById('instructionsModal').classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        document.querySelectorAll('.modal-overlay').forEach(o => {
+            o.addEventListener('click', e => { if (e.target === o) o.classList.remove('active'); });
+        });
+
+        // Init
+        updateStats();
+        document.addEventListener('click', () => { if (audio.musicOn) audio.startMusic(); }, { once: true });
+        window.addEventListener('resize', () => {
+            if (document.getElementById('gameScreen').classList.contains('active')) setTimeout(resizeCanvas, 150);
+        });
+        window.addEventListener('orientationchange', () => { setTimeout(resizeCanvas, 200); setTimeout(resizeCanvas, 500); });
     </script>
 </body>
 </html>
