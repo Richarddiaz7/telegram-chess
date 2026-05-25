@@ -69,7 +69,6 @@
         .room-name { color: #ffd700; font-weight: 700; font-size: 14px; }
         .room-players { color: #aaa; font-size: 11px; }
         .room-join { background: rgba(255,215,0,0.2); color: #ffd700; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; }
-        .empty-rooms { text-align: center; color: #888; padding: 20px; font-size: 13px; }
 
         @media (orientation: landscape) {
             .game-screen { flex-direction: row; align-items: stretch; }
@@ -82,20 +81,17 @@
 </head>
 <body>
     <button class="btn-music" id="musicBtn" onclick="toggleMusic()">🎵</button>
-
     <div class="app-container">
-        <!-- NAME SCREEN -->
         <div class="screen active" id="nameScreen">
             <div class="name-screen">
                 <div class="crown-icon">👑</div>
                 <h1 class="title">ROYAL CHESS</h1>
-                <p style="color:#ccc;font-size:14px;">Elige tu nombre de jugador</p>
+                <p style="color:#ccc;font-size:14px;">Elige tu nombre</p>
                 <input type="text" class="name-input" id="nameInput" placeholder="Tu nombre o @Telegram" maxlength="20">
                 <button class="btn btn-play" onclick="saveName()">⚔️ ENTRAR</button>
             </div>
         </div>
 
-        <!-- HOME SCREEN -->
         <div class="screen" id="homeScreen">
             <div class="home-screen">
                 <div class="logo-container"><div class="crown-icon">👑</div><h1 class="title">ROYAL CHESS</h1><p class="subtitle">Play & Earn Arena</p></div>
@@ -105,22 +101,18 @@
                     <div class="stat-card"><div class="stat-value" id="totalXp">0</div><div class="stat-label">XP</div></div>
                     <div class="stat-card"><div class="stat-value" id="coins">💰 500</div><div class="stat-label">Monedas</div></div>
                 </div>
+                <button class="btn btn-play" onclick="startGame('ai')">⚔️ PLAY NOW</button>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
                     <button class="btn btn-secondary" onclick="startLocalGame()">👥 2 LOCALES</button>
-                    <button class="btn btn-secondary" onclick="showScreen('triviaScreen')">📚 TRIVIA</button>
+                    <button class="btn btn-secondary" onclick="openLobby()">🌐 MULTIJUGADOR</button>
                 </div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
                     <button class="btn btn-secondary" onclick="showScreen('rankingScreen')">🏆 RANKING</button>
                     <button class="btn btn-secondary" onclick="showInstructions()">📚 CLASES</button>
                 </div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
-                    <button class="btn btn-secondary" onclick="openLobby()">🌐 MULTIJUGADOR</button>
-                </div>
-                <button class="btn btn-play" onclick="startGame('ai')">⚔️ PLAY NOW</button>
             </div>
         </div>
 
-        <!-- GAME SCREEN -->
         <div class="screen" id="gameScreen">
             <div class="game-screen">
                 <div class="game-header">
@@ -154,11 +146,6 @@
             </div>
         </div>
 
-        <div class="screen" id="triviaScreen" style="background:linear-gradient(180deg,#0a0a2e,#1a1a4e);padding:15px;overflow-y:auto;">
-            <h2 style="color:#ffd700;text-align:center;">📚 TRIVIA</h2>
-            <button class="btn-back" onclick="backToHome()" style="margin:8px auto;display:block;">🏠 VOLVER</button>
-            <div id="triviaContent"></div>
-        </div>
         <div class="screen" id="rankingScreen" style="background:linear-gradient(180deg,#0a0a2e,#1a1a4e);padding:15px;overflow-y:auto;">
             <h2 style="color:#ffd700;text-align:center;">🏆 TOP 10</h2>
             <button class="btn-back" onclick="backToHome()">🏠 VOLVER</button>
@@ -166,11 +153,10 @@
         </div>
     </div>
 
-    <!-- LOBBY -->
     <div class="modal-overlay" id="lobbyModal">
         <div class="modal">
             <h2>🌐 Salas Disponibles</h2>
-            <button class="btn btn-secondary" onclick="createRoom()">🏠 Crear Nueva Sala</button>
+            <button class="btn btn-secondary" onclick="createRoom()">🏠 Crear Sala (Blancas)</button>
             <div id="lobbyRooms" style="margin:10px 0;"></div>
             <button class="btn-back" onclick="closeLobby()" style="width:100%;">CERRAR</button>
         </div>
@@ -192,12 +178,12 @@
         });
         const db = firebase.database();
 
-        // ============ VARIABLES GLOBALES ============
+        // ============ VARIABLES ============
         let myPlayerName = localStorage.getItem('rc_username') || '';
-        let myColor = null; // 'w' o 'b'
+        let myColor = null;
         let opponentName = '';
         let currentRoomId = null;
-        let roomListenerRef = null;
+        let roomRef = null;
         let userData = getUserData();
 
         if (myPlayerName) {
@@ -219,16 +205,15 @@
         }
 
         // ============ AUDIO ============
-        class AudioSystem {
-            constructor() { this.ctx = null; this.musicOn = true; }
-            init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); if (this.ctx.state === 'suspended') this.ctx.resume(); }
-            play(f, t, d, v = 0.08) { try { this.init(); const o = this.ctx.createOscillator(), g = this.ctx.createGain(); o.connect(g); g.connect(this.ctx.destination); o.frequency.value = f; o.type = t; g.gain.setValueAtTime(v, this.ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + d); o.start(); o.stop(this.ctx.currentTime + d); } catch(e) {} }
-            moveSound() { this.play(550, 'sine', 0.07); }
-            captureSound() { this.play(160, 'sawtooth', 0.2); }
-            checkSound() { this.play(750, 'square', 0.12); }
-        }
-        const audio = new AudioSystem();
-        function toggleMusic() { audio.musicOn = !audio.musicOn; document.getElementById('musicBtn').textContent = audio.musicOn ? '🎵' : '🔇'; }
+        const audio = {
+            ctx: null,
+            init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); if (this.ctx.state === 'suspended') this.ctx.resume(); },
+            play(f, t, d, v = 0.08) { try { this.init(); const o = this.ctx.createOscillator(), g = this.ctx.createGain(); o.connect(g); g.connect(this.ctx.destination); o.frequency.value = f; o.type = t; g.gain.setValueAtTime(v, this.ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + d); o.start(); o.stop(this.ctx.currentTime + d); } catch(e) {} },
+            move() { this.play(550, 'sine', 0.07); },
+            capture() { this.play(160, 'sawtooth', 0.2); },
+            check() { this.play(750, 'square', 0.12); }
+        };
+        function toggleMusic() {}
 
         // ============ DATA ============
         function getUserData() { const d = localStorage.getItem('rc_data'); return d ? JSON.parse(d) : { level:1, xp:0, coins:500, wins:0, losses:0, streak:0 }; }
@@ -262,53 +247,38 @@
 
         function drawBoard() {
             ctx.clearRect(0,0,bSize,bSize);
-            // Dibujar casillas
             for(let r=0;r<8;r++){
                 for(let c=0;c<8;c++){
-                    // Si el jugador es negro, invertir coordenadas de dibujo
-                    let drawR = r, drawC = c;
-                    if (gameState.viewAsBlack) {
-                        drawR = 7 - r;
-                        drawC = 7 - c;
-                    }
-                    const x=drawC*sq, y=drawR*sq;
-                    const light=(r+c)%2===0;
+                    let dr = r, dc = c;
+                    if (gameState.viewAsBlack) { dr = 7 - r; dc = 7 - c; }
+                    const x=dc*sq, y=dr*sq, light=(r+c)%2===0;
                     const g=ctx.createLinearGradient(x,y,x+sq,y+sq);
                     light?(g.addColorStop(0,'#f5deb3'),g.addColorStop(0.4,'#eed9b0'),g.addColorStop(1,'#d2b48c')):(g.addColorStop(0,'#8b6914'),g.addColorStop(0.4,'#7a5a12'),g.addColorStop(1,'#5c3d0e'));
                     ctx.fillStyle=g;ctx.fillRect(x,y,sq,sq);
                 }
             }
-            // Selección
             if(gameState.selectedSquare){
                 let {row,col}=gameState.selectedSquare;
                 if (gameState.viewAsBlack) { row = 7 - row; col = 7 - col; }
-                ctx.fillStyle='rgba(255,215,0,0.45)';
-                ctx.fillRect(col*sq,row*sq,sq,sq);
-                ctx.strokeStyle='#ffd700';ctx.lineWidth=Math.max(2,sq*0.04);
-                ctx.strokeRect(col*sq+2,row*sq+2,sq-4,sq-4);
+                ctx.fillStyle='rgba(255,215,0,0.45)';ctx.fillRect(col*sq,row*sq,sq,sq);
+                ctx.strokeStyle='#ffd700';ctx.lineWidth=Math.max(2,sq*0.04);ctx.strokeRect(col*sq+2,row*sq+2,sq-4,sq-4);
             }
-            // Piezas
             const pRad=sq*0.42;
             for(let r=0;r<8;r++){
                 for(let c=0;c<8;c++){
-                    const piece = chess.getPiece(r,c);
+                    const piece=chess.getPiece(r,c);
                     if(piece){
-                        let drawR = r, drawC = c;
-                        if (gameState.viewAsBlack) { drawR = 7 - r; drawC = 7 - c; }
-                        const cx=drawC*sq+sq/2, cy=drawR*sq+sq/2;
-                        const isW=piece===piece.toUpperCase();
-                        ctx.shadowColor='rgba(0,0,0,0.6)';ctx.shadowBlur=sq*0.12;
-                        ctx.shadowOffsetX=sq*0.03;ctx.shadowOffsetY=sq*0.04;
+                        let dr = r, dc = c;
+                        if (gameState.viewAsBlack) { dr = 7 - r; dc = 7 - c; }
+                        const cx=dc*sq+sq/2, cy=dr*sq+sq/2, isW=piece===piece.toUpperCase();
+                        ctx.shadowColor='rgba(0,0,0,0.6)';ctx.shadowBlur=sq*0.12;ctx.shadowOffsetX=sq*0.03;ctx.shadowOffsetY=sq*0.04;
                         ctx.beginPath();ctx.arc(cx,cy,pRad,0,Math.PI*2);
                         const g=ctx.createRadialGradient(cx-pRad*0.3,cy-pRad*0.3,pRad*0.05,cx,cy,pRad);
                         isW?(g.addColorStop(0,'#fff'),g.addColorStop(0.5,'#f0f0f0'),g.addColorStop(0.8,'#d4d4d4'),g.addColorStop(1,'#a0a0a0')):(g.addColorStop(0,'#606060'),g.addColorStop(0.5,'#2a2a2a'),g.addColorStop(0.8,'#1a1a1a'),g.addColorStop(1,'#000'));
-                        ctx.fillStyle=g;ctx.fill();
-                        ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetX=0;ctx.shadowOffsetY=0;
+                        ctx.fillStyle=g;ctx.fill();ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetX=0;ctx.shadowOffsetY=0;
                         ctx.strokeStyle=isW?'#888':'#333';ctx.lineWidth=Math.max(1,sq*0.02);ctx.stroke();
-                        const fSize=sq*0.75;
-                        ctx.fillStyle=isW?'#1a1a1a':'#fff';
-                        ctx.font=`bold ${fSize}px "Segoe UI Symbol",Arial`;
-                        ctx.textAlign='center';ctx.textBaseline='middle';
+                        const fSize=sq*0.75;ctx.fillStyle=isW?'#1a1a1a':'#fff';
+                        ctx.font=`bold ${fSize}px "Segoe UI Symbol",Arial`;ctx.textAlign='center';ctx.textBaseline='middle';
                         ctx.fillText(SYM[piece],cx,cy+sq*0.04);
                     }
                 }
@@ -317,33 +287,33 @@
 
         // ============ GAME STATE ============
         let gameState = {
-            mode:'ai',
-            selectedSquare:null,
-            playerTimer:600,
-            aiTimer:600,
-            gameOver:false,
-            currentTurn:'w',
-            combo:0,
-            energy:100,
+            mode:'ai', selectedSquare:null,
+            playerTimer:600, aiTimer:600,
+            gameOver:false, currentTurn:'w',
+            combo:0, energy:100,
             viewAsBlack:false
         };
         let timerInterval;
 
-        function startGame(mode) {
+        function setupUIForGame() {
             document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
             document.getElementById('gameScreen').classList.add('active');
+            updateEnergy(); updateTimers();
+            setTimeout(resizeCanvas,50); setTimeout(resizeCanvas,200);
+            drawBoard();
+            startTimers();
+        }
+
+        function startGame(mode) {
             audio.init();
             chess.init();
             gameState = {
                 mode, selectedSquare:null,
                 playerTimer:600, aiTimer:600,
                 gameOver:false, currentTurn:'w',
-                combo:0, energy:100,
-                viewAsBlack:false
+                combo:0, energy:100, viewAsBlack:false
             };
-            
-            // Configurar UI
-            document.getElementById('bottomName').textContent = (myPlayerName || 'TÚ') + ' ⚪';
+            document.getElementById('bottomName').textContent = (myPlayerName||'TÚ') + ' ⚪';
             document.getElementById('bottomAvatar').className = 'player-avatar white-p';
             document.getElementById('bottomAvatar').textContent = '⚪';
             document.getElementById('topName').textContent = 'IA OPONENTE ⚫';
@@ -351,25 +321,19 @@
             document.getElementById('topAvatar').textContent = '⚫';
             document.getElementById('bottomTurn').className = 'turn-dot active';
             document.getElementById('topTurn').className = 'turn-dot waiting';
-            
-            updateEnergy(); updateTimers();
-            setTimeout(resizeCanvas,50); setTimeout(resizeCanvas,200);
-            startTimers();
+            setupUIForGame();
         }
 
         function startLocalGame() {
-            document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-            document.getElementById('gameScreen').classList.add('active');
             audio.init();
             chess.init();
             gameState = {
                 mode:'local', selectedSquare:null,
                 playerTimer:600, aiTimer:600,
                 gameOver:false, currentTurn:'w',
-                combo:0, energy:100,
-                viewAsBlack:false
+                combo:0, energy:100, viewAsBlack:false
             };
-            document.getElementById('bottomName').textContent = (myPlayerName || 'J1') + ' ⚪';
+            document.getElementById('bottomName').textContent = (myPlayerName||'J1') + ' ⚪';
             document.getElementById('bottomAvatar').className = 'player-avatar white-p';
             document.getElementById('bottomAvatar').textContent = '⚪';
             document.getElementById('topName').textContent = 'JUGADOR 2 ⚫';
@@ -377,15 +341,13 @@
             document.getElementById('topAvatar').textContent = '⚫';
             document.getElementById('bottomTurn').className = 'turn-dot active';
             document.getElementById('topTurn').className = 'turn-dot waiting';
-            updateEnergy(); updateTimers();
-            setTimeout(resizeCanvas,50); setTimeout(resizeCanvas,200);
-            startTimers();
+            setupUIForGame();
         }
 
         function backToHome() {
             clearInterval(timerInterval);
-            if (currentRoomId && roomListenerRef) roomListenerRef.off();
-            currentRoomId = null; myColor = null; opponentName = '';
+            if (roomRef) roomRef.off();
+            currentRoomId = null; myColor = null;
             document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
             document.getElementById('homeScreen').classList.add('active');
             updateStats();
@@ -416,8 +378,6 @@
             const f = s => `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
             document.getElementById('bottomTimer').textContent = f(gameState.playerTimer);
             document.getElementById('topTimer').textContent = f(gameState.aiTimer);
-            document.getElementById('bottomTimer').className = 'timer-display' + (gameState.playerTimer < 60 ? ' urgent' : '');
-            document.getElementById('topTimer').className = 'timer-display' + (gameState.aiTimer < 60 ? ' urgent' : '');
         }
 
         function updateEnergy() {
@@ -425,24 +385,18 @@
             document.getElementById('energyValue').textContent = gameState.energy + '%';
         }
 
-        function updateTurnIndicators() {
-            const bottomTurn = document.getElementById('bottomTurn');
-            const topTurn = document.getElementById('topTurn');
-            const isMyTurn = (myColor === 'w' && gameState.currentTurn === 'w') || 
-                            (myColor === 'b' && gameState.currentTurn === 'b');
-            if (isMyTurn) {
-                bottomTurn.className = 'turn-dot active';
-                topTurn.className = 'turn-dot waiting';
-            } else {
-                topTurn.className = 'turn-dot active';
-                bottomTurn.className = 'turn-dot waiting';
-            }
+        function updateTurnUI() {
+            const bD = document.getElementById('bottomTurn'), tD = document.getElementById('topTurn');
+            const myTurn = !gameState.multiplayer || 
+                (myColor === 'w' && gameState.currentTurn === 'w') ||
+                (myColor === 'b' && gameState.currentTurn === 'b');
+            bD.className = myTurn ? 'turn-dot active' : 'turn-dot waiting';
+            tD.className = myTurn ? 'turn-dot waiting' : 'turn-dot active';
         }
 
         function showCombo(text, dur=1000) {
             const d = document.getElementById('comboDisplay');
-            d.textContent = text;
-            d.classList.add('active');
+            d.textContent = text; d.classList.add('active');
             setTimeout(() => d.classList.remove('active'), dur);
         }
 
@@ -450,379 +404,228 @@
             const res = chess.movePiece(fr, fc, tr, tc);
             gameState.energy = Math.max(0, gameState.energy - 2);
             updateEnergy();
-            
-            if (res.captured) {
-                gameState.combo++;
-                audio.captureSound();
-                const bonus = gameState.combo * 5;
-                userData.xp += 10 + bonus;
-                userData.coins += bonus;
-                if (gameState.combo >= 3) showCombo(`🔥 ${gameState.combo}x COMBO!`);
-            } else {
-                gameState.combo = 0;
-                audio.moveSound();
-                userData.xp += 2;
-            }
-            
+            if (res.captured) { gameState.combo++; audio.capture(); const bonus=gameState.combo*5; userData.xp+=10+bonus; userData.coins+=bonus; if(gameState.combo>=3)showCombo(`🔥 ${gameState.combo}x COMBO!`); }
+            else { gameState.combo=0; audio.move(); userData.xp+=2; }
             saveUserData(userData);
-            const nl = Math.floor(Math.sqrt(userData.xp / 100)) + 1;
-            if (nl > userData.level) {
-                userData.level = nl;
-                userData.coins += 50;
-                showCombo('⬆️ LEVEL UP!', 2000);
-            }
+            const nl = Math.floor(Math.sqrt(userData.xp/100))+1;
+            if (nl>userData.level) { userData.level=nl; userData.coins+=50; showCombo('⬆️ LEVEL UP!',2000); }
             updateStats();
-            
-            const opp = gameState.currentTurn === 'w' ? 'b' : 'w';
-            if (chess.isInCheck(opp)) {
-                audio.checkSound();
-                if (!chess.hasLegalMoves(opp)) { endGame('checkmate'); return; }
-                showCombo('⚠️ JAQUE!');
-            } else if (!chess.hasLegalMoves(opp)) {
-                endGame('stalemate');
-            }
-            
-            if (gameState.mode === 'multiplayer') syncMoveToFirebase();
+            const opp = gameState.currentTurn==='w'?'b':'w';
+            if (chess.isInCheck(opp)) { audio.check(); if(!chess.hasLegalMoves(opp)){endGame('checkmate');return;} showCombo('⚠️ JAQUE!'); }
+            else if (!chess.hasLegalMoves(opp)) { endGame('stalemate'); }
+            if (gameState.mode==='multiplayer') sendMoveToFirebase();
         }
 
         function endGame(reason) {
-            gameState.gameOver = true;
-            clearInterval(timerInterval);
-            let bonus = 0;
-            if (reason === 'checkmate') { bonus = 50; showCombo('🏆 JAQUE MATE!', 3000); }
-            else if (reason === 'time') { bonus = 20; showCombo('⏰ TIEMPO!', 3000); }
-            else { bonus = 10; showCombo('🤝 TABLAS!', 3000); }
-            
-            userData.coins += bonus;
-            if (reason === 'checkmate' || reason === 'time') { userData.wins++; userData.streak++; }
-            else { userData.streak = 0; }
-            userData.xp += bonus;
-            saveUserData(userData);
-            updateStats();
-            
-            if (gameState.mode === 'multiplayer' && currentRoomId) {
-                db.ref('rooms/' + currentRoomId).update({ status: 'finished', winner: myColor });
+            gameState.gameOver=true; clearInterval(timerInterval);
+            let bonus=0;
+            if(reason==='checkmate'){bonus=50;showCombo('🏆 JAQUE MATE!',3000);}
+            else if(reason==='time'){bonus=20;showCombo('⏰ TIEMPO!',3000);}
+            else{bonus=10;showCombo('🤝 TABLAS!',3000);}
+            userData.coins+=bonus;
+            if(reason==='checkmate'||reason==='time'){userData.wins++;userData.streak++;}
+            else{userData.streak=0;}
+            userData.xp+=bonus;saveUserData(userData);updateStats();
+            if(gameState.mode==='multiplayer'&&currentRoomId){
+                db.ref('rooms/'+currentRoomId).update({status:'finished',winner:myColor});
             }
-            setTimeout(backToHome, 3000);
+            setTimeout(backToHome,3000);
         }
 
-        function getSquareFromEvent(e) {
-            const rect = canvas.getBoundingClientRect();
-            const sx = bSize / rect.width, sy = bSize / rect.height;
-            let col = Math.floor((e.clientX - rect.left) * sx / sq);
-            let row = Math.floor((e.clientY - rect.top) * sy / sq);
-            
-            // Si el jugador ve como negro, invertir coordenadas
-            if (gameState.viewAsBlack) {
-                row = 7 - row;
-                col = 7 - col;
-            }
-            
-            return (row >= 0 && row < 8 && col >= 0 && col < 8) ? { row, col } : null;
+        function getSquare(e) {
+            const r=canvas.getBoundingClientRect(),sx=bSize/r.width,sy=bSize/r.height;
+            let col=Math.floor((e.clientX-r.left)*sx/sq),row=Math.floor((e.clientY-r.top)*sy/sq);
+            if(gameState.viewAsBlack){row=7-row;col=7-col;}
+            return(row>=0&&row<8&&col>=0&&col<8)?{row,col}:null;
         }
 
-        function handleSquareClick(row, col) {
-            if (gameState.gameOver) return;
-            
-            // En multijugador, verificar turno
-            if (gameState.mode === 'multiplayer') {
-                const myTurn = (myColor === 'w' && gameState.currentTurn === 'w') ||
-                              (myColor === 'b' && gameState.currentTurn === 'b');
-                if (!myTurn) return;
+        function handleClick(row,col) {
+            if(gameState.gameOver)return;
+            // Verificar turno
+            if(gameState.mode==='ai'&&gameState.currentTurn!=='w')return;
+            if(gameState.mode==='multiplayer'){
+                const myTurn=(myColor==='w'&&gameState.currentTurn==='w')||(myColor==='b'&&gameState.currentTurn==='b');
+                if(!myTurn)return;
             }
-            
-            if (gameState.mode === 'ai' && gameState.currentTurn !== 'w') return;
-
-            if (gameState.selectedSquare) {
-                const { row: fr, col: fc } = gameState.selectedSquare;
-                
-                if (fr === row && fc === col) {
-                    gameState.selectedSquare = null;
-                    drawBoard();
-                    return;
-                }
-                
-                if (chess.isValidMove(fr, fc, row, col)) {
-                    const piece = chess.getPiece(fr, fc);
-                    const saved = chess.board[row][col];
-                    chess.board[row][col] = piece;
-                    chess.board[fr][fc] = '';
-                    const inCheck = chess.isInCheck(gameState.currentTurn);
-                    chess.board[fr][fc] = piece;
-                    chess.board[row][col] = saved;
-                    
-                    if (!inCheck) {
-                        makeMove(fr, fc, row, col);
-                        gameState.selectedSquare = null;
-                        gameState.currentTurn = gameState.currentTurn === 'w' ? 'b' : 'w';
-                        if (gameState.mode === 'multiplayer') updateTurnIndicators();
+            if(gameState.selectedSquare){
+                const{row:fr,col:fc}=gameState.selectedSquare;
+                if(fr===row&&fc===col){gameState.selectedSquare=null;drawBoard();return;}
+                if(chess.isValidMove(fr,fc,row,col)){
+                    const p=chess.getPiece(fr,fc),sv=chess.board[row][col];
+                    chess.board[row][col]=p;chess.board[fr][fc]='';
+                    const ch=chess.isInCheck(gameState.currentTurn);
+                    chess.board[fr][fc]=p;chess.board[row][col]=sv;
+                    if(!ch){
+                        makeMove(fr,fc,row,col);
+                        gameState.selectedSquare=null;
+                        gameState.currentTurn=gameState.currentTurn==='w'?'b':'w';
+                        updateTurnUI();
                         drawBoard();
-                        
-                        if (gameState.mode === 'ai' && gameState.currentTurn === 'b' && !gameState.gameOver) {
-                            setTimeout(() => {
-                                const aim = chess.getAIMove();
-                                if (aim) {
-                                    makeMove(aim.fr, aim.fc, aim.tr, aim.tc);
-                                    gameState.currentTurn = 'w';
-                                    gameState.energy = Math.min(100, gameState.energy + 5);
-                                    updateEnergy();
-                                }
+                        if(gameState.mode==='ai'&&gameState.currentTurn==='b'&&!gameState.gameOver){
+                            setTimeout(()=>{
+                                const aim=chess.getAIMove();
+                                if(aim){makeMove(aim.fr,aim.fc,aim.tr,aim.tc);gameState.currentTurn='w';gameState.energy=Math.min(100,gameState.energy+5);updateEnergy();updateTurnUI();}
                                 drawBoard();
-                            }, 350 + Math.random() * 700);
+                            },350+Math.random()*700);
                         }
-                    } else {
-                        gameState.selectedSquare = null;
-                        drawBoard();
-                    }
-                } else {
-                    gameState.selectedSquare = null;
-                    drawBoard();
-                }
-            } else {
-                const piece = chess.getPiece(row, col);
-                if (piece) {
-                    if (gameState.mode === 'ai') {
-                        if (piece === piece.toUpperCase()) gameState.selectedSquare = { row, col };
-                    } else if (gameState.mode === 'multiplayer') {
-                        const isWhitePiece = piece === piece.toUpperCase();
-                        if ((myColor === 'w' && isWhitePiece) || (myColor === 'b' && !isWhitePiece)) {
-                            gameState.selectedSquare = { row, col };
-                        }
-                    } else if (gameState.mode === 'local') {
-                        if ((gameState.currentTurn === 'w' && piece === piece.toUpperCase()) ||
-                            (gameState.currentTurn === 'b' && piece === piece.toLowerCase())) {
-                            gameState.selectedSquare = { row, col };
-                        }
-                    }
+                    }else{gameState.selectedSquare=null;drawBoard();}
+                }else{gameState.selectedSquare=null;drawBoard();}
+            }else{
+                const p=chess.getPiece(row,col);
+                if(p){
+                    const isWhitePiece=p===p.toUpperCase();
+                    let canSelect=false;
+                    if(gameState.mode==='ai') canSelect=isWhitePiece;
+                    else if(gameState.mode==='multiplayer') canSelect=(myColor==='w'&&isWhitePiece)||(myColor==='b'&&!isWhitePiece);
+                    else canSelect=(gameState.currentTurn==='w'&&isWhitePiece)||(gameState.currentTurn==='b'&&!isWhitePiece);
+                    if(canSelect)gameState.selectedSquare={row,col};
                 }
             }
             drawBoard();
         }
 
-        canvas.addEventListener('click', e => {
-            const sq = getSquareFromEvent(e);
-            if (sq) handleSquareClick(sq.row, sq.col);
-        });
+        canvas.addEventListener('click',e=>{const sq=getSquare(e);if(sq)handleClick(sq.row,sq.col);});
+        canvas.addEventListener('touchstart',e=>{e.preventDefault();const sq=getSquare(e.touches[0]);if(sq)handleClick(sq.row,sq.col);},{passive:false});
 
-        canvas.addEventListener('touchstart', e => {
-            e.preventDefault();
-            const sq = getSquareFromEvent(e.touches[0]);
-            if (sq) handleSquareClick(sq.row, sq.col);
-        }, { passive: false });
-
-        // ============ MULTIJUGADOR ============
+        // ============ MULTIJUGADOR (LÓGICA SIMPLIFICADA) ============
         function openLobby() {
-            if (!myPlayerName) return alert('Primero ingresa tu nombre');
+            if(!myPlayerName)return alert('Primero ingresa tu nombre');
             document.getElementById('lobbyModal').classList.add('active');
             loadRooms();
-            if (window.lobbyInterval) clearInterval(window.lobbyInterval);
-            window.lobbyInterval = setInterval(loadRooms, 2000);
+            if(window.lobbyInterval)clearInterval(window.lobbyInterval);
+            window.lobbyInterval=setInterval(loadRooms,2000);
         }
+        function closeLobby(){document.getElementById('lobbyModal').classList.remove('active');if(window.lobbyInterval)clearInterval(window.lobbyInterval);}
 
-        function closeLobby() {
-            document.getElementById('lobbyModal').classList.remove('active');
-            if (window.lobbyInterval) clearInterval(window.lobbyInterval);
-        }
-
-        function loadRooms() {
-            db.ref('rooms').once('value', (snapshot) => {
-                const rooms = snapshot.val();
-                const container = document.getElementById('lobbyRooms');
-                if (!rooms) {
-                    container.innerHTML = '<p class="empty-rooms">No hay salas. ¡Crea una!</p>';
-                    return;
-                }
-                let html = '';
-                Object.entries(rooms).forEach(([id, room]) => {
-                    if (room.status === 'waiting') {
-                        html += `<div class="room-card">
-                            <div class="room-info">
-                                <div class="room-name">⚪ ${room.white}</div>
-                                <div class="room-players">Esperando oponente...</div>
-                            </div>
-                            <button class="room-join" onclick="joinRoom('${id}')">UNIRSE</button>
-                        </div>`;
-                    }
+        function loadRooms(){
+            db.ref('rooms').once('value',(snap)=>{
+                const rooms=snap.val();
+                const c=document.getElementById('lobbyRooms');
+                if(!rooms){c.innerHTML='<p style="color:#888;text-align:center;">No hay salas. ¡Crea una!</p>';return;}
+                let h='';
+                Object.entries(rooms).forEach(([id,room])=>{
+                    if(room.status==='waiting') h+=`<div class="room-card"><div class="room-info"><div class="room-name">⚪ ${room.white}</div><div class="room-players">Esperando oponente...</div></div><button class="room-join" onclick="joinRoom('${id}')">UNIRSE</button></div>`;
                 });
-                container.innerHTML = html || '<p class="empty-rooms">No hay salas. ¡Crea una!</p>';
+                c.innerHTML=h||'<p style="color:#888;text-align:center;">No hay salas. ¡Crea una!</p>';
             });
         }
 
-        function createRoom() {
-            const roomId = 'room_' + Date.now();
-            const initialBoard = [
-                ['r','n','b','q','k','b','n','r'],
-                ['p','p','p','p','p','p','p','p'],
-                ['','','','','','','',''],
-                ['','','','','','','',''],
-                ['','','','','','','',''],
-                ['','','','','','','',''],
-                ['P','P','P','P','P','P','P','P'],
-                ['R','N','B','Q','K','B','N','R']
-            ];
-            
-            db.ref('rooms/' + roomId).set({
-                white: myPlayerName,
-                black: null,
-                board: initialBoard,
-                turn: 'w',
-                status: 'waiting'
-            }).then(() => {
-                currentRoomId = roomId;
-                myColor = 'w';
-                opponentName = '';
-                closeLobby();
-                alert('✅ Sala creada. Esperando oponente...\n\nCódigo de sala: ' + roomId);
-                waitForOpponent(roomId);
+        function createRoom(){
+            const rid='room_'+Date.now();
+            const board=JSON.stringify([['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']]);
+            db.ref('rooms/'+rid).set({white:myPlayerName,black:null,board:board,turn:'w',status:'waiting'}).then(()=>{
+                currentRoomId=rid;myColor='w';opponentName='';closeLobby();
+                alert('✅ Sala creada. Esperando oponente...\n\nID: '+rid);
+                waitForOpponent(rid);
             });
         }
 
-        function joinRoom(roomId) {
-            db.ref('rooms/' + roomId).once('value', (snapshot) => {
-                const room = snapshot.val();
-                if (!room || room.black) {
-                    alert('Sala no disponible');
-                    return;
-                }
-                
-                db.ref('rooms/' + roomId).update({
-                    black: myPlayerName,
-                    status: 'playing'
-                }).then(() => {
-                    currentRoomId = roomId;
-                    myColor = 'b';
-                    opponentName = room.white;
-                    closeLobby();
-                    
-                    // El que se une carga el tablero existente
-                    if (room.board) chess.board = room.board;
-                    
-                    startMultiplayerGame(roomId, room);
-                });
+        function joinRoom(rid){
+            db.ref('rooms/'+rid).transaction((room)=>{
+                if(room&&!room.black){room.black=myPlayerName;room.status='playing';return room;}
+            }).then((result)=>{
+                if(result.committed){
+                    currentRoomId=rid;myColor='b';
+                    db.ref('rooms/'+rid).once('value',(snap)=>{
+                        const room=snap.val();
+                        opponentName=room.white;
+                        closeLobby();
+                        chessInitFromString(room.board);
+                        startMultiplayerGame(rid);
+                    });
+                }else{alert('Sala no disponible');}
             });
         }
 
-        function waitForOpponent(roomId) {
-            roomListenerRef = db.ref('rooms/' + roomId);
-            roomListenerRef.on('value', (snapshot) => {
-                const room = snapshot.val();
-                if (!room) return;
-                
-                if (room.status === 'playing' && room.black) {
-                    opponentName = room.black;
-                    roomListenerRef.off();
-                    startMultiplayerGame(roomId, room);
+        function waitForOpponent(rid){
+            roomRef=db.ref('rooms/'+rid);
+            roomRef.on('value',(snap)=>{
+                const room=snap.val();
+                if(room&&room.status==='playing'&&room.black){
+                    opponentName=room.black;
+                    roomRef.off();
+                    startMultiplayerGame(rid);
                 }
             });
         }
 
-        function startMultiplayerGame(roomId, room) {
-            // Configurar el estado del juego
-            gameState.mode = 'multiplayer';
-            gameState.currentTurn = room.turn || 'w';
-            gameState.gameOver = false;
-            gameState.selectedSquare = null;
-            gameState.playerTimer = 600;
-            gameState.aiTimer = 600;
-            gameState.combo = 0;
-            gameState.energy = 100;
+        function chessInitFromString(boardStr){
+            if(boardStr) chess.board=JSON.parse(boardStr);
+            else chess.init();
+        }
+
+        function startMultiplayerGame(rid){
+            gameState.mode='multiplayer';
+            gameState.currentTurn='w';
+            gameState.gameOver=false;
+            gameState.selectedSquare=null;
+            gameState.playerTimer=600;
+            gameState.aiTimer=600;
+            gameState.combo=0;
+            gameState.energy=100;
+            gameState.viewAsBlack=(myColor==='b');
             
-            // IMPORTANTE: El jugador negro ve el tablero invertido
-            gameState.viewAsBlack = (myColor === 'b');
-            
-            // Configurar UI según el color
-            if (myColor === 'w') {
-                // BLANCAS: Tú abajo (⚪), Oponente arriba (⚫)
-                document.getElementById('bottomName').textContent = myPlayerName + ' ⚪';
-                document.getElementById('bottomAvatar').className = 'player-avatar white-p';
-                document.getElementById('bottomAvatar').textContent = '⚪';
-                document.getElementById('topName').textContent = opponentName + ' ⚫';
-                document.getElementById('topAvatar').className = 'player-avatar black-p';
-                document.getElementById('topAvatar').textContent = '⚫';
-            } else {
-                // NEGRAS: Tú abajo (⚫), Oponente arriba (⚪)
-                document.getElementById('bottomName').textContent = myPlayerName + ' ⚫';
-                document.getElementById('bottomAvatar').className = 'player-avatar black-p';
-                document.getElementById('bottomAvatar').textContent = '⚫';
-                document.getElementById('topName').textContent = opponentName + ' ⚪';
-                document.getElementById('topAvatar').className = 'player-avatar white-p';
-                document.getElementById('topAvatar').textContent = '⚪';
+            if(myColor==='w'){
+                document.getElementById('bottomName').textContent=myPlayerName+' ⚪';
+                document.getElementById('bottomAvatar').className='player-avatar white-p';
+                document.getElementById('bottomAvatar').textContent='⚪';
+                document.getElementById('topName').textContent=opponentName+' ⚫';
+                document.getElementById('topAvatar').className='player-avatar black-p';
+                document.getElementById('topAvatar').textContent='⚫';
+            }else{
+                document.getElementById('bottomName').textContent=myPlayerName+' ⚫';
+                document.getElementById('bottomAvatar').className='player-avatar black-p';
+                document.getElementById('bottomAvatar').textContent='⚫';
+                document.getElementById('topName').textContent=opponentName+' ⚪';
+                document.getElementById('topAvatar').className='player-avatar white-p';
+                document.getElementById('topAvatar').textContent='⚪';
             }
-            
-            updateTurnIndicators();
-            
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('gameScreen').classList.add('active');
-            
-            audio.init();
-            updateEnergy();
-            updateTimers();
-            setTimeout(resizeCanvas, 50);
-            setTimeout(resizeCanvas, 200);
-            drawBoard();
-            startTimers();
-            
-            // Escuchar movimientos
-            listenToRoom(roomId);
+            updateTurnUI();
+            setupUIForGame();
+            listenToRoom(rid);
         }
 
-        function listenToRoom(roomId) {
-            if (roomListenerRef) roomListenerRef.off();
-            roomListenerRef = db.ref('rooms/' + roomId);
-            roomListenerRef.on('value', (snapshot) => {
-                const room = snapshot.val();
-                if (!room || gameState.gameOver) return;
-
-                // Si recibimos un tablero nuevo y el turno cambió
-                if (room.board && room.turn !== gameState.currentTurn) {
-                    chess.board = JSON.parse(JSON.stringify(room.board));
-                    gameState.currentTurn = room.turn;
-                    updateTurnIndicators();
+        function listenToRoom(rid){
+            if(roomRef)roomRef.off();
+            roomRef=db.ref('rooms/'+rid);
+            roomRef.on('value',(snap)=>{
+                const room=snap.val();
+                if(!room||gameState.gameOver)return;
+                // Si el turno cambió (el oponente movió)
+                if(room.turn&&room.turn!==gameState.currentTurn&&room.board){
+                    chess.board=JSON.parse(room.board);
+                    gameState.currentTurn=room.turn;
+                    updateTurnUI();
                     drawBoard();
                     updateTimers();
                 }
-
-                if (room.status === 'finished') {
-                    gameState.gameOver = true;
-                    clearInterval(timerInterval);
-                    const won = room.winner === myColor;
-                    alert(won ? '🏆 ¡Ganaste!' : '💀 Perdiste');
-                    roomListenerRef.off();
-                    backToHome();
+                if(room.status==='finished'){
+                    gameState.gameOver=true;clearInterval(timerInterval);
+                    alert(room.winner===myColor?'🏆 ¡Ganaste!':'💀 Perdiste');
+                    roomRef.off();backToHome();
                 }
             });
         }
 
-        function syncMoveToFirebase() {
-            if (!currentRoomId) return;
-            db.ref('rooms/' + currentRoomId).update({
-                board: JSON.parse(JSON.stringify(chess.board)),
-                turn: gameState.currentTurn
+        function sendMoveToFirebase(){
+            if(!currentRoomId)return;
+            db.ref('rooms/'+currentRoomId).update({
+                board:JSON.stringify(chess.board),
+                turn:gameState.currentTurn
             });
         }
 
-        // ============ RANKING / TRIVIA ============
-        function renderLeaderboard() {
-            const lb = JSON.parse(localStorage.getItem('rc_lb') || '[]');
-            const c = document.getElementById('rankingContent');
-            c.innerHTML = lb.length ? lb.map((e, i) => {
-                let rc = 'normal';
-                if (i === 0) rc = 'gold';
-                else if (i === 1) rc = 'silver';
-                else if (i === 2) rc = 'bronze';
-                return `<div class="lb-item"><div class="lb-rank ${rc}">${i+1}</div><div class="lb-name">${e.name}</div><div class="lb-score">🏆${e.wins}</div></div>`;
-            }).join('') : '<p style="color:#888;">Sin datos aún</p>';
+        function renderLeaderboard(){
+            const lb=JSON.parse(localStorage.getItem('rc_lb')||'[]');
+            document.getElementById('rankingContent').innerHTML=lb.length?lb.map((e,i)=>{
+                let rc='normal';if(i===0)rc='gold';else if(i===1)rc='silver';else if(i===2)rc='bronze';
+                return`<div class="lb-item"><div class="lb-rank ${rc}">${i+1}</div><div class="lb-name">${e.name}</div><div class="lb-score">🏆${e.wins}</div></div>`;
+            }).join(''):'<p style="color:#888;">Sin datos</p>';
         }
+        function showInstructions(){alert('📚 CLASES:\n\n🇮🇹 Italiana: 1.e4 e5 2.Cf3 Cc6 3.Ac4\n🇪🇸 Española: 1.e4 e5 2.Cf3 Cc6 3.Ab5');}
 
-        function showInstructions() {
-            alert('📚 CLASES:\n\n🇮🇹 Italiana: 1.e4 e5 2.Cf3 Cc6 3.Ac4\n🇪🇸 Española: 1.e4 e5 2.Cf3 Cc6 3.Ab5\n🏰 Enroque: Rey 2 casillas hacia torre');
-        }
-
-        // Init
         updateStats();
-        window.addEventListener('resize', () => {
-            if (document.getElementById('gameScreen').classList.contains('active')) setTimeout(resizeCanvas, 150);
-        });
+        window.addEventListener('resize',()=>{if(document.getElementById('gameScreen').classList.contains('active'))setTimeout(resizeCanvas,150);});
     </script>
 </body>
 </html>
