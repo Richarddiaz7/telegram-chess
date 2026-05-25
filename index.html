@@ -77,18 +77,18 @@
                 db.ref('games/' + gid).on('value', (snap) => {
                     const game = snap.val();
                     if (!game) return;
-                    log('📩 Datos recibidos - turno: ' + game.turn + ', movimientos: ' + game.moveCount);
+                    log('📩 Recibido - turno: ' + game.turn + ', miColor: ' + myColor + ', moveCount: ' + game.moveCount + ', miMoveCount: ' + moveCount);
                     
                     if (game.black && game.status === 'waiting') {
                         log('👤 ¡Un oponente se unió!: ' + game.black);
-                        game.status = 'playing';
                     }
                     
-                    if (game.turn !== myColor && game.moveCount > moveCount) {
+                    // CORRECCIÓN: Es mi turno cuando game.turn === myColor
+                    if (game.turn === myColor && game.moveCount > moveCount) {
                         moveCount = game.moveCount;
                         document.getElementById('turnDisplay').textContent = 'TU TURNO';
                         document.getElementById('moveBtn').disabled = false;
-                        log('🟢 Es tu turno ahora');
+                        log('🟢 Es tu turno ahora (moveCount=' + moveCount + ')');
                     }
                 });
             });
@@ -116,18 +116,20 @@
                     document.getElementById('moveBtn').disabled = true;
                     log('✅ Unido a partida: ' + gid);
                     log('👤 Eres NEGRAS');
+                    log('📊 MoveCount inicial: ' + moveCount);
                     
                     // Escuchar cambios
                     db.ref('games/' + gid).on('value', (snap) => {
                         const game = snap.val();
                         if (!game) return;
-                        log('📩 Datos recibidos - turno: ' + game.turn + ', movimientos: ' + game.moveCount);
+                        log('📩 Recibido - turno: ' + game.turn + ', miColor: ' + myColor + ', moveCount: ' + game.moveCount + ', miMoveCount: ' + moveCount);
                         
-                        if (game.turn !== myColor && game.moveCount > moveCount) {
+                        // CORRECCIÓN: Es mi turno cuando game.turn === myColor
+                        if (game.turn === myColor && game.moveCount > moveCount) {
                             moveCount = game.moveCount;
                             document.getElementById('turnDisplay').textContent = 'TU TURNO';
                             document.getElementById('moveBtn').disabled = false;
-                            log('🟢 Es tu turno ahora');
+                            log('🟢 Es tu turno ahora (moveCount=' + moveCount + ')');
                         }
                     });
                 });
@@ -140,13 +142,17 @@
             moveCount++;
             const nextTurn = myColor === 'white' ? 'black' : 'white';
             
+            log('📤 Enviando movimiento - nuevo turno: ' + nextTurn + ', moveCount: ' + moveCount);
+            
             db.ref('games/' + currentGameId).update({
                 turn: nextTurn,
                 moveCount: moveCount
             }).then(() => {
                 document.getElementById('turnDisplay').textContent = 'ESPERANDO...';
                 document.getElementById('moveBtn').disabled = true;
-                log('📤 Movimiento #' + moveCount + ' enviado. Turno del oponente');
+                log('✅ Movimiento enviado');
+            }).catch((err) => {
+                log('❌ Error: ' + err.message);
             });
         }
     </script>
