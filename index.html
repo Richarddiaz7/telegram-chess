@@ -57,7 +57,7 @@
         .energy-bar { height: 100%; background: linear-gradient(90deg, #ff3333, #ffd700, #44ff44); transition: width 0.4s; }
         .btn-back { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.2); color: #ffd700; padding: 8px 14px; border-radius: 18px; font-size: 11px; cursor: pointer; }
 
-        /* MODAL / LOBBY - Repite Imagen 1 de forma sutil */
+        /* MODAL / LOBBY */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
         .modal-box { background: linear-gradient(135deg, rgba(26,26,62,0.95), rgba(42,42,94,0.95)), url('1779421764793.png') center center / cover no-repeat; border: 2px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 20px; max-width: 380px; width: 90%; color: white; box-shadow: 0 0 30px rgba(0,0,0,0.7); }
@@ -153,10 +153,10 @@
             mate_pastor: {
                 title: "Mate del Pastor",
                 steps: [
-                    { msg: "1. Abre paso a tu Alfil y Reina. Mueve el peón de Rey a e4.", fr: 6, fc: 4, tr: 4, tc: 4, response: {fr: 1, fc: 4, tr: 3, tc: 4} }, // e4 -> e5
-                    { msg: "2. Desarrolla el Alfil a c4 apuntando al punto débil f7.", fr: 7, fc: 5, tr: 4, tc: 2, response: {fr: 0, fc: 1, tr: 2, tc: 2} }, // Bc4 -> Nc6
-                    { msg: "3. Saca tu Reina a h5 sumando ataque sobre f7.", fr: 7, fc: 3, tr: 3, tc: 7, response: {fr: 0, fc: 6, tr: 2, tc: 5} }, // Qh5 -> Nf6
-                    { msg: "4. ¡Momento final! Captura el peón en f7 con la Reina para dar Mate.", fr: 3, fc: 7, tr: 1, tc: 5, isEnd: true } // Qxf7#
+                    { msg: "1. Abre paso a tu Alfil y Reina. Mueve el peón de Rey a e4.", fr: 6, fc: 4, tr: 4, tc: 4, response: {fr: 1, fc: 4, tr: 3, tc: 4} }, 
+                    { msg: "2. Desarrolla el Alfil a c4 apuntando al punto débil f7.", fr: 7, fc: 5, tr: 4, tc: 2, response: {fr: 0, fc: 1, tr: 2, tc: 2} }, 
+                    { msg: "3. Saca tu Reina a h5 sumando ataque sobre f7.", fr: 7, fc: 3, tr: 3, tc: 7, response: {fr: 0, fc: 6, tr: 2, tc: 5} }, 
+                    { msg: "4. ¡Momento final! Captura el peón en f7 con la Reina para dar Mate.", fr: 3, fc: 7, tr: 1, tc: 5, isEnd: true } 
                 ]
             }
         };
@@ -185,19 +185,64 @@
         let B=0,S=0;
         function resize(){const c=document.getElementById('boardContainer'),s=Math.floor(Math.min(c.clientWidth,c.clientHeight)*0.98);B=s;S=s/8;canvas.width=B;canvas.height=B;draw();}
         const SYM={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
+        
         function draw(){
             ctx.clearRect(0,0,B,B);
+            
+            // 1. Dibujar el tablero base e inyectar coordenadas numéricas/alfabéticas
             for(let r=0;r<8;r++)for(let c=0;c<8;c++){
                 let dr=r,dc=c;if(gs.viewBlack){dr=7-r;dc=7-c;}
                 const x=dc*S,y=dr*S,light=(r+c)%2===0,g=ctx.createLinearGradient(x,y,x+S,y+S);
                 light?(g.addColorStop(0,'#f5deb3'),g.addColorStop(1,'#d2b48c')):(g.addColorStop(0,'#8b6914'),g.addColorStop(1,'#5c3d0e'));
                 ctx.fillStyle=g;ctx.fillRect(x,y,S,S);
+
+                // COORDENADAS INTEGRADAS ESTILO PREMIUM
+                ctx.font = `bold ${S*0.18}px sans-serif`;
+                ctx.fillStyle = light ? '#5c3d0e' : '#f5deb3';
+                
+                // Números en el borde izquierdo
+                if(dc === 0) {
+                    let rank = gs.viewBlack ? (dr + 1) : (8 - dr);
+                    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+                    ctx.fillText(rank, x + 4, y + 4);
+                }
+                // Letras en el borde inferior
+                if(dr === 7) {
+                    let file = String.fromCharCode(97 + (gs.viewBlack ? (7 - dc) : dc));
+                    ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+                    ctx.fillText(file, x + S - 4, y + S - 4);
+                }
             }
+
+            // 2. DESTELLO DE ASISTENCIA / GLOW PARA EL MODO TUTOR
+            if(gs.mode === 'academy'){
+                const lesson = academyData[gs.lessonId];
+                const step = lesson.steps[gs.lessonStep];
+                if(step){
+                    // Iluminar Casilla de origen (Pieza que se debe mover - Verde Suave)
+                    let sr = step.fr, sc = step.fc;
+                    if(gs.viewBlack){sr=7-sr; sc=7-sc;}
+                    ctx.fillStyle = 'rgba(68, 255, 68, 0.25)';
+                    ctx.fillRect(sc*S, sr*S, S, S);
+
+                    // Iluminar Casilla de destino (Meta del movimiento - Celeste Eléctrico)
+                    let tr = step.tr, tc = step.tc;
+                    if(gs.viewBlack){tr=7-tr; tc=7-tc;}
+                    ctx.fillStyle = 'rgba(0, 255, 255, 0.2)';
+                    ctx.fillRect(tc*S, tr*S, S, S);
+                    ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 2;
+                    ctx.strokeRect(tc*S+3, tr*S+3, S-6, S-6);
+                }
+            }
+
+            // 3. Resaltado de selección manual tradicional
             if(gs.sel){
                 let r=gs.sel.row,c=gs.sel.col;if(gs.viewBlack){r=7-r;c=7-c;}
-                ctx.fillStyle='rgba(255,215,0,0.5)';ctx.fillRect(c*S,r*S,S,S);
+                ctx.fillStyle='rgba(255,215,0,0.4)';ctx.fillRect(c*S,r*S,S,S);
                 ctx.strokeStyle='#ffd700';ctx.lineWidth=3;ctx.strokeRect(c*S+2,r*S+2,S-4,S-4);
             }
+
+            // 4. Dibujar las piezas por encima de los fondos y destellos
             for(let r=0;r<8;r++)for(let c=0;c<8;c++){
                 const p=chess.getPiece(r,c);if(!p)continue;
                 let dr=r,dc=c;if(gs.viewBlack){dr=7-r;dc=7-c;}
@@ -225,7 +270,7 @@
         }
 
         function startTimers(){
-            if(gs.mode==='academy') return; // En la academia no corre reloj plano
+            if(gs.mode==='academy') return; 
             clearInterval(timer);timer=setInterval(()=>{if(gs.over)return;
                 if(gs.turn==='w'){gs.t1--;if(gs.t1<=0)endGame('time');}else{gs.t2--;if(gs.t2<=0)endGame('time');}
                 document.getElementById('bottomTimer').textContent=fmt(gs.t1);document.getElementById('topTimer').textContent=fmt(gs.t2);},1000);
@@ -237,7 +282,6 @@
             document.getElementById('gameScreen').classList.add('active');
             document.getElementById('energyBar').style.width=gs.energy+'%';
             
-            // Re-mostrar elementos estándar de interfaz por si venimos de la academia
             document.getElementById('topTimer').style.display = 'block';
             document.getElementById('bottomTimer').style.display = 'block';
             document.getElementById('bottomPlayerArea').style.display = 'flex';
@@ -265,14 +309,11 @@
             setupGame();
         }
 
-        // ============ LÓGICA DE DETONACIÓN DEL MODO TUTOR ============
         function startLesson(id){
             chess.init();
             gs={mode:'academy',lessonId:id,lessonStep:0,sel:null,t1:600,t2:600,over:false,turn:'w',combo:0,energy:100,viewBlack:false};
-            
             setupGame();
             
-            // Ocultar timers e inflar el mensaje del Tutor
             document.getElementById('topTimer').style.display = 'none';
             document.getElementById('bottomTimer').style.display = 'none';
             document.getElementById('bottomPlayerArea').style.display = 'none';
@@ -303,16 +344,6 @@
             const opp=gs.turn==='w'?'b':'w';
             if(chess.inCheck(opp)&&!chess.hasMoves(opp)){endGame('checkmate');return;}
             if(!chess.inCheck(opp)&&!chess.hasMoves(opp)){endGame('stalemate');return;}
-            
-            if(gs.mode==='multi'){
-                moveCount++;
-                const nextTurn = gs.turn==='w'?'b':'w';
-                db.ref('rooms/'+roomId).update({
-                    board:JSON.stringify(chess.board),
-                    turn:nextTurn,
-                    moveCount:moveCount
-                });
-            }
         }
 
         function getSquare(e){
@@ -335,12 +366,10 @@
                 if(fr===row&&fc===col){gs.sel=null;draw();return;}
                 if(chess.isValid(fr,fc,row,col)){
                     
-                    // INTERCEPCIÓN DEL MODO ACADEMIA (TUTOR)
                     if(gs.mode === 'academy'){
                         const lesson = academyData[gs.lessonId];
                         const step = lesson.steps[gs.lessonStep];
                         
-                        // Validar si el movimiento del usuario coincide con la jugada histórica requerida
                         if(fr === step.fr && fc === step.fc && row === step.tr && col === step.tc){
                             chess.move(fr, fc, row, col);
                             gs.sel = null;
@@ -357,21 +386,19 @@
                             gs.lessonStep++;
                             draw();
                             
-                            // Respuesta automática controlada de las negras en base a la historia
                             setTimeout(() => {
                                 chess.move(step.response.fr, step.response.fc, step.response.tr, step.response.tc);
                                 updateTutorMsg();
                                 draw();
                             }, 800);
                         } else {
-                            alert("💡 ¡No! Esa no es la jugada maestra para esta lección. Inténtalo de nuevo.");
+                            alert("💡 ¡No! Esa no es la jugada maestra para esta lección. Sigue la guía del tablero.");
                             gs.sel = null;
                             draw();
                         }
                         return;
                     }
 
-                    // LÓGICA NORMAL DEL JUEGO
                     const p=chess.getPiece(fr,fc),sv=chess.board[row][col];
                     chess.board[row][col]=p;chess.board[fr][fc]='';
                     if(!chess.inCheck(gs.turn)){
