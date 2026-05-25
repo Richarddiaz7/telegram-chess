@@ -12,17 +12,35 @@
         .screen { display: none; width: 100%; height: 100%; flex-direction: column; }
         .screen.active { display: flex; }
 
-        .home-screen { align-items: center; justify-content: center; gap: 12px; padding: 20px; background: linear-gradient(180deg, #0a0a2e, #1a1a4e); }
-        .crown-icon { font-size: 60px; filter: drop-shadow(0 0 25px rgba(255,215,0,0.6)); }
-        .title { font-size: 28px; font-weight: 900; background: linear-gradient(45deg, #ffd700, #ffed4a, #daa520); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        /* PORTADA PRINCIPAL - Centrada y con Imagen 1 */
+        .home-screen { 
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center; 
+            gap: 12px; 
+            padding: 20px; 
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(10,10,46,0.65), rgba(26,26,78,0.8)), url('1779421764793.png') center center / cover no-repeat; 
+        }
+        .crown-icon { font-size: 60px; filter: drop-shadow(0 0 25px rgba(255,215,0,0.6)); text-align: center; }
+        .title { font-size: 28px; font-weight: 900; background: linear-gradient(45deg, #ffd700, #ffed4a, #daa520); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; width: 100%; }
         .btn { padding: 14px 30px; border: none; border-radius: 50px; font-size: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; width: 100%; max-width: 280px; }
         .btn:active { transform: scale(0.95); }
         .btn-play { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a1a2e; font-size: 20px; padding: 18px; box-shadow: 0 8px 25px rgba(255,140,0,0.5); }
         .btn-secondary { background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,215,0,0.25); font-size: 13px; padding: 10px; }
-        input { width: 260px; padding: 14px; border-radius: 50px; border: 2px solid rgba(255,215,0,0.4); background: rgba(255,255,255,0.1); color: white; font-size: 16px; text-align: center; outline: none; }
+        input { width: 260px; padding: 14px; border-radius: 50px; border: 2px solid rgba(255,215,0,0.4); background: rgba(0,0,0,0.4); color: white; font-size: 16px; text-align: center; outline: none; backdrop-filter: blur(4px); }
 
-        .game-screen { display: flex; flex-direction: column; height: 100%; background: #0a0a1a; }
-        .game-header { display: flex; justify-content: space-between; padding: 8px; background: rgba(10,10,30,0.95); border-bottom: 1px solid rgba(255,215,0,0.2); }
+        /* PANTALLA DE JUEGO - Con Imagen 2 */
+        .game-screen { 
+            display: flex; 
+            flex-direction: column; 
+            height: 100%; 
+            background: linear-gradient(180deg, rgba(10,10,26,0.5), rgba(10,10,26,0.7)), url('1779422040370.png') center center / cover no-repeat; 
+        }
+        .game-header { display: flex; justify-content: space-between; padding: 8px; background: rgba(10,10,30,0.85); border-bottom: 1px solid rgba(255,215,0,0.2); backdrop-filter: blur(4px); }
         .player-info { display: flex; align-items: center; gap: 6px; color: white; }
         .player-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
         .player-dot.white { background: linear-gradient(135deg, #fff, #ccc); color: #000; }
@@ -34,16 +52,17 @@
         .turn-dot.opp { background: #555; }
         .board-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 5px; }
         canvas { border-radius: 8px; box-shadow: 0 0 60px rgba(255,215,0,0.15); cursor: pointer; max-width: 100%; max-height: 100%; }
-        .game-footer { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: rgba(10,10,30,0.95); border-top: 1px solid rgba(255,215,0,0.2); }
+        .game-footer { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: rgba(10,10,30,0.85); border-top: 1px solid rgba(255,215,0,0.2); backdrop-filter: blur(4px); }
         .energy-bar-wrap { flex: 1; height: 14px; background: rgba(255,255,255,0.08); border-radius: 7px; overflow: hidden; }
         .energy-bar { height: 100%; background: linear-gradient(90deg, #ff3333, #ffd700, #44ff44); transition: width 0.4s; }
         .btn-back { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.2); color: #ffd700; padding: 8px 14px; border-radius: 18px; font-size: 11px; cursor: pointer; }
 
+        /* MODAL / LOBBY - Repite Imagen 1 de forma sutil */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
-        .modal-box { background: linear-gradient(135deg, #1a1a3e, #2a2a5e); border: 2px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 20px; max-width: 380px; width: 90%; color: white; }
+        .modal-box { background: linear-gradient(135deg, rgba(26,26,62,0.95), rgba(42,42,94,0.95)), url('1779421764793.png') center center / cover no-repeat; border: 2px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 20px; max-width: 380px; width: 90%; color: white; box-shadow: 0 0 30px rgba(0,0,0,0.7); }
         .modal-box h2 { color: #ffd700; text-align: center; margin-bottom: 15px; }
-        .room-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .room-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(4px); }
         .room-name { color: #ffd700; font-weight: 700; }
         .room-join { background: rgba(255,215,0,0.2); color: #ffd700; padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700; }
     </style>
@@ -54,7 +73,7 @@
             <div class="home-screen">
                 <div class="crown-icon">👑</div>
                 <h1 class="title">ROYAL CHESS</h1>
-                <p style="color:#aaa;font-size:12px;">Play & Earn Arena</p>
+                <p style="color:#aaa;font-size:12px;margin-bottom:8px;">Play & Earn Arena</p>
                 <input type="text" id="nameInput" placeholder="Tu nombre" maxlength="15">
                 <button class="btn btn-play" onclick="playAI()">⚔️ PLAY NOW</button>
                 <button class="btn btn-secondary" onclick="playLocal()">👥 2 JUGADORES</button>
@@ -91,7 +110,7 @@
     <div class="modal" id="lobbyModal">
         <div class="modal-box">
             <h2>🌐 Salas</h2>
-            <button class="btn btn-secondary" onclick="createRoom()" style="margin-bottom:10px;">🏠 Crear Sala (Blancas)</button>
+            <button class="btn btn-secondary" onclick="createRoom()" style="margin-bottom:10px; width: 100%; max-width: 100%;">🏠 Crear Sala (Blancas)</button>
             <div id="roomList" style="max-height:200px;overflow-y:auto;"></div>
             <button class="btn-back" onclick="closeLobby()" style="width:100%;margin-top:10px;">CERRAR</button>
         </div>
@@ -249,10 +268,8 @@
                 if(fr===row&&fc===col){gs.sel=null;draw();return;}
                 if(chess.isValid(fr,fc,row,col)){
                     const p=chess.getPiece(fr,fc),sv=chess.board[row][col];
-                    // Simulación del movimiento
                     chess.board[row][col]=p;chess.board[fr][fc]='';
                     if(!chess.inCheck(gs.turn)){
-                        // CORRECCIÓN CRÍTICA: Revertimos la simulación antes de llamar a makeMove()
                         chess.board[fr][fc]=p;chess.board[row][col]=sv;
                         
                         makeMove(fr,fc,row,col);
@@ -274,7 +291,6 @@
                             },400);
                         }
                     }else{
-                        // Si era jaque inválido, también revertimos
                         chess.board[fr][fc]=p;chess.board[row][col]=sv;
                         gs.sel=null;draw();
                     }
@@ -386,7 +402,6 @@
                 const r=snap.val();
                 if(!r||gs.over)return;
                 
-                // CORRECCIÓN: Es mi turno cuando turn === myColor Y moveCount aumentó
                 if(r.turn === myColor && r.moveCount > moveCount){
                     moveCount = r.moveCount;
                     if(r.board) chess.board = JSON.parse(r.board);
