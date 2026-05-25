@@ -249,8 +249,12 @@
                 if(fr===row&&fc===col){gs.sel=null;draw();return;}
                 if(chess.isValid(fr,fc,row,col)){
                     const p=chess.getPiece(fr,fc),sv=chess.board[row][col];
+                    // Simulación del movimiento
                     chess.board[row][col]=p;chess.board[fr][fc]='';
                     if(!chess.inCheck(gs.turn)){
+                        // CORRECCIÓN CRÍTICA: Revertimos la simulación antes de llamar a makeMove()
+                        chess.board[fr][fc]=p;chess.board[row][col]=sv;
+                        
                         makeMove(fr,fc,row,col);
                         gs.sel=null;
                         gs.turn=gs.turn==='w'?'b':'w';
@@ -270,6 +274,7 @@
                             },400);
                         }
                     }else{
+                        // Si era jaque inválido, también revertimos
                         chess.board[fr][fc]=p;chess.board[row][col]=sv;
                         gs.sel=null;draw();
                     }
