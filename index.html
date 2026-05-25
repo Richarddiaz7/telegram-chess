@@ -53,7 +53,6 @@
     <button class="btn-music" onclick="toggleMusic()">🎵</button>
 
     <div class="app-container">
-        <!-- HOME -->
         <div class="screen active" id="homeScreen">
             <div class="home-screen">
                 <div class="crown-icon">👑</div>
@@ -66,7 +65,6 @@
             </div>
         </div>
 
-        <!-- GAME -->
         <div class="screen" id="gameScreen">
             <div class="game-screen">
                 <div class="game-header">
@@ -93,7 +91,6 @@
         </div>
     </div>
 
-    <!-- LOBBY MODAL -->
     <div class="modal" id="lobbyModal">
         <div class="modal-box">
             <h2>🌐 Salas</h2>
@@ -132,9 +129,9 @@
                 switch(type){case'p':const d=p==='P'?-1:1,sr=p==='P'?6:1;if(cd===0&&!tgt){if(rd===d)return true;if(fr===sr&&rd===2*d&&!this.getPiece(fr+d,fc))return true;}return acd===1&&rd===d&&!!tgt;case'r':return(rd===0||cd===0)&&cp(rd,cd);case'n':return(ard===2&&acd===1)||(ard===1&&acd===2);case'b':return ard===acd&&cp(rd,cd);case'q':return(rd===0||cd===0||ard===acd)&&cp(rd,cd);case'k':return ard<=1&&acd<=1;}return false;
             },
             move(fr,fc,tr,tc){const p=this.getPiece(fr,fc),c=this.getPiece(tr,tc);this.board[tr][tc]=p;this.board[fr][fc]='';return{piece:p,captured:c};},
-            findKing(c){const k=c==='w'?'K':'k';for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(this.board[r][c]===k)return{row:r,col:c};return null;},
-            inCheck(c){const k=this.findKing(c);if(!k)return false;for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=this.board[r][c];if(p&&((c==='w'&&p===p.toLowerCase())||(c==='b'&&p===p.toUpperCase())))if(this.isValid(r,c,k.row,k.col))return true;}return false;},
-            hasMoves(c){for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=this.board[r][c];if((c==='w'&&p&&p===p.toUpperCase())||(c==='b'&&p&&p===p.toLowerCase()))for(let tr=0;tr<8;tr++)for(let tc=0;tc<8;tc++)if(this.isValid(r,c,tr,tc)){const sv=this.board[tr][tc];this.board[tr][tc]=p;this.board[r][c]='';if(!this.inCheck(c)){this.board[r][c]=p;this.board[tr][tc]=sv;return true;}this.board[r][c]=p;this.board[tr][tc]=sv;}}return false;},
+            findKing(c){const k=c==='w'?'K':'k';for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++)if(this.board[r][cc]===k)return{row:r,col:cc};return null;},
+            inCheck(c){const k=this.findKing(c);if(!k)return false;for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++){const p=this.board[r][cc];if(p&&((c==='w'&&p===p.toLowerCase())||(c==='b'&&p===p.toUpperCase())))if(this.isValid(r,cc,k.row,k.col))return true;}return false;},
+            hasMoves(c){for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++){const p=this.board[r][cc];if((c==='w'&&p&&p===p.toUpperCase())||(c==='b'&&p&&p===p.toLowerCase()))for(let tr=0;tr<8;tr++)for(let tc=0;tc<8;tc++)if(this.isValid(r,cc,tr,tc)){const sv=this.board[tr][tc];this.board[tr][tc]=p;this.board[r][cc]='';if(!this.inCheck(c)){this.board[r][cc]=p;this.board[tr][tc]=sv;return true;}this.board[r][cc]=p;this.board[tr][tc]=sv;}}return false;},
             aiMove(){const moves=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=this.board[r][c];if(p&&p===p.toLowerCase())for(let tr=0;tr<8;tr++)for(let tc=0;tc<8;tc++)if(this.isValid(r,c,tr,tc)){const sv=this.board[tr][tc];this.board[tr][tc]=p;this.board[r][c]='';if(!this.inCheck('b')){let sc=sv?(sv.toUpperCase()==='Q'?9:sv.toUpperCase()==='R'?5:'BN'.includes(sv.toUpperCase())?3:1):0;moves.push({fr:r,fc:c,tr,tc,score:sc});}this.board[r][c]=p;this.board[tr][tc]=sv;}}if(!moves.length)return null;moves.sort((a,b)=>b.score-a.score);return Math.random()<0.7?moves[0]:moves[Math.floor(Math.random()*Math.min(5,moves.length))];}
         };
 
@@ -216,17 +213,31 @@
         }
 
         function makeMove(fr,fc,tr,tc){
-            chess.move(fr,fc,tr,tc);
-            gs.energy=Math.max(0,gs.energy-2);document.getElementById('energyBar').style.width=gs.energy+'%';
+            const result = chess.move(fr,fc,tr,tc);
+            gs.energy=Math.max(0,gs.energy-2);
+            document.getElementById('energyBar').style.width=gs.energy+'%';
+            
+            // Solo verificar fin de juego después del movimiento
             const opp=gs.turn==='w'?'b':'w';
-            if(chess.inCheck(opp)&&!chess.hasMoves(opp)){endGame('checkmate');return;}
-            if(!chess.hasMoves(opp)){endGame('stalemate');return;}
-            if(gs.mode==='multi')sendToFB();
+            if(chess.inCheck(opp)){
+                if(!chess.hasMoves(opp)){
+                    endGame('checkmate');
+                    return;
+                }
+            } else if(!chess.hasMoves(opp)){
+                endGame('stalemate');
+                return;
+            }
+            
+            if(gs.mode==='multi') sendToFB();
         }
 
         function sendToFB(){
             if(!roomId)return;
-            db.ref('rooms/'+roomId).update({board:JSON.stringify(chess.board),turn:gs.turn});
+            db.ref('rooms/'+roomId).update({
+                board:JSON.stringify(chess.board),
+                turn:gs.turn
+            });
         }
 
         function getSquare(e){
@@ -239,7 +250,10 @@
         function click(row,col){
             if(gs.over)return;
             if(gs.mode==='ai'&&gs.turn!=='w')return;
-            if(gs.mode==='multi'){const mt=(myColor==='w'&&gs.turn==='w')||(myColor==='b'&&gs.turn==='b');if(!mt)return;}
+            if(gs.mode==='multi'){
+                const mt=(myColor==='w'&&gs.turn==='w')||(myColor==='b'&&gs.turn==='b');
+                if(!mt)return;
+            }
 
             if(gs.sel){
                 const{row:fr,col:fc}=gs.sel;
@@ -249,17 +263,33 @@
                     chess.board[row][col]=p;chess.board[fr][fc]='';
                     if(!chess.inCheck(gs.turn)){
                         makeMove(fr,fc,row,col);
-                        gs.sel=null;gs.turn=gs.turn==='w'?'b':'w';
-                        updateTurns();draw();
+                        gs.sel=null;
+                        gs.turn=gs.turn==='w'?'b':'w';
+                        updateTurns();
+                        draw();
                         if(gs.mode==='ai'&&gs.turn==='b'&&!gs.over){
-                            setTimeout(()=>{const m=chess.aiMove();if(m){makeMove(m.fr,m.fc,m.tr,m.tc);gs.turn='w';gs.energy=Math.min(100,gs.energy+5);}updateTurns();draw();},400);
+                            setTimeout(()=>{
+                                const m=chess.aiMove();
+                                if(m){
+                                    makeMove(m.fr,m.fc,m.tr,m.tc);
+                                    gs.turn='w';
+                                    gs.energy=Math.min(100,gs.energy+5);
+                                    document.getElementById('energyBar').style.width=gs.energy+'%';
+                                }
+                                updateTurns();
+                                draw();
+                            },400);
                         }
-                    }else{chess.board[fr][fc]=p;chess.board[row][col]=sv;gs.sel=null;draw();}
+                    }else{
+                        chess.board[fr][fc]=p;chess.board[row][col]=sv;
+                        gs.sel=null;draw();
+                    }
                 }else{gs.sel=null;draw();}
             }else{
                 const p=chess.getPiece(row,col);
                 if(p){
-                    const isW=p===p.toUpperCase();let ok=false;
+                    const isW=p===p.toUpperCase();
+                    let ok=false;
                     if(gs.mode==='ai')ok=isW;
                     else if(gs.mode==='multi')ok=(myColor==='w'&&isW)||(myColor==='b'&&!isW);
                     else ok=(gs.turn==='w'&&isW)||(gs.turn==='b'&&!isW);
@@ -299,14 +329,27 @@
 
         function createRoom(){
             const rid='room_'+Date.now();
-            db.ref('rooms/'+rid).set({white:myName,black:null,board:JSON.stringify(chess.init()||chess.board),turn:'w',status:'waiting'}).then(()=>{
-                chess.init();
+            chess.init(); // Inicializar el tablero
+            const boardStr = JSON.stringify(chess.board);
+            
+            db.ref('rooms/'+rid).set({
+                white:myName,
+                black:null,
+                board:boardStr,
+                turn:'w',
+                status:'waiting'
+            }).then(()=>{
                 roomId=rid;myColor='w';closeLobby();
-                alert('Sala creada. Esperando oponente...\nID: '+rid);
+                alert('✅ Sala creada. Esperando oponente...\n\nID: '+rid);
+                
                 roomRef=db.ref('rooms/'+rid);
                 roomRef.on('value',(snap)=>{
                     const r=snap.val();if(!r)return;
-                    if(r.status==='playing'&&r.black){oppName=r.black;roomRef.off();startMulti(rid);}
+                    if(r.status==='playing'&&r.black){
+                        oppName=r.black;
+                        roomRef.off();
+                        startMulti(rid);
+                    }
                 });
             });
         }
@@ -314,9 +357,13 @@
         function joinRoom(rid){
             db.ref('rooms/'+rid).once('value',(snap)=>{
                 const r=snap.val();if(!r||r.black){alert('Sala no disponible');return;}
+                
                 db.ref('rooms/'+rid).update({black:myName,status:'playing'}).then(()=>{
                     roomId=rid;myColor='b';oppName=r.white;closeLobby();
-                    if(r.board)chess.board=JSON.parse(r.board);
+                    
+                    // Cargar el tablero existente
+                    if(r.board) chess.board = JSON.parse(r.board);
+                    
                     startMulti(rid);
                 });
             });
@@ -324,20 +371,49 @@
 
         function startMulti(rid){
             gs={mode:'multi',sel:null,t1:600,t2:600,over:false,turn:'w',combo:0,energy:100,viewBlack:myColor==='b'};
+            
             if(myColor==='w'){
-                document.getElementById('bottomName').textContent=myName+' ⚪';document.getElementById('bottomDot').className='player-dot white';document.getElementById('bottomDot').textContent='⚪';
-                document.getElementById('topName').textContent=oppName+' ⚫';document.getElementById('topDot').className='player-dot black';document.getElementById('topDot').textContent='⚫';
+                document.getElementById('bottomName').textContent=myName+' ⚪';
+                document.getElementById('bottomDot').className='player-dot white';
+                document.getElementById('bottomDot').textContent='⚪';
+                document.getElementById('topName').textContent=oppName+' ⚫';
+                document.getElementById('topDot').className='player-dot black';
+                document.getElementById('topDot').textContent='⚫';
             }else{
-                document.getElementById('bottomName').textContent=myName+' ⚫';document.getElementById('bottomDot').className='player-dot black';document.getElementById('bottomDot').textContent='⚫';
-                document.getElementById('topName').textContent=oppName+' ⚪';document.getElementById('topDot').className='player-dot white';document.getElementById('topDot').textContent='⚪';
+                document.getElementById('bottomName').textContent=myName+' ⚫';
+                document.getElementById('bottomDot').className='player-dot black';
+                document.getElementById('bottomDot').textContent='⚫';
+                document.getElementById('topName').textContent=oppName+' ⚪';
+                document.getElementById('topDot').className='player-dot white';
+                document.getElementById('topDot').textContent='⚪';
             }
-            updateTurns();setupGame();
+            
+            updateTurns();
+            setupGame();
+            
             if(roomRef)roomRef.off();
             roomRef=db.ref('rooms/'+rid);
             roomRef.on('value',(snap)=>{
-                const r=snap.val();if(!r||gs.over)return;
-                if(r.turn!==gs.turn&&r.board){chess.board=JSON.parse(r.board);gs.turn=r.turn;updateTurns();draw();}
-                if(r.status==='finished'){gs.over=true;clearInterval(timer);alert(r.winner===myColor?'🏆 Ganaste!':'💀 Perdiste');roomRef.off();goHome();}
+                const r=snap.val();
+                if(!r||gs.over)return;
+                
+                // Si el turno cambió (el oponente movió)
+                if(r.turn && r.turn !== gs.turn && r.board){
+                    chess.board = JSON.parse(r.board);
+                    gs.turn = r.turn;
+                    updateTurns();
+                    draw();
+                    document.getElementById('bottomTimer').textContent=fmt(gs.t1);
+                    document.getElementById('topTimer').textContent=fmt(gs.t2);
+                }
+                
+                if(r.status==='finished'){
+                    gs.over=true;
+                    clearInterval(timer);
+                    alert(r.winner===myColor?'🏆 ¡Ganaste!':'💀 Perdiste');
+                    roomRef.off();
+                    goHome();
+                }
             });
         }
 
