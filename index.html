@@ -29,7 +29,7 @@
         .title { font-size: 28px; font-weight: 900; background: linear-gradient(45deg, #ffd700, #ffed4a, #daa520); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; width: 100%; }
         .btn { padding: 14px 30px; border: none; border-radius: 50px; font-size: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; width: 100%; max-width: 280px; }
         .btn:active { transform: scale(0.95); }
-        .btn-play { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a1a2e; font-size: 20px; padding: 18px; box-shadow: 0 8px 25px rgba(255,140,0,0.5); }
+        .btn-play { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a1a2e; font-size: 20px; padding: 18px; box-shadow: 0 8px 25px rgba(255,140,0,0.5); margin-bottom: 5px; }
         .btn-secondary { background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,215,0,0.25); font-size: 13px; padding: 10px; }
         input { width: 260px; padding: 14px; border-radius: 50px; border: 2px solid rgba(255,215,0,0.4); background: rgba(0,0,0,0.4); color: white; font-size: 16px; text-align: center; outline: none; backdrop-filter: blur(4px); }
 
@@ -40,12 +40,12 @@
             height: 100%; 
             background: linear-gradient(180deg, rgba(10,10,26,0.5), rgba(10,10,26,0.7)), url('1779422040370.png') center center / cover no-repeat; 
         }
-        .game-header { display: flex; justify-content: space-between; padding: 8px; background: rgba(10,10,30,0.85); border-bottom: 1px solid rgba(255,215,0,0.2); backdrop-filter: blur(4px); }
-        .player-info { display: flex; align-items: center; gap: 6px; color: white; }
-        .player-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .game-header { display: flex; justify-content: space-between; padding: 8px; background: rgba(10,10,30,0.85); border-bottom: 1px solid rgba(255,215,0,0.2); backdrop-filter: blur(4px); min-height: 65px; }
+        .player-info { display: flex; align-items: center; gap: 6px; color: white; flex: 1; }
+        .player-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
         .player-dot.white { background: linear-gradient(135deg, #fff, #ccc); color: #000; }
         .player-dot.black { background: linear-gradient(135deg, #333, #000); color: #fff; }
-        .player-name { font-size: 10px; color: #aaa; }
+        .player-name { font-size: 11px; color: #fff; font-weight: 500; }
         .timer { font-size: 20px; font-weight: 900; color: #ffd700; font-family: monospace; }
         .turn-dot { width: 10px; height: 10px; border-radius: 50%; }
         .turn-dot.you { background: #44ff44; box-shadow: 0 0 10px #44ff44; }
@@ -62,7 +62,7 @@
         .modal.active { display: flex; }
         .modal-box { background: linear-gradient(135deg, rgba(26,26,62,0.95), rgba(42,42,94,0.95)), url('1779421764793.png') center center / cover no-repeat; border: 2px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 20px; max-width: 380px; width: 90%; color: white; box-shadow: 0 0 30px rgba(0,0,0,0.7); }
         .modal-box h2 { color: #ffd700; text-align: center; margin-bottom: 15px; }
-        .room-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(4px); }
+        .room-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(4px); width: 100%; }
         .room-name { color: #ffd700; font-weight: 700; }
         .room-join { background: rgba(255,215,0,0.2); color: #ffd700; padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700; }
     </style>
@@ -76,8 +76,24 @@
                 <p style="color:#aaa;font-size:12px;margin-bottom:8px;">Play & Earn Arena</p>
                 <input type="text" id="nameInput" placeholder="Tu nombre" maxlength="15">
                 <button class="btn btn-play" onclick="playAI()">⚔️ PLAY NOW</button>
+                <button class="btn btn-secondary" onclick="openAcademy()">🧠 ACADEMIA TUTOR</button>
                 <button class="btn btn-secondary" onclick="playLocal()">👥 2 JUGADORES</button>
                 <button class="btn btn-secondary" onclick="openLobby()">🌐 MULTIJUGADOR</button>
+            </div>
+        </div>
+
+        <div class="screen" id="academyScreen">
+            <div class="home-screen" style="justify-content: flex-start; padding-top: 40px;">
+                <div class="crown-icon">🧠</div>
+                <h1 class="title">ACADEMIA</h1>
+                <p style="color:#aaa;font-size:12px;margin-bottom:20px;">Aprende Jugadas Maestras</p>
+                
+                <div class="room-card" style="cursor: pointer; text-align: left; flex-direction: column; align-items: flex-start; gap: 4px;" onclick="startLesson('mate_pastor')">
+                    <div class="room-name">💥 El Mate del Pastor</div>
+                    <div style="font-size: 12px; color: #bbb;">Aprende el ataque fulminante de 4 movimientos aprovechando las debilidades del rival.</div>
+                </div>
+
+                <button class="btn btn-secondary" onclick="goHome()" style="margin-top: 20px;">🏠 VOLVER AL MENÚ</button>
             </div>
         </div>
 
@@ -89,7 +105,7 @@
                         <div><div class="player-name" id="topName">OPONENTE</div><div class="timer" id="topTimer">10:00</div></div>
                         <div class="turn-dot opp" id="topTurn"></div>
                     </div>
-                    <div class="player-info">
+                    <div class="player-info" id="bottomPlayerArea">
                         <div class="player-dot white" id="bottomDot">⚪</div>
                         <div><div class="player-name" id="bottomName">TÚ</div><div class="timer" id="bottomTimer">10:00</div></div>
                         <div class="turn-dot you" id="bottomTurn"></div>
@@ -131,6 +147,19 @@
             appId: "1:380447919929:web:13c8584bf1e688830ea2e8"
         });
         const db = firebase.database();
+
+        // ============ BASE DE DATOS DE LA ACADEMIA ============
+        const academyData = {
+            mate_pastor: {
+                title: "Mate del Pastor",
+                steps: [
+                    { msg: "1. Abre paso a tu Alfil y Reina. Mueve el peón de Rey a e4.", fr: 6, fc: 4, tr: 4, tc: 4, response: {fr: 1, fc: 4, tr: 3, tc: 4} }, // e4 -> e5
+                    { msg: "2. Desarrolla el Alfil a c4 apuntando al punto débil f7.", fr: 7, fc: 5, tr: 4, tc: 2, response: {fr: 0, fc: 1, tr: 2, tc: 2} }, // Bc4 -> Nc6
+                    { msg: "3. Saca tu Reina a h5 sumando ataque sobre f7.", fr: 7, fc: 3, tr: 3, tc: 7, response: {fr: 0, fc: 6, tr: 2, tc: 5} }, // Qh5 -> Nf6
+                    { msg: "4. ¡Momento final! Captura el peón en f7 con la Reina para dar Mate.", fr: 3, fc: 7, tr: 1, tc: 5, isEnd: true } // Qxf7#
+                ]
+            }
+        };
 
         // ============ CHESS ENGINE ============
         const chess = {
@@ -183,22 +212,36 @@
         }
 
         // ============ GAME STATE ============
-        let gs={mode:'ai',sel:null,t1:600,t2:600,over:false,turn:'w',combo:0,energy:100,viewBlack:false};
+        let gs={mode:'ai',lessonId:null,lessonStep:0,sel:null,t1:600,t2:600,over:false,turn:'w',combo:0,energy:100,viewBlack:false};
         let timer, myName='', myColor=null, oppName='', roomId=null, roomRef=null, moveCount=0;
 
         function goHome(){clearInterval(timer);if(roomRef)roomRef.off();roomId=null;myColor=null;
             document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
             document.getElementById('homeScreen').classList.add('active');}
 
-        function startTimers(){clearInterval(timer);timer=setInterval(()=>{if(gs.over)return;
-            if(gs.turn==='w'){gs.t1--;if(gs.t1<=0)endGame('time');}else{gs.t2--;if(gs.t2<=0)endGame('time');}
-            document.getElementById('bottomTimer').textContent=fmt(gs.t1);document.getElementById('topTimer').textContent=fmt(gs.t2);},1000);}
+        function openAcademy(){
+            document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+            document.getElementById('academyScreen').classList.add('active');
+        }
+
+        function startTimers(){
+            if(gs.mode==='academy') return; // En la academia no corre reloj plano
+            clearInterval(timer);timer=setInterval(()=>{if(gs.over)return;
+                if(gs.turn==='w'){gs.t1--;if(gs.t1<=0)endGame('time');}else{gs.t2--;if(gs.t2<=0)endGame('time');}
+                document.getElementById('bottomTimer').textContent=fmt(gs.t1);document.getElementById('topTimer').textContent=fmt(gs.t2);},1000);
+        }
         function fmt(s){return Math.floor(s/60)+':'+(s%60).toString().padStart(2,'0');}
 
         function setupGame(){
             document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
             document.getElementById('gameScreen').classList.add('active');
             document.getElementById('energyBar').style.width=gs.energy+'%';
+            
+            // Re-mostrar elementos estándar de interfaz por si venimos de la academia
+            document.getElementById('topTimer').style.display = 'block';
+            document.getElementById('bottomTimer').style.display = 'block';
+            document.getElementById('bottomPlayerArea').style.display = 'flex';
+
             document.getElementById('bottomTimer').textContent=fmt(gs.t1);
             document.getElementById('topTimer').textContent=fmt(gs.t2);
             setTimeout(resize,50);setTimeout(resize,200);draw();startTimers();
@@ -220,6 +263,30 @@
             document.getElementById('topName').textContent='J2 ⚫';document.getElementById('topDot').className='player-dot black';document.getElementById('topDot').textContent='⚫';
             document.getElementById('bottomTurn').className='turn-dot you';document.getElementById('topTurn').className='turn-dot opp';
             setupGame();
+        }
+
+        // ============ LÓGICA DE DETONACIÓN DEL MODO TUTOR ============
+        function startLesson(id){
+            chess.init();
+            gs={mode:'academy',lessonId:id,lessonStep:0,sel:null,t1:600,t2:600,over:false,turn:'w',combo:0,energy:100,viewBlack:false};
+            
+            setupGame();
+            
+            // Ocultar timers e inflar el mensaje del Tutor
+            document.getElementById('topTimer').style.display = 'none';
+            document.getElementById('bottomTimer').style.display = 'none';
+            document.getElementById('bottomPlayerArea').style.display = 'none';
+            document.getElementById('topDot').className = 'player-dot';
+            document.getElementById('topDot').textContent = '👨‍🏫';
+            document.getElementById('topTurn').className = 'turn-dot you';
+
+            updateTutorMsg();
+        }
+
+        function updateTutorMsg(){
+            const lesson = academyData[gs.lessonId];
+            const currentStep = lesson.steps[gs.lessonStep];
+            document.getElementById('topName').innerHTML = `<span style="color:#ffd700; font-weight:bold;">TUTOR:</span> ${currentStep.msg}`;
         }
 
         function endGame(reason){
@@ -257,7 +324,7 @@
 
         function click(row,col){
             if(gs.over)return;
-            if(gs.mode==='ai'&&gs.turn!=='w')return;
+            if(gs.mode=='ai'&&gs.turn!=='w')return;
             if(gs.mode==='multi'){
                 const mt=(myColor==='w'&&gs.turn==='w')||(myColor==='b'&&gs.turn==='b');
                 if(!mt)return;
@@ -267,6 +334,44 @@
                 const{row:fr,col:fc}=gs.sel;
                 if(fr===row&&fc===col){gs.sel=null;draw();return;}
                 if(chess.isValid(fr,fc,row,col)){
+                    
+                    // INTERCEPCIÓN DEL MODO ACADEMIA (TUTOR)
+                    if(gs.mode === 'academy'){
+                        const lesson = academyData[gs.lessonId];
+                        const step = lesson.steps[gs.lessonStep];
+                        
+                        // Validar si el movimiento del usuario coincide con la jugada histórica requerida
+                        if(fr === step.fr && fc === step.fc && row === step.tr && col === step.tc){
+                            chess.move(fr, fc, row, col);
+                            gs.sel = null;
+                            
+                            if(step.isEnd){
+                                draw();
+                                setTimeout(() => {
+                                    alert("🧠 ¡Magnífico! Has completado con éxito la lección de estrategia avanzada.");
+                                    goHome();
+                                }, 400);
+                                return;
+                            }
+                            
+                            gs.lessonStep++;
+                            draw();
+                            
+                            // Respuesta automática controlada de las negras en base a la historia
+                            setTimeout(() => {
+                                chess.move(step.response.fr, step.response.fc, step.response.tr, step.response.tc);
+                                updateTutorMsg();
+                                draw();
+                            }, 800);
+                        } else {
+                            alert("💡 ¡No! Esa no es la jugada maestra para esta lección. Inténtalo de nuevo.");
+                            gs.sel = null;
+                            draw();
+                        }
+                        return;
+                    }
+
+                    // LÓGICA NORMAL DEL JUEGO
                     const p=chess.getPiece(fr,fc),sv=chess.board[row][col];
                     chess.board[row][col]=p;chess.board[fr][fc]='';
                     if(!chess.inCheck(gs.turn)){
@@ -300,7 +405,7 @@
                 if(p){
                     const isW=p===p.toUpperCase();
                     let ok=false;
-                    if(gs.mode==='ai')ok=isW;
+                    if(gs.mode==='ai' || gs.mode==='academy')ok=isW;
                     else if(gs.mode==='multi')ok=(myColor==='w'&&isW)||(myColor==='b'&&!isW);
                     else ok=(gs.turn==='w'&&isW)||(gs.turn==='b'&&!isW);
                     if(ok)gs.sel={row,col};
@@ -310,6 +415,7 @@
         }
 
         function updateTurns(){
+            if(gs.mode === 'academy') return;
             const mt=(gs.mode==='multi')?((myColor==='w'&&gs.turn==='w')||(myColor==='b'&&gs.turn==='b')):(gs.turn==='w');
             document.getElementById('bottomTurn').className=mt?'turn-dot you':'turn-dot opp';
             document.getElementById('topTurn').className=mt?'turn-dot opp':'turn-dot you';
@@ -318,7 +424,7 @@
         canvas.addEventListener('click',e=>{const s=getSquare(e);if(s)click(s.row,s.col);});
         canvas.addEventListener('touchstart',e=>{e.preventDefault();const s=getSquare(e.touches[0]);if(s)click(s.row,s.col);},{passive:false});
 
-        // ============ MULTIJUGADOR (LÓGICA PROBADA) ============
+        // ============ MULTIJUGADOR ============
         function openLobby(){
             myName=document.getElementById('nameInput').value.trim()||'Jugador';
             document.getElementById('lobbyModal').classList.add('active');loadRooms();
