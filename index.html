@@ -57,18 +57,13 @@
         .combo-display.active { opacity: 1; animation: comboPop 0.6s ease-out; }
         @keyframes comboPop { 0%{transform:translate(-50%,-50%) scale(0.3);opacity:0;} 40%{transform:translate(-50%,-50%) scale(1.3);opacity:1;} 100%{transform:translate(-50%,-50%) scale(1);opacity:0;} }
 
-        /* TRIVIA */
         .trivia-screen { background: linear-gradient(180deg, #0a0a2e, #1a1a4e); padding: 15px; overflow-y: auto; }
         .fact-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,215,0,0.15); border-radius: 12px; padding: 14px; margin-bottom: 10px; color: #ddd; }
         .fact-card h3 { color: #ffd700; margin-bottom: 8px; font-size: 16px; }
-        .fact-card p { font-size: 13px; line-height: 1.6; margin-bottom: 6px; }
-        .fact-card .source { color: #888; font-size: 10px; font-style: italic; }
-        .quiz-btn { background: linear-gradient(135deg, #4a90d9, #357abd); color: #fff; border: none; padding: 8px 16px; border-radius: 18px; font-size: 12px; cursor: pointer; margin-top: 8px; font-weight: 700; }
         .quiz-option { display: block; width: 100%; padding: 12px; margin: 5px 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,215,0,0.2); border-radius: 10px; color: #fff; font-size: 13px; cursor: pointer; text-align: left; }
         .quiz-option.correct { background: rgba(46,204,113,0.3) !important; border-color: #2ecc71 !important; }
         .quiz-option.incorrect { background: rgba(231,76,60,0.3) !important; border-color: #e74c3c !important; }
 
-        /* MODAL */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 200; justify-content: center; align-items: center; padding: 15px; }
         .modal-overlay.active { display: flex; }
         .modal { background: linear-gradient(135deg, #1a1a3e, #2a2a5e); border: 2px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 20px; max-width: 420px; width: 100%; max-height: 80vh; overflow-y: auto; color: white; }
@@ -265,6 +260,7 @@
         // ============ GAME STATE ============
         let gs={mode:'ai',sel:null,t1:600,t2:600,over:false,turn:'w',combo:0,energy:100,viewBlack:false};
         let timer, myName='', myColor=null, oppName='', roomId=null, roomRef=null, moveCount=0;
+        let isUpdatingBoard = false; // Bandera para evitar actualizaciones simultáneas
 
         function goHome(){clearInterval(timer);if(roomRef)roomRef.off();roomId=null;myColor=null;
             document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -343,6 +339,7 @@
 
         function click(row,col){
             if(gs.over)return;
+            if(isUpdatingBoard)return; // No permitir clicks mientras se actualiza el tablero
             if(gs.mode==='ai'&&gs.turn!=='w')return;
             if(gs.mode==='multi'){const mt=(myColor==='w'&&gs.turn==='w')||(myColor==='b'&&gs.turn==='b');if(!mt)return;}
             if(gs.sel){const{row:fr,col:fc}=gs.sel;if(fr===row&&fc===col){gs.sel=null;draw();return;}
@@ -364,15 +361,46 @@
         function loadRooms(){db.ref('rooms').once('value',(snap)=>{const rooms=snap.val(),c=document.getElementById('roomList');if(!rooms){c.innerHTML='<p style="color:#888;text-align:center;">No hay salas</p>';return;}let h='';Object.entries(rooms).forEach(([id,r])=>{if(r.status==='waiting')h+=`<div class="room-card"><div class="room-info"><div class="room-name">⚪ ${r.white}</div></div><button class="room-join" onclick="joinRoom('${id}')">UNIRSE</button></div>`;});c.innerHTML=h||'<p style="color:#888;text-align:center;">No hay salas</p>';});}
         function createRoom(){const rid='room_'+Date.now();chess.init();moveCount=0;db.ref('rooms/'+rid).set({white:myName,black:null,board:JSON.stringify(chess.board),turn:'w',moveCount:0,status:'waiting'}).then(()=>{roomId=rid;myColor='w';closeLobby();alert('✅ Sala creada. ID: '+rid);roomRef=db.ref('rooms/'+rid);roomRef.on('value',(snap)=>{const r=snap.val();if(!r)return;if(r.status==='playing'&&r.black){oppName=r.black;roomRef.off();startMulti(rid);}});});}
         function joinRoom(rid){db.ref('rooms/'+rid).once('value',(snap)=>{const r=snap.val();if(!r||r.black){alert('Sala no disponible');return;}db.ref('rooms/'+rid).update({black:myName,status:'playing'}).then(()=>{roomId=rid;myColor='b';oppName=r.white;closeLobby();if(r.board)chess.board=JSON.parse(r.board);moveCount=r.moveCount||0;startMulti(rid);});});}
+        
         function startMulti(rid){
             gs={mode:'multi',sel:null,t1:600,t2:600,over:false,turn:'w',combo:0,energy:100,viewBlack:myColor==='b'};
             if(myColor==='w'){document.getElementById('bottomName').textContent=myName+' ⚪';document.getElementById('bottomAvatar').className='player-avatar white';document.getElementById('bottomAvatar').textContent='⚪';document.getElementById('topName').textContent=oppName+' ⚫';document.getElementById('topAvatar').className='player-avatar black';document.getElementById('topAvatar').textContent='⚫';}
             else{document.getElementById('bottomName').textContent=myName+' ⚫';document.getElementById('bottomAvatar').className='player-avatar black';document.getElementById('bottomAvatar').textContent='⚫';document.getElementById('topName').textContent=oppName+' ⚪';document.getElementById('topAvatar').className='player-avatar white';document.getElementById('topAvatar').textContent='⚪';}
             updateTurns();setupGame();
             if(roomRef)roomRef.off();roomRef=db.ref('rooms/'+rid);
-            roomRef.on('value',(snap)=>{const r=snap.val();if(!r||gs.over)return;
-                if(r.turn===myColor&&r.moveCount>moveCount&&r.board){moveCount=r.moveCount;const nb=JSON.parse(r.board);for(let i=0;i<8;i++)chess.board[i]=[...nb[i]];gs.turn=r.turn;updateTurns();draw();}
-                if(r.status==='finished'){gs.over=true;clearInterval(timer);alert(r.winner===myColor?'🏆 ¡Ganaste!':'💀 Perdiste');roomRef.off();goHome();}});}
+            roomRef.on('value',(snap)=>{
+                const r=snap.val();
+                if(!r||gs.over)return;
+                // Solo actualizar si el oponente movió Y es mi turno
+                if(r.turn===myColor&&r.moveCount>moveCount&&r.board){
+                    moveCount=r.moveCount;
+                    // Evitar actualizaciones durante un click
+                    isUpdatingBoard=true;
+                    const newBoard=JSON.parse(r.board);
+                    if(newBoard&&newBoard.length===8){
+                        // Copiar celda por celda
+                        for(let row=0;row<8;row++){
+                            for(let col=0;col<8;col++){
+                                chess.board[row][col]=newBoard[row][col]||'';
+                            }
+                        }
+                        gs.turn=r.turn;
+                        updateTurns();
+                        requestAnimationFrame(()=>{
+                            draw();
+                            isUpdatingBoard=false;
+                        });
+                    }else{
+                        isUpdatingBoard=false;
+                    }
+                }
+                if(r.status==='finished'){
+                    gs.over=true;clearInterval(timer);
+                    alert(r.winner===myColor?'🏆 ¡Ganaste!':'💀 Perdiste');
+                    roomRef.off();goHome();
+                }
+            });
+        }
 
         // ============ TRIVIA ============
         const triviaFacts = [
