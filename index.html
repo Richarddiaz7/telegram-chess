@@ -2,630 +2,126 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>♔ Royal Chess Arena - Play & Earn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Firebase</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-        html, body { width: 100%; height: 100%; overflow: hidden; }
-        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0a0a1a; display: flex; justify-content: center; align-items: center; position: relative; }
-        .app-container { position: relative; z-index: 1; width: 100vw; height: 100vh; height: 100dvh; background: #0a0a2e; overflow: hidden; display: flex; flex-direction: column; }
-        @media (orientation: landscape) { .app-container { flex-direction: row; } }
-        .screen { display: none; width: 100%; height: 100%; flex-direction: column; animation: fadeIn 0.4s ease-out; }
-        .screen.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-
-        .name-screen { align-items: center; justify-content: center; gap: 20px; padding: 20px; background: linear-gradient(180deg, #0a0a2e 0%, #1a1a4e 50%, #0a0a2e 100%); }
-        .name-input { width: 280px; padding: 16px 20px; border-radius: 50px; border: 2px solid rgba(255,215,0,0.4); background: rgba(255,255,255,0.1); color: white; font-size: 18px; text-align: center; outline: none; }
-
-        .home-screen { align-items: center; justify-content: center; gap: 15px; padding: 15px; background: linear-gradient(180deg, #0a0a2e 0%, #1a1a4e 50%, #0a0a2e 100%); overflow-y: auto; }
-        .logo-container { text-align: center; animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        .crown-icon { font-size: 60px; filter: drop-shadow(0 0 25px rgba(255,215,0,0.6)); }
-        .title { font-size: 30px; font-weight: 900; background: linear-gradient(45deg, #ffd700, #ffed4a, #daa520); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px; }
-        .subtitle { color: #c0c0c0; font-size: 12px; letter-spacing: 4px; text-transform: uppercase; margin-top: 5px; }
-        .welcome-msg { color: #ffd700; font-size: 16px; font-weight: 700; text-align: center; }
-        .btn { padding: 14px 35px; border: none; border-radius: 50px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 2px; -webkit-tap-highlight-color: transparent; }
-        .btn:active { transform: scale(0.95); }
-        .btn-play { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a1a2e; box-shadow: 0 8px 25px rgba(255,140,0,0.5); font-size: 22px; padding: 18px 50px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%{box-shadow:0 8px 25px rgba(255,140,0,0.5);} 50%{box-shadow:0 12px 40px rgba(255,140,0,0.8);} 100%{box-shadow:0 8px 25px rgba(255,140,0,0.5);} }
-        .btn-secondary { background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,215,0,0.25); font-size: 13px; padding: 10px 20px; }
-        .btn-music { position: fixed; bottom: 15px; right: 15px; z-index: 300; width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.7); border: 2px solid rgba(255,215,0,0.4); color: #ffd700; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .stats-container { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-        .stat-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,215,0,0.15); border-radius: 12px; padding: 10px 18px; text-align: center; min-width: 80px; }
-        .stat-value { color: #ffd700; font-size: 24px; font-weight: 900; }
-        .stat-label { color: #888; font-size: 10px; text-transform: uppercase; }
-
-        .game-screen { display: flex; flex-direction: column; height: 100%; background: #0a0a1a; }
-        .game-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: rgba(10,10,30,0.95); border-bottom: 1px solid rgba(255,215,0,0.2); flex-shrink: 0; z-index: 10; }
-        .player-info { display: flex; align-items: center; gap: 8px; color: white; }
-        .player-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-        .player-avatar.white-p { background: linear-gradient(135deg, #fff, #ccc); color: #000; }
-        .player-avatar.black-p { background: linear-gradient(135deg, #333, #000); color: #fff; }
-        .player-name { font-size: 11px; color: #aaa; white-space: nowrap; }
-        .timer-display { font-size: 22px; font-weight: 900; color: #ffd700; font-family: 'Courier New', monospace; }
-        .timer-display.urgent { color: #ff3333; animation: blink 0.5s infinite; }
-        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
-        .turn-dot { width: 12px; height: 12px; border-radius: 50%; margin-left: 5px; }
-        .turn-dot.active { background: #44ff44; box-shadow: 0 0 12px #44ff44; }
-        .turn-dot.waiting { background: #555; }
-        .board-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 5px; min-height: 0; position: relative; }
-        canvas { border-radius: 8px; box-shadow: 0 0 60px rgba(255,215,0,0.15), 0 5px 30px rgba(0,0,0,0.8); cursor: pointer; touch-action: manipulation; max-width: 100%; max-height: 100%; }
-        .game-footer { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: rgba(10,10,30,0.95); border-top: 1px solid rgba(255,215,0,0.2); flex-shrink: 0; flex-wrap: wrap; }
-        .energy-bar-container { flex: 1; min-width: 100px; height: 16px; background: rgba(255,255,255,0.08); border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,215,0,0.2); }
-        .energy-bar { height: 100%; background: linear-gradient(90deg, #ff3333, #ffaa00, #ffd700, #44ff44); border-radius: 8px; transition: width 0.4s ease; }
-        .energy-label { color: #ffd700; font-size: 11px; font-weight: 700; white-space: nowrap; }
-        .btn-back { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.2); color: #ffd700; padding: 8px 15px; border-radius: 20px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 700; }
-        .combo-display { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 42px; font-weight: 900; color: #ffd700; text-shadow: 0 0 30px rgba(255,215,0,0.9); pointer-events: none; opacity: 0; transition: all 0.3s ease; z-index: 100; text-align: center; }
-        .combo-display.active { opacity: 1; animation: comboPop 0.6s ease-out; }
-        @keyframes comboPop { 0%{transform:translate(-50%,-50%) scale(0.3);opacity:0;} 40%{transform:translate(-50%,-50%) scale(1.3);opacity:1;} 100%{transform:translate(-50%,-50%) scale(1);opacity:0;} }
-
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 200; justify-content: center; align-items: center; padding: 15px; }
-        .modal-overlay.active { display: flex; }
-        .modal { background: linear-gradient(135deg, #1a1a3e, #2a2a5e); border: 2px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 20px; max-width: 420px; width: 100%; max-height: 80vh; overflow-y: auto; color: white; }
-        .modal h2 { color: #ffd700; font-size: 24px; margin-bottom: 15px; text-align: center; }
-        .modal .btn { margin: 5px 0; width: 100%; }
-        .room-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .room-info { flex: 1; }
-        .room-name { color: #ffd700; font-weight: 700; font-size: 14px; }
-        .room-players { color: #aaa; font-size: 11px; }
-        .room-join { background: rgba(255,215,0,0.2); color: #ffd700; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; }
-
-        @media (orientation: landscape) {
-            .game-screen { flex-direction: row; align-items: stretch; }
-            .game-header { flex-direction: column; justify-content: center; gap: 15px; padding: 10px; border-bottom: none; border-right: 1px solid rgba(255,215,0,0.2); width: auto; min-width: 120px; }
-            .board-container { flex: 1; padding: 5px; }
-            .game-footer { flex-direction: column; justify-content: center; gap: 10px; border-top: none; border-left: 1px solid rgba(255,215,0,0.2); width: auto; min-width: 120px; padding: 10px; }
-            .energy-bar-container { width: 100%; min-width: auto; }
-        }
+        body { background: #0a0a2e; color: white; font-family: sans-serif; padding: 20px; text-align: center; }
+        .btn { padding: 15px 30px; margin: 10px; border-radius: 25px; border: none; font-size: 16px; cursor: pointer; background: #ffd700; color: #000; font-weight: bold; }
+        .log { background: #111; padding: 15px; border-radius: 10px; margin: 15px 0; text-align: left; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto; }
+        input { padding: 10px; border-radius: 20px; border: 1px solid #ffd700; background: #222; color: white; text-align: center; margin: 5px; }
     </style>
 </head>
 <body>
-    <button class="btn-music" id="musicBtn" onclick="toggleMusic()">🎵</button>
-    <div class="app-container">
-        <div class="screen active" id="nameScreen">
-            <div class="name-screen">
-                <div class="crown-icon">👑</div>
-                <h1 class="title">ROYAL CHESS</h1>
-                <p style="color:#ccc;font-size:14px;">Elige tu nombre</p>
-                <input type="text" class="name-input" id="nameInput" placeholder="Tu nombre o @Telegram" maxlength="20">
-                <button class="btn btn-play" onclick="saveName()">⚔️ ENTRAR</button>
-            </div>
-        </div>
-
-        <div class="screen" id="homeScreen">
-            <div class="home-screen">
-                <div class="logo-container"><div class="crown-icon">👑</div><h1 class="title">ROYAL CHESS</h1><p class="subtitle">Play & Earn Arena</p></div>
-                <p class="welcome-msg" id="welcomeMsg">👋 Bienvenido</p>
-                <div class="stats-container">
-                    <div class="stat-card"><div class="stat-value" id="level">1</div><div class="stat-label">Nivel</div></div>
-                    <div class="stat-card"><div class="stat-value" id="totalXp">0</div><div class="stat-label">XP</div></div>
-                    <div class="stat-card"><div class="stat-value" id="coins">💰 500</div><div class="stat-label">Monedas</div></div>
-                </div>
-                <button class="btn btn-play" onclick="startGame('ai')">⚔️ PLAY NOW</button>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
-                    <button class="btn btn-secondary" onclick="startLocalGame()">👥 2 LOCALES</button>
-                    <button class="btn btn-secondary" onclick="openLobby()">🌐 MULTIJUGADOR</button>
-                </div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
-                    <button class="btn btn-secondary" onclick="showScreen('rankingScreen')">🏆 RANKING</button>
-                    <button class="btn btn-secondary" onclick="showInstructions()">📚 CLASES</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="screen" id="gameScreen">
-            <div class="game-screen">
-                <div class="game-header">
-                    <div class="player-info">
-                        <div class="player-avatar white-p" id="topAvatar">⚪</div>
-                        <div>
-                            <div class="player-name" id="topName">OPONENTE</div>
-                            <div class="timer-display" id="topTimer">10:00</div>
-                        </div>
-                        <div class="turn-dot waiting" id="topTurn"></div>
-                    </div>
-                    <div class="player-info">
-                        <div class="player-avatar white-p" id="bottomAvatar">⚪</div>
-                        <div>
-                            <div class="player-name" id="bottomName">TÚ</div>
-                            <div class="timer-display" id="bottomTimer">10:00</div>
-                        </div>
-                        <div class="turn-dot active" id="bottomTurn"></div>
-                    </div>
-                </div>
-                <div class="board-container" id="boardContainer">
-                    <canvas id="chessCanvas"></canvas>
-                    <div class="combo-display" id="comboDisplay"></div>
-                </div>
-                <div class="game-footer">
-                    <span class="energy-label">⚡</span>
-                    <div class="energy-bar-container"><div class="energy-bar" id="energyBar" style="width:100%"></div></div>
-                    <span class="energy-label" id="energyValue">100%</span>
-                    <button class="btn-back" onclick="backToHome()">🏠 MENÚ</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="screen" id="rankingScreen" style="background:linear-gradient(180deg,#0a0a2e,#1a1a4e);padding:15px;overflow-y:auto;">
-            <h2 style="color:#ffd700;text-align:center;">🏆 TOP 10</h2>
-            <button class="btn-back" onclick="backToHome()">🏠 VOLVER</button>
-            <div id="rankingContent"></div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="lobbyModal">
-        <div class="modal">
-            <h2>🌐 Salas Disponibles</h2>
-            <button class="btn btn-secondary" onclick="createRoom()">🏠 Crear Sala (Blancas)</button>
-            <div id="lobbyRooms" style="margin:10px 0;"></div>
-            <button class="btn-back" onclick="closeLobby()" style="width:100%;">CERRAR</button>
-        </div>
-    </div>
+    <h1>🔍 Diagnóstico Firebase</h1>
+    <p id="status">Conectando...</p>
+    
+    <button class="btn" onclick="crearSala()">Crear Sala</button>
+    <br>
+    <input type="text" id="roomId" placeholder="ID de sala">
+    <button class="btn" onclick="unirseSala()">Unirse</button>
+    <br>
+    <button class="btn" onclick="enviarMensaje()">Enviar Mensaje de Prueba</button>
+    
+    <div class="log" id="log">Esperando...</div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
     <script>
-        // ============ FIREBASE ============
-        firebase.initializeApp({
-            apiKey: "AIzaSyDMu83hA5xjmwSlUX4KUgWkYlx6SqHcaAk",
-            authDomain: "royal-chess-multiplayer.firebaseapp.com",
-            databaseURL: "https://royal-chess-multiplayer-default-rtdb.firebaseio.com",
-            projectId: "royal-chess-multiplayer",
-            storageBucket: "royal-chess-multiplayer.firebasestorage.app",
-            messagingSenderId: "380447919929",
-            appId: "1:380447919929:web:13c8584bf1e688830ea2e8"
-        });
-        const db = firebase.database();
-
-        // ============ VARIABLES ============
-        let myPlayerName = localStorage.getItem('rc_username') || '';
-        let myColor = null;
-        let opponentName = '';
-        let currentRoomId = null;
-        let roomRef = null;
-        let userData = getUserData();
-
-        if (myPlayerName) {
-            document.getElementById('nameScreen').classList.remove('active');
-            document.getElementById('homeScreen').classList.add('active');
-            document.getElementById('welcomeMsg').textContent = '👋 ¡Bienvenido, ' + myPlayerName + '!';
-            updateStats();
+        function log(msg) {
+            const l = document.getElementById('log');
+            l.innerHTML += '<br>' + new Date().toLocaleTimeString() + ': ' + msg;
+            l.scrollTop = l.scrollHeight;
         }
 
-        function saveName() {
-            const name = document.getElementById('nameInput').value.trim();
-            if (!name) return alert('Ingresa un nombre');
-            myPlayerName = name;
-            localStorage.setItem('rc_username', name);
-            document.getElementById('nameScreen').classList.remove('active');
-            document.getElementById('homeScreen').classList.add('active');
-            document.getElementById('welcomeMsg').textContent = '👋 ¡Bienvenido, ' + name + '!';
-            updateStats();
-        }
-
-        // ============ AUDIO ============
-        const audio = {
-            ctx: null,
-            init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); if (this.ctx.state === 'suspended') this.ctx.resume(); },
-            play(f, t, d, v = 0.08) { try { this.init(); const o = this.ctx.createOscillator(), g = this.ctx.createGain(); o.connect(g); g.connect(this.ctx.destination); o.frequency.value = f; o.type = t; g.gain.setValueAtTime(v, this.ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + d); o.start(); o.stop(this.ctx.currentTime + d); } catch(e) {} },
-            move() { this.play(550, 'sine', 0.07); },
-            capture() { this.play(160, 'sawtooth', 0.2); },
-            check() { this.play(750, 'square', 0.12); }
-        };
-        function toggleMusic() {}
-
-        // ============ DATA ============
-        function getUserData() { const d = localStorage.getItem('rc_data'); return d ? JSON.parse(d) : { level:1, xp:0, coins:500, wins:0, losses:0, streak:0 }; }
-        function saveUserData(data) { localStorage.setItem('rc_data', JSON.stringify(data)); }
-        function updateStats() { userData = getUserData(); document.getElementById('level').textContent = userData.level; document.getElementById('totalXp').textContent = userData.xp; document.getElementById('coins').textContent = '💰 ' + userData.coins; }
-
-        // ============ CHESS ENGINE ============
-        const chess = {
-            board: [],
-            init() { this.board = [['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']]; },
-            getPiece(r,c) { return this.board[r]?.[c]||''; },
-            isValidMove(fr,fc,tr,tc) {
-                const p=this.getPiece(fr,fc); if(!p)return false;
-                const tgt=this.getPiece(tr,tc); if(tgt&&((p===p.toUpperCase()&&tgt===tgt.toUpperCase())||(p===p.toLowerCase()&&tgt===tgt.toLowerCase())))return false;
-                const type=p.toLowerCase(),rd=tr-fr,cd=tc-fc,ard=Math.abs(rd),acd=Math.abs(cd);
-                const cp=(dr,dc)=>{const s=Math.max(Math.abs(dr),Math.abs(dc)),sr=dr===0?0:dr/Math.abs(dr),sc=dc===0?0:dc/Math.abs(dc);for(let i=1;i<s;i++)if(this.getPiece(fr+sr*i,fc+sc*i))return false;return true;};
-                switch(type){case'p':const d=p==='P'?-1:1,sr=p==='P'?6:1;if(cd===0&&!tgt){if(rd===d)return true;if(fr===sr&&rd===2*d&&!this.getPiece(fr+d,fc))return true;}return acd===1&&rd===d&&!!tgt;case'r':return(rd===0||cd===0)&&cp(rd,cd);case'n':return(ard===2&&acd===1)||(ard===1&&acd===2);case'b':return ard===acd&&cp(rd,cd);case'q':return(rd===0||cd===0||ard===acd)&&cp(rd,cd);case'k':return ard<=1&&acd<=1;}return false;
-            },
-            movePiece(fr,fc,tr,tc){const p=this.getPiece(fr,fc),c=this.getPiece(tr,tc);this.board[tr][tc]=p;this.board[fr][fc]='';return{piece:p,captured:c};},
-            findKing(color){const k=color==='w'?'K':'k';for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(this.board[r][c]===k)return{row:r,col:c};return null;},
-            isInCheck(color){const king=this.findKing(color);if(!king)return false;for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=this.board[r][c];if(p&&((color==='w'&&p===p.toLowerCase())||(color==='b'&&p===p.toUpperCase())))if(this.isValidMove(r,c,king.row,king.col))return true;}return false;},
-            hasLegalMoves(color){for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=this.board[r][c];if((color==='w'&&p&&p===p.toUpperCase())||(color==='b'&&p&&p===p.toLowerCase()))for(let tr=0;tr<8;tr++)for(let tc=0;tc<8;tc++)if(this.isValidMove(r,c,tr,tc)){const sv=this.board[tr][tc];this.board[tr][tc]=p;this.board[r][c]='';if(!this.isInCheck(color)){this.board[r][c]=p;this.board[tr][tc]=sv;return true;}this.board[r][c]=p;this.board[tr][tc]=sv;}}return false;},
-            getAIMove(){const moves=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=this.board[r][c];if(p&&p===p.toLowerCase())for(let tr=0;tr<8;tr++)for(let tc=0;tc<8;tc++)if(this.isValidMove(r,c,tr,tc)){const sv=this.board[tr][tc];this.board[tr][tc]=p;this.board[r][c]='';if(!this.isInCheck('b')){let sc=sv?(sv.toUpperCase()==='Q'?9:sv.toUpperCase()==='R'?5:'BN'.includes(sv.toUpperCase())?3:1):0;moves.push({fr:r,fc:c,tr,tc,captured:sv,score:sc});}this.board[r][c]=p;this.board[tr][tc]=sv;}}if(!moves.length)return null;moves.sort((a,b)=>b.score-a.score);return Math.random()<0.7?moves[0]:moves[Math.floor(Math.random()*Math.min(5,moves.length))];}
-        };
-
-        // ============ CANVAS ============
-        const canvas=document.getElementById('chessCanvas'),ctx=canvas.getContext('2d');
-        let bSize=0,sq=0;
-        function resizeCanvas(){const c=document.getElementById('boardContainer'),s=Math.floor(Math.min(c.clientWidth,c.clientHeight)*0.98);bSize=s;sq=s/8;canvas.width=bSize;canvas.height=bSize;canvas.style.width=bSize+'px';canvas.style.height=bSize+'px';drawBoard();}
-        const SYM={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
-
-        function drawBoard() {
-            ctx.clearRect(0,0,bSize,bSize);
-            for(let r=0;r<8;r++){
-                for(let c=0;c<8;c++){
-                    let dr = r, dc = c;
-                    if (gameState.viewAsBlack) { dr = 7 - r; dc = 7 - c; }
-                    const x=dc*sq, y=dr*sq, light=(r+c)%2===0;
-                    const g=ctx.createLinearGradient(x,y,x+sq,y+sq);
-                    light?(g.addColorStop(0,'#f5deb3'),g.addColorStop(0.4,'#eed9b0'),g.addColorStop(1,'#d2b48c')):(g.addColorStop(0,'#8b6914'),g.addColorStop(0.4,'#7a5a12'),g.addColorStop(1,'#5c3d0e'));
-                    ctx.fillStyle=g;ctx.fillRect(x,y,sq,sq);
-                }
-            }
-            if(gameState.selectedSquare){
-                let {row,col}=gameState.selectedSquare;
-                if (gameState.viewAsBlack) { row = 7 - row; col = 7 - col; }
-                ctx.fillStyle='rgba(255,215,0,0.45)';ctx.fillRect(col*sq,row*sq,sq,sq);
-                ctx.strokeStyle='#ffd700';ctx.lineWidth=Math.max(2,sq*0.04);ctx.strokeRect(col*sq+2,row*sq+2,sq-4,sq-4);
-            }
-            const pRad=sq*0.42;
-            for(let r=0;r<8;r++){
-                for(let c=0;c<8;c++){
-                    const piece=chess.getPiece(r,c);
-                    if(piece){
-                        let dr = r, dc = c;
-                        if (gameState.viewAsBlack) { dr = 7 - r; dc = 7 - c; }
-                        const cx=dc*sq+sq/2, cy=dr*sq+sq/2, isW=piece===piece.toUpperCase();
-                        ctx.shadowColor='rgba(0,0,0,0.6)';ctx.shadowBlur=sq*0.12;ctx.shadowOffsetX=sq*0.03;ctx.shadowOffsetY=sq*0.04;
-                        ctx.beginPath();ctx.arc(cx,cy,pRad,0,Math.PI*2);
-                        const g=ctx.createRadialGradient(cx-pRad*0.3,cy-pRad*0.3,pRad*0.05,cx,cy,pRad);
-                        isW?(g.addColorStop(0,'#fff'),g.addColorStop(0.5,'#f0f0f0'),g.addColorStop(0.8,'#d4d4d4'),g.addColorStop(1,'#a0a0a0')):(g.addColorStop(0,'#606060'),g.addColorStop(0.5,'#2a2a2a'),g.addColorStop(0.8,'#1a1a1a'),g.addColorStop(1,'#000'));
-                        ctx.fillStyle=g;ctx.fill();ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetX=0;ctx.shadowOffsetY=0;
-                        ctx.strokeStyle=isW?'#888':'#333';ctx.lineWidth=Math.max(1,sq*0.02);ctx.stroke();
-                        const fSize=sq*0.75;ctx.fillStyle=isW?'#1a1a1a':'#fff';
-                        ctx.font=`bold ${fSize}px "Segoe UI Symbol",Arial`;ctx.textAlign='center';ctx.textBaseline='middle';
-                        ctx.fillText(SYM[piece],cx,cy+sq*0.04);
-                    }
-                }
-            }
-        }
-
-        // ============ GAME STATE ============
-        let gameState = {
-            mode:'ai', selectedSquare:null,
-            playerTimer:600, aiTimer:600,
-            gameOver:false, currentTurn:'w',
-            combo:0, energy:100,
-            viewAsBlack:false
-        };
-        let timerInterval;
-
-        function setupUIForGame() {
-            document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-            document.getElementById('gameScreen').classList.add('active');
-            updateEnergy(); updateTimers();
-            setTimeout(resizeCanvas,50); setTimeout(resizeCanvas,200);
-            drawBoard();
-            startTimers();
-        }
-
-        function startGame(mode) {
-            audio.init();
-            chess.init();
-            gameState = {
-                mode, selectedSquare:null,
-                playerTimer:600, aiTimer:600,
-                gameOver:false, currentTurn:'w',
-                combo:0, energy:100, viewAsBlack:false
-            };
-            document.getElementById('bottomName').textContent = (myPlayerName||'TÚ') + ' ⚪';
-            document.getElementById('bottomAvatar').className = 'player-avatar white-p';
-            document.getElementById('bottomAvatar').textContent = '⚪';
-            document.getElementById('topName').textContent = 'IA OPONENTE ⚫';
-            document.getElementById('topAvatar').className = 'player-avatar black-p';
-            document.getElementById('topAvatar').textContent = '⚫';
-            document.getElementById('bottomTurn').className = 'turn-dot active';
-            document.getElementById('topTurn').className = 'turn-dot waiting';
-            setupUIForGame();
-        }
-
-        function startLocalGame() {
-            audio.init();
-            chess.init();
-            gameState = {
-                mode:'local', selectedSquare:null,
-                playerTimer:600, aiTimer:600,
-                gameOver:false, currentTurn:'w',
-                combo:0, energy:100, viewAsBlack:false
-            };
-            document.getElementById('bottomName').textContent = (myPlayerName||'J1') + ' ⚪';
-            document.getElementById('bottomAvatar').className = 'player-avatar white-p';
-            document.getElementById('bottomAvatar').textContent = '⚪';
-            document.getElementById('topName').textContent = 'JUGADOR 2 ⚫';
-            document.getElementById('topAvatar').className = 'player-avatar black-p';
-            document.getElementById('topAvatar').textContent = '⚫';
-            document.getElementById('bottomTurn').className = 'turn-dot active';
-            document.getElementById('topTurn').className = 'turn-dot waiting';
-            setupUIForGame();
-        }
-
-        function backToHome() {
-            clearInterval(timerInterval);
-            if (roomRef) roomRef.off();
-            currentRoomId = null; myColor = null;
-            document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-            document.getElementById('homeScreen').classList.add('active');
-            updateStats();
-        }
-
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            if (id==='rankingScreen') renderLeaderboard();
-        }
-
-        function startTimers() {
-            clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                if (gameState.gameOver) return;
-                if (gameState.currentTurn === 'w') {
-                    gameState.playerTimer--;
-                    if (gameState.playerTimer <= 0) endGame('time');
-                } else {
-                    gameState.aiTimer--;
-                    if (gameState.aiTimer <= 0) endGame('time');
-                }
-                updateTimers();
-            }, 1000);
-        }
-
-        function updateTimers() {
-            const f = s => `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
-            document.getElementById('bottomTimer').textContent = f(gameState.playerTimer);
-            document.getElementById('topTimer').textContent = f(gameState.aiTimer);
-        }
-
-        function updateEnergy() {
-            document.getElementById('energyBar').style.width = gameState.energy + '%';
-            document.getElementById('energyValue').textContent = gameState.energy + '%';
-        }
-
-        function updateTurnUI() {
-            const bD = document.getElementById('bottomTurn'), tD = document.getElementById('topTurn');
-            const myTurn = !gameState.multiplayer || 
-                (myColor === 'w' && gameState.currentTurn === 'w') ||
-                (myColor === 'b' && gameState.currentTurn === 'b');
-            bD.className = myTurn ? 'turn-dot active' : 'turn-dot waiting';
-            tD.className = myTurn ? 'turn-dot waiting' : 'turn-dot active';
-        }
-
-        function showCombo(text, dur=1000) {
-            const d = document.getElementById('comboDisplay');
-            d.textContent = text; d.classList.add('active');
-            setTimeout(() => d.classList.remove('active'), dur);
-        }
-
-        function makeMove(fr, fc, tr, tc) {
-            const res = chess.movePiece(fr, fc, tr, tc);
-            gameState.energy = Math.max(0, gameState.energy - 2);
-            updateEnergy();
-            if (res.captured) { gameState.combo++; audio.capture(); const bonus=gameState.combo*5; userData.xp+=10+bonus; userData.coins+=bonus; if(gameState.combo>=3)showCombo(`🔥 ${gameState.combo}x COMBO!`); }
-            else { gameState.combo=0; audio.move(); userData.xp+=2; }
-            saveUserData(userData);
-            const nl = Math.floor(Math.sqrt(userData.xp/100))+1;
-            if (nl>userData.level) { userData.level=nl; userData.coins+=50; showCombo('⬆️ LEVEL UP!',2000); }
-            updateStats();
-            const opp = gameState.currentTurn==='w'?'b':'w';
-            if (chess.isInCheck(opp)) { audio.check(); if(!chess.hasLegalMoves(opp)){endGame('checkmate');return;} showCombo('⚠️ JAQUE!'); }
-            else if (!chess.hasLegalMoves(opp)) { endGame('stalemate'); }
-            if (gameState.mode==='multiplayer') sendMoveToFirebase();
-        }
-
-        function endGame(reason) {
-            gameState.gameOver=true; clearInterval(timerInterval);
-            let bonus=0;
-            if(reason==='checkmate'){bonus=50;showCombo('🏆 JAQUE MATE!',3000);}
-            else if(reason==='time'){bonus=20;showCombo('⏰ TIEMPO!',3000);}
-            else{bonus=10;showCombo('🤝 TABLAS!',3000);}
-            userData.coins+=bonus;
-            if(reason==='checkmate'||reason==='time'){userData.wins++;userData.streak++;}
-            else{userData.streak=0;}
-            userData.xp+=bonus;saveUserData(userData);updateStats();
-            if(gameState.mode==='multiplayer'&&currentRoomId){
-                db.ref('rooms/'+currentRoomId).update({status:'finished',winner:myColor});
-            }
-            setTimeout(backToHome,3000);
-        }
-
-        function getSquare(e) {
-            const r=canvas.getBoundingClientRect(),sx=bSize/r.width,sy=bSize/r.height;
-            let col=Math.floor((e.clientX-r.left)*sx/sq),row=Math.floor((e.clientY-r.top)*sy/sq);
-            if(gameState.viewAsBlack){row=7-row;col=7-col;}
-            return(row>=0&&row<8&&col>=0&&col<8)?{row,col}:null;
-        }
-
-        function handleClick(row,col) {
-            if(gameState.gameOver)return;
-            // Verificar turno
-            if(gameState.mode==='ai'&&gameState.currentTurn!=='w')return;
-            if(gameState.mode==='multiplayer'){
-                const myTurn=(myColor==='w'&&gameState.currentTurn==='w')||(myColor==='b'&&gameState.currentTurn==='b');
-                if(!myTurn)return;
-            }
-            if(gameState.selectedSquare){
-                const{row:fr,col:fc}=gameState.selectedSquare;
-                if(fr===row&&fc===col){gameState.selectedSquare=null;drawBoard();return;}
-                if(chess.isValidMove(fr,fc,row,col)){
-                    const p=chess.getPiece(fr,fc),sv=chess.board[row][col];
-                    chess.board[row][col]=p;chess.board[fr][fc]='';
-                    const ch=chess.isInCheck(gameState.currentTurn);
-                    chess.board[fr][fc]=p;chess.board[row][col]=sv;
-                    if(!ch){
-                        makeMove(fr,fc,row,col);
-                        gameState.selectedSquare=null;
-                        gameState.currentTurn=gameState.currentTurn==='w'?'b':'w';
-                        updateTurnUI();
-                        drawBoard();
-                        if(gameState.mode==='ai'&&gameState.currentTurn==='b'&&!gameState.gameOver){
-                            setTimeout(()=>{
-                                const aim=chess.getAIMove();
-                                if(aim){makeMove(aim.fr,aim.fc,aim.tr,aim.tc);gameState.currentTurn='w';gameState.energy=Math.min(100,gameState.energy+5);updateEnergy();updateTurnUI();}
-                                drawBoard();
-                            },350+Math.random()*700);
-                        }
-                    }else{gameState.selectedSquare=null;drawBoard();}
-                }else{gameState.selectedSquare=null;drawBoard();}
-            }else{
-                const p=chess.getPiece(row,col);
-                if(p){
-                    const isWhitePiece=p===p.toUpperCase();
-                    let canSelect=false;
-                    if(gameState.mode==='ai') canSelect=isWhitePiece;
-                    else if(gameState.mode==='multiplayer') canSelect=(myColor==='w'&&isWhitePiece)||(myColor==='b'&&!isWhitePiece);
-                    else canSelect=(gameState.currentTurn==='w'&&isWhitePiece)||(gameState.currentTurn==='b'&&!isWhitePiece);
-                    if(canSelect)gameState.selectedSquare={row,col};
-                }
-            }
-            drawBoard();
-        }
-
-        canvas.addEventListener('click',e=>{const sq=getSquare(e);if(sq)handleClick(sq.row,sq.col);});
-        canvas.addEventListener('touchstart',e=>{e.preventDefault();const sq=getSquare(e.touches[0]);if(sq)handleClick(sq.row,sq.col);},{passive:false});
-
-        // ============ MULTIJUGADOR (LÓGICA SIMPLIFICADA) ============
-        function openLobby() {
-            if(!myPlayerName)return alert('Primero ingresa tu nombre');
-            document.getElementById('lobbyModal').classList.add('active');
-            loadRooms();
-            if(window.lobbyInterval)clearInterval(window.lobbyInterval);
-            window.lobbyInterval=setInterval(loadRooms,2000);
-        }
-        function closeLobby(){document.getElementById('lobbyModal').classList.remove('active');if(window.lobbyInterval)clearInterval(window.lobbyInterval);}
-
-        function loadRooms(){
-            db.ref('rooms').once('value',(snap)=>{
-                const rooms=snap.val();
-                const c=document.getElementById('lobbyRooms');
-                if(!rooms){c.innerHTML='<p style="color:#888;text-align:center;">No hay salas. ¡Crea una!</p>';return;}
-                let h='';
-                Object.entries(rooms).forEach(([id,room])=>{
-                    if(room.status==='waiting') h+=`<div class="room-card"><div class="room-info"><div class="room-name">⚪ ${room.white}</div><div class="room-players">Esperando oponente...</div></div><button class="room-join" onclick="joinRoom('${id}')">UNIRSE</button></div>`;
-                });
-                c.innerHTML=h||'<p style="color:#888;text-align:center;">No hay salas. ¡Crea una!</p>';
+        // Inicializar Firebase
+        try {
+            firebase.initializeApp({
+                apiKey: "AIzaSyDMu83hA5xjmwSlUX4KUgWkYlx6SqHcaAk",
+                authDomain: "royal-chess-multiplayer.firebaseapp.com",
+                databaseURL: "https://royal-chess-multiplayer-default-rtdb.firebaseio.com",
+                projectId: "royal-chess-multiplayer",
+                storageBucket: "royal-chess-multiplayer.firebasestorage.app",
+                messagingSenderId: "380447919929",
+                appId: "1:380447919929:web:13c8584bf1e688830ea2e8"
             });
-        }
-
-        function createRoom(){
-            const rid='room_'+Date.now();
-            const board=JSON.stringify([['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']]);
-            db.ref('rooms/'+rid).set({white:myPlayerName,black:null,board:board,turn:'w',status:'waiting'}).then(()=>{
-                currentRoomId=rid;myColor='w';opponentName='';closeLobby();
-                alert('✅ Sala creada. Esperando oponente...\n\nID: '+rid);
-                waitForOpponent(rid);
-            });
-        }
-
-        function joinRoom(rid){
-            db.ref('rooms/'+rid).transaction((room)=>{
-                if(room&&!room.black){room.black=myPlayerName;room.status='playing';return room;}
-            }).then((result)=>{
-                if(result.committed){
-                    currentRoomId=rid;myColor='b';
-                    db.ref('rooms/'+rid).once('value',(snap)=>{
-                        const room=snap.val();
-                        opponentName=room.white;
-                        closeLobby();
-                        chessInitFromString(room.board);
-                        startMultiplayerGame(rid);
-                    });
-                }else{alert('Sala no disponible');}
-            });
-        }
-
-        function waitForOpponent(rid){
-            roomRef=db.ref('rooms/'+rid);
-            roomRef.on('value',(snap)=>{
-                const room=snap.val();
-                if(room&&room.status==='playing'&&room.black){
-                    opponentName=room.black;
-                    roomRef.off();
-                    startMultiplayerGame(rid);
-                }
-            });
-        }
-
-        function chessInitFromString(boardStr){
-            if(boardStr) chess.board=JSON.parse(boardStr);
-            else chess.init();
-        }
-
-        function startMultiplayerGame(rid){
-            gameState.mode='multiplayer';
-            gameState.currentTurn='w';
-            gameState.gameOver=false;
-            gameState.selectedSquare=null;
-            gameState.playerTimer=600;
-            gameState.aiTimer=600;
-            gameState.combo=0;
-            gameState.energy=100;
-            gameState.viewAsBlack=(myColor==='b');
+            const db = firebase.database();
+            document.getElementById('status').textContent = '✅ Firebase conectado';
+            log('✅ Firebase inicializado correctamente');
             
-            if(myColor==='w'){
-                document.getElementById('bottomName').textContent=myPlayerName+' ⚪';
-                document.getElementById('bottomAvatar').className='player-avatar white-p';
-                document.getElementById('bottomAvatar').textContent='⚪';
-                document.getElementById('topName').textContent=opponentName+' ⚫';
-                document.getElementById('topAvatar').className='player-avatar black-p';
-                document.getElementById('topAvatar').textContent='⚫';
-            }else{
-                document.getElementById('bottomName').textContent=myPlayerName+' ⚫';
-                document.getElementById('bottomAvatar').className='player-avatar black-p';
-                document.getElementById('bottomAvatar').textContent='⚫';
-                document.getElementById('topName').textContent=opponentName+' ⚪';
-                document.getElementById('topAvatar').className='player-avatar white-p';
-                document.getElementById('topAvatar').textContent='⚪';
-            }
-            updateTurnUI();
-            setupUIForGame();
-            listenToRoom(rid);
+            // Probar escritura
+            db.ref('test').set({ mensaje: 'Hola', timestamp: Date.now() }).then(() => {
+                log('✅ Escritura de prueba exitosa');
+            }).catch(e => {
+                log('❌ Error de escritura: ' + e.message);
+            });
+            
+            // Probar lectura
+            db.ref('test').once('value', (snap) => {
+                log('📖 Lectura de prueba: ' + JSON.stringify(snap.val()));
+            });
+
+        } catch(e) {
+            document.getElementById('status').textContent = '❌ Error: ' + e.message;
+            log('❌ Error al inicializar: ' + e.message);
         }
 
-        function listenToRoom(rid){
-            if(roomRef)roomRef.off();
-            roomRef=db.ref('rooms/'+rid);
-            roomRef.on('value',(snap)=>{
-                const room=snap.val();
-                if(!room||gameState.gameOver)return;
-                // Si el turno cambió (el oponente movió)
-                if(room.turn&&room.turn!==gameState.currentTurn&&room.board){
-                    chess.board=JSON.parse(room.board);
-                    gameState.currentTurn=room.turn;
-                    updateTurnUI();
-                    drawBoard();
-                    updateTimers();
-                }
-                if(room.status==='finished'){
-                    gameState.gameOver=true;clearInterval(timerInterval);
-                    alert(room.winner===myColor?'🏆 ¡Ganaste!':'💀 Perdiste');
-                    roomRef.off();backToHome();
-                }
+        let currentRoom = null;
+
+        function crearSala() {
+            const roomId = 'test_' + Date.now();
+            db.ref('rooms/' + roomId).set({
+                creador: 'Jugador1',
+                visitante: null,
+                mensajes: ['Sala creada'],
+                timestamp: Date.now()
+            }).then(() => {
+                currentRoom = roomId;
+                log('✅ Sala creada: ' + roomId);
+                document.getElementById('roomId').value = roomId;
+                
+                // Escuchar cambios
+                db.ref('rooms/' + roomId).on('value', (snap) => {
+                    const data = snap.val();
+                    if (data) {
+                        log('📩 Datos recibidos: ' + JSON.stringify(data));
+                        if (data.visitante) {
+                            log('👤 ¡Alguien se unió! Visitante: ' + data.visitante);
+                        }
+                    }
+                });
+            }).catch(e => {
+                log('❌ Error al crear sala: ' + e.message);
             });
         }
 
-        function sendMoveToFirebase(){
-            if(!currentRoomId)return;
-            db.ref('rooms/'+currentRoomId).update({
-                board:JSON.stringify(chess.board),
-                turn:gameState.currentTurn
+        function unirseSala() {
+            const roomId = document.getElementById('roomId').value.trim();
+            if (!roomId) return alert('Ingresa un ID de sala');
+            
+            db.ref('rooms/' + roomId).update({
+                visitante: 'Jugador2',
+            }).then(() => {
+                currentRoom = roomId;
+                log('✅ Unido a sala: ' + roomId);
+                
+                db.ref('rooms/' + roomId).on('value', (snap) => {
+                    const data = snap.val();
+                    if (data) {
+                        log('📩 Datos de sala: ' + JSON.stringify(data));
+                    }
+                });
+            }).catch(e => {
+                log('❌ Error al unirse: ' + e.message);
             });
         }
 
-        function renderLeaderboard(){
-            const lb=JSON.parse(localStorage.getItem('rc_lb')||'[]');
-            document.getElementById('rankingContent').innerHTML=lb.length?lb.map((e,i)=>{
-                let rc='normal';if(i===0)rc='gold';else if(i===1)rc='silver';else if(i===2)rc='bronze';
-                return`<div class="lb-item"><div class="lb-rank ${rc}">${i+1}</div><div class="lb-name">${e.name}</div><div class="lb-score">🏆${e.wins}</div></div>`;
-            }).join(''):'<p style="color:#888;">Sin datos</p>';
+        function enviarMensaje() {
+            if (!currentRoom) return alert('Primero crea o únete a una sala');
+            const msg = 'Mensaje de prueba ' + Date.now();
+            db.ref('rooms/' + currentRoom + '/mensajes').push(msg).then(() => {
+                log('📤 Mensaje enviado: ' + msg);
+            });
         }
-        function showInstructions(){alert('📚 CLASES:\n\n🇮🇹 Italiana: 1.e4 e5 2.Cf3 Cc6 3.Ac4\n🇪🇸 Española: 1.e4 e5 2.Cf3 Cc6 3.Ab5');}
-
-        updateStats();
-        window.addEventListener('resize',()=>{if(document.getElementById('gameScreen').classList.contains('active'))setTimeout(resizeCanvas,150);});
     </script>
 </body>
 </html>
