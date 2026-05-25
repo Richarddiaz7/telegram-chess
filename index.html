@@ -59,18 +59,9 @@
     </div>
 
     <script>
-        // CHESS ENGINE - Versión robusta
+        // CHESS ENGINE
         const chess = {
-            board: [
-                ['r','n','b','q','k','b','n','r'],
-                ['p','p','p','p','p','p','p','p'],
-                ['','','','','','','',''],
-                ['','','','','','','',''],
-                ['','','','','','','',''],
-                ['','','','','','','',''],
-                ['P','P','P','P','P','P','P','P'],
-                ['R','N','B','Q','K','B','N','R']
-            ],
+            board: [],
             init() {
                 this.board = [
                     ['r','n','b','q','k','b','n','r'],
@@ -117,7 +108,6 @@
                 const c = this.piece(tr, tc);
                 this.board[tr][tc] = p;
                 this.board[fr][fc] = '';
-                return { piece: p, captured: c };
             },
             findKing(color) {
                 const k = color === 'w' ? 'K' : 'k';
@@ -171,65 +161,86 @@
             }
         };
 
-        // CANVAS
+        // CANVAS - CORREGIDO
         const canvas = document.getElementById('chessCanvas'), ctx = canvas.getContext('2d');
         let B = 0, S = 0;
-        function resize() { const c = document.getElementById('boardContainer'), s = Math.floor(Math.min(c.clientWidth, c.clientHeight) * 0.98); B = s; S = s / 8; canvas.width = B; canvas.height = B; canvas.style.width = B + 'px'; canvas.style.height = B + 'px'; drawBoard(); }
+        function resize() { 
+            const c = document.getElementById('boardContainer');
+            const s = Math.floor(Math.min(c.clientWidth, c.clientHeight) * 0.98);
+            B = s; S = s / 8;
+            canvas.width = B; canvas.height = B;
+            canvas.style.width = B + 'px'; canvas.style.height = B + 'px';
+            drawBoard();
+        }
         const SYM = { K: '♔', Q: '♕', R: '♖', B: '♗', N: '♘', P: '♙', k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' };
 
         function drawBoard() {
+            // Limpiar canvas COMPLETAMENTE
             ctx.clearRect(0, 0, B, B);
-            // Casillas
+            
+            // RESETEAR todas las propiedades del contexto
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            ctx.globalAlpha = 1;
+            
+            // Dibujar casillas
             for (let r = 0; r < 8; r++) {
                 for (let c = 0; c < 8; c++) {
-                    const x = c * S, y = r * S, light = (r + c) % 2 === 0;
-                    ctx.fillStyle = light ? '#f5deb3' : '#8b6914';
+                    const x = c * S, y = r * S;
+                    const light = (r + c) % 2 === 0;
+                    ctx.fillStyle = light ? '#f0d9b5' : '#b58863';
                     ctx.fillRect(x, y, S, S);
-                    ctx.fillStyle = light ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
-                    ctx.fillRect(x, y, S, 1);
                 }
             }
-            // Selección
+            
+            // Resaltar selección
             if (gs.sel) {
                 const r = gs.sel.row, c = gs.sel.col;
-                ctx.fillStyle = 'rgba(255,215,0,0.5)';
+                ctx.fillStyle = 'rgba(255, 255, 0, 0.4)';
                 ctx.fillRect(c * S, r * S, S, S);
                 ctx.strokeStyle = '#ffd700';
                 ctx.lineWidth = 3;
-                ctx.strokeRect(c * S + 2, r * S + 2, S - 4, S - 4);
+                ctx.strokeRect(c * S + 1, r * S + 1, S - 2, S - 2);
             }
-            // Piezas
+            
+            // Dibujar piezas - SIN SOMBRAS para evitar bugs
             for (let r = 0; r < 8; r++) {
                 for (let c = 0; c < 8; c++) {
-                    const piece = chess.board[r][c];
-                    if (!piece || piece === '') continue;
-                    const x = c * S + S / 2, y = r * S + S / 2, isW = piece === piece.toUpperCase(), rad = S * 0.42;
-                    // Sombra
-                    ctx.save();
-                    ctx.shadowColor = 'rgba(0,0,0,0.6)';
-                    ctx.shadowBlur = S * 0.1;
-                    ctx.shadowOffsetX = 2;
-                    ctx.shadowOffsetY = 2;
-                    // Círculo
+                    const piece = chess.board[r] ? chess.board[r][c] : '';
+                    if (!piece) continue;
+                    
+                    const x = c * S + S / 2;
+                    const y = r * S + S / 2;
+                    const isWhite = piece === piece.toUpperCase();
+                    const radius = S * 0.38;
+                    
+                    // Dibujar círculo base
                     ctx.beginPath();
-                    ctx.arc(x, y, rad, 0, Math.PI * 2);
-                    const grad = ctx.createRadialGradient(x - rad * 0.3, y - rad * 0.3, rad * 0.05, x, y, rad);
-                    if (isW) { grad.addColorStop(0, '#ffffff'); grad.addColorStop(0.5, '#f0f0f0'); grad.addColorStop(1, '#a0a0a0'); }
-                    else { grad.addColorStop(0, '#606060'); grad.addColorStop(0.5, '#2a2a2a'); grad.addColorStop(1, '#000000'); }
-                    ctx.fillStyle = grad;
+                    ctx.arc(x, y + 2, radius, 0, Math.PI * 2);
+                    
+                    if (isWhite) {
+                        ctx.fillStyle = '#ffffff';
+                        ctx.strokeStyle = '#999999';
+                    } else {
+                        ctx.fillStyle = '#333333';
+                        ctx.strokeStyle = '#000000';
+                    }
+                    ctx.lineWidth = 1.5;
                     ctx.fill();
-                    ctx.restore();
-                    // Borde
-                    ctx.strokeStyle = isW ? '#888' : '#333';
-                    ctx.lineWidth = 2;
                     ctx.stroke();
-                    // Símbolo
-                    const fSize = S * 0.7;
-                    ctx.fillStyle = isW ? '#1a1a1a' : '#ffffff';
-                    ctx.font = `bold ${fSize}px "Segoe UI Symbol", Arial`;
+                    
+                    // Dibujar símbolo
+                    const fontSize = S * 0.65;
+                    ctx.fillStyle = isWhite ? '#000000' : '#ffffff';
+                    ctx.font = `bold ${fontSize}px "Segoe UI Symbol", "Apple Color Emoji", Arial`;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.fillText(SYM[piece] || '', x, y + 2);
+                    const symbol = SYM[piece];
+                    if (symbol) {
+                        ctx.fillText(symbol, x, y + 2);
+                    }
                 }
             }
         }
@@ -294,12 +305,6 @@
             setTimeout(goHome, 2000);
         }
 
-        function makeMove(fr, fc, tr, tc) {
-            chess.move(fr, fc, tr, tc);
-            gs.energy = Math.max(0, gs.energy - 2);
-            document.getElementById('energyBar').style.width = gs.energy + '%';
-        }
-
         function getSquare(e) {
             const r = canvas.getBoundingClientRect();
             const sx = B / r.width, sy = B / r.height;
@@ -314,61 +319,77 @@
 
             if (gs.sel) {
                 const fr = gs.sel.row, fc = gs.sel.col;
+                
                 // Click en la misma pieza = deseleccionar
-                if (fr === row && fc === col) { gs.sel = null; drawBoard(); return; }
-                // Intentar mover
+                if (fr === row && fc === col) {
+                    gs.sel = null;
+                    drawBoard();
+                    return;
+                }
+                
+                // Verificar si es un movimiento válido
                 if (chess.isValid(fr, fc, row, col)) {
-                    // Guardar estado por si el movimiento es ilegal
-                    const piece = chess.piece(fr, fc);
-                    const captured = chess.piece(row, col);
-                    // Hacer movimiento temporal
-                    chess.board[row][col] = piece;
+                    // Guardar estado
+                    const movingPiece = chess.board[fr][fc];
+                    const capturedPiece = chess.board[row][col];
+                    
+                    // Hacer movimiento
+                    chess.board[row][col] = movingPiece;
                     chess.board[fr][fc] = '';
-                    // Verificar que no deja en jaque
+                    
+                    // Verificar jaque
                     if (!chess.inCheck(gs.turn)) {
                         // Movimiento válido
-                        makeMove(fr, fc, row, col);
                         gs.sel = null;
-                        gs.turn = gs.turn === 'w' ? 'b' : 'w';
+                        gs.turn = (gs.turn === 'w') ? 'b' : 'w';
+                        gs.energy = Math.max(0, gs.energy - 2);
+                        document.getElementById('energyBar').style.width = gs.energy + '%';
                         drawBoard();
+                        
+                        // Verificar fin del juego
+                        const opp = gs.turn === 'w' ? 'b' : 'w';
+                        if (chess.inCheck(opp) && !chess.hasMoves(opp)) {
+                            endGame('checkmate');
+                            return;
+                        }
+                        if (!chess.inCheck(opp) && !chess.hasMoves(opp)) {
+                            endGame('stalemate');
+                            return;
+                        }
+                        
                         // Turno de la IA
                         if (gs.mode === 'ai' && gs.turn === 'b' && !gs.over) {
                             setTimeout(() => {
                                 const m = chess.aiMove();
                                 if (m) {
-                                    makeMove(m.fr, m.fc, m.tr, m.tc);
+                                    chess.board[m.tr][m.tc] = chess.board[m.fr][m.fc];
+                                    chess.board[m.fr][m.fc] = '';
                                     gs.turn = 'w';
                                     gs.energy = Math.min(100, gs.energy + 5);
                                     document.getElementById('energyBar').style.width = gs.energy + '%';
+                                    
+                                    const opp2 = 'w';
+                                    if (chess.inCheck(opp2) && !chess.hasMoves(opp2)) endGame('checkmate');
+                                    else if (!chess.inCheck(opp2) && !chess.hasMoves(opp2)) endGame('stalemate');
                                 }
-                                // Verificar fin del juego
-                                const opp = gs.turn === 'w' ? 'b' : 'w';
-                                if (chess.inCheck(opp) && !chess.hasMoves(opp)) endGame('checkmate');
-                                else if (!chess.inCheck(opp) && !chess.hasMoves(opp)) endGame('stalemate');
                                 drawBoard();
                             }, 300);
                         }
-                        // Verificar fin del juego después del movimiento del jugador
-                        const opp = gs.turn === 'w' ? 'b' : 'w';
-                        if (chess.inCheck(opp) && !chess.hasMoves(opp)) endGame('checkmate');
-                        else if (!chess.inCheck(opp) && !chess.hasMoves(opp)) endGame('stalemate');
                     } else {
-                        // Revertir
-                        chess.board[fr][fc] = piece;
-                        chess.board[row][col] = captured;
+                        // Revertir movimiento
+                        chess.board[fr][fc] = movingPiece;
+                        chess.board[row][col] = capturedPiece;
                         gs.sel = null;
                         drawBoard();
                     }
                 } else {
-                    // Click en pieza del oponente? Cambiar selección si es válida
+                    // Movimiento inválido - verificar si click en otra pieza propia
                     const clickedPiece = chess.piece(row, col);
                     if (clickedPiece) {
                         const isW = clickedPiece === clickedPiece.toUpperCase();
-                        if ((gs.mode === 'ai' && isW) || (gs.mode === 'local' && ((gs.turn === 'w' && isW) || (gs.turn === 'b' && !isW)))) {
-                            gs.sel = { row, col };
-                        } else {
-                            gs.sel = null;
-                        }
+                        const canSelect = (gs.mode === 'ai' && isW) || 
+                                        (gs.mode === 'local' && ((gs.turn === 'w' && isW) || (gs.turn === 'b' && !isW)));
+                        gs.sel = canSelect ? { row, col } : null;
                     } else {
                         gs.sel = null;
                     }
@@ -379,9 +400,9 @@
                 const piece = chess.piece(row, col);
                 if (piece) {
                     const isW = piece === piece.toUpperCase();
-                    if ((gs.mode === 'ai' && isW) || (gs.mode === 'local' && ((gs.turn === 'w' && isW) || (gs.turn === 'b' && !isW)))) {
-                        gs.sel = { row, col };
-                    }
+                    const canSelect = (gs.mode === 'ai' && isW) || 
+                                    (gs.mode === 'local' && ((gs.turn === 'w' && isW) || (gs.turn === 'b' && !isW)));
+                    if (canSelect) gs.sel = { row, col };
                 }
             }
             drawBoard();
