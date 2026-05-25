@@ -2,42 +2,106 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Multiplayer Simple</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>♔ Royal Chess Arena</title>
     <style>
-        body { background: #0a0a2e; color: white; font-family: sans-serif; padding: 20px; text-align: center; }
-        .btn { padding: 15px 30px; margin: 10px; border-radius: 25px; border: none; font-size: 16px; cursor: pointer; background: #ffd700; color: #000; font-weight: bold; }
-        .log { background: #111; padding: 15px; border-radius: 10px; margin: 15px 0; text-align: left; font-family: monospace; font-size: 11px; max-height: 250px; overflow-y: auto; }
-        input { padding: 10px; border-radius: 20px; border: 1px solid #ffd700; background: #222; color: white; text-align: center; margin: 5px; width: 200px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        html, body { width: 100%; height: 100%; overflow: hidden; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0a1a; display: flex; justify-content: center; align-items: center; }
+        .app-container { width: 100vw; height: 100vh; height: 100dvh; background: #0a0a2e; overflow: hidden; display: flex; flex-direction: column; max-width: 500px; margin: 0 auto; }
+        .screen { display: none; width: 100%; height: 100%; flex-direction: column; }
+        .screen.active { display: flex; }
+
+        .home-screen { align-items: center; justify-content: center; gap: 12px; padding: 20px; background: linear-gradient(180deg, #0a0a2e, #1a1a4e); }
+        .crown-icon { font-size: 60px; filter: drop-shadow(0 0 25px rgba(255,215,0,0.6)); }
+        .title { font-size: 28px; font-weight: 900; background: linear-gradient(45deg, #ffd700, #ffed4a, #daa520); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .btn { padding: 14px 30px; border: none; border-radius: 50px; font-size: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; width: 100%; max-width: 280px; }
+        .btn:active { transform: scale(0.95); }
+        .btn-play { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a1a2e; font-size: 20px; padding: 18px; box-shadow: 0 8px 25px rgba(255,140,0,0.5); }
+        .btn-secondary { background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,215,0,0.25); font-size: 13px; padding: 10px; }
+        input { width: 260px; padding: 14px; border-radius: 50px; border: 2px solid rgba(255,215,0,0.4); background: rgba(255,255,255,0.1); color: white; font-size: 16px; text-align: center; outline: none; }
+
+        .game-screen { display: flex; flex-direction: column; height: 100%; background: #0a0a1a; }
+        .game-header { display: flex; justify-content: space-between; padding: 8px; background: rgba(10,10,30,0.95); border-bottom: 1px solid rgba(255,215,0,0.2); }
+        .player-info { display: flex; align-items: center; gap: 6px; color: white; }
+        .player-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .player-dot.white { background: linear-gradient(135deg, #fff, #ccc); color: #000; }
+        .player-dot.black { background: linear-gradient(135deg, #333, #000); color: #fff; }
+        .player-name { font-size: 10px; color: #aaa; }
+        .timer { font-size: 20px; font-weight: 900; color: #ffd700; font-family: monospace; }
+        .turn-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .turn-dot.you { background: #44ff44; box-shadow: 0 0 10px #44ff44; }
+        .turn-dot.opp { background: #555; }
+        .board-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 5px; }
+        canvas { border-radius: 8px; box-shadow: 0 0 60px rgba(255,215,0,0.15); cursor: pointer; max-width: 100%; max-height: 100%; }
+        .game-footer { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: rgba(10,10,30,0.95); border-top: 1px solid rgba(255,215,0,0.2); }
+        .energy-bar-wrap { flex: 1; height: 14px; background: rgba(255,255,255,0.08); border-radius: 7px; overflow: hidden; }
+        .energy-bar { height: 100%; background: linear-gradient(90deg, #ff3333, #ffd700, #44ff44); transition: width 0.4s; }
+        .btn-back { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.2); color: #ffd700; padding: 8px 14px; border-radius: 18px; font-size: 11px; cursor: pointer; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal-box { background: linear-gradient(135deg, #1a1a3e, #2a2a5e); border: 2px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 20px; max-width: 380px; width: 90%; color: white; }
+        .modal-box h2 { color: #ffd700; text-align: center; margin-bottom: 15px; }
+        .room-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .room-name { color: #ffd700; font-weight: 700; }
+        .room-join { background: rgba(255,215,0,0.2); color: #ffd700; padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700; }
     </style>
 </head>
 <body>
-    <h2>🧪 Prueba de Sincronización</h2>
-    
-    <input type="text" id="myName" placeholder="Tu nombre" value="Jugador1">
-    <br>
-    <button class="btn" onclick="createGame()">🏠 CREAR PARTIDA</button>
-    <br>
-    <input type="text" id="gameId" placeholder="ID de partida">
-    <button class="btn" onclick="joinGame()">🔗 UNIRSE</button>
-    
-    <hr>
-    <p>Turno actual: <b id="turnDisplay">-</b></p>
-    <p>Mi color: <b id="colorDisplay">-</b></p>
-    <button class="btn" onclick="sendMove()" id="moveBtn" disabled>📤 ENVIAR MOVIMIENTO</button>
-    
-    <div class="log" id="log"></div>
+    <div class="app-container">
+        <div class="screen active" id="homeScreen">
+            <div class="home-screen">
+                <div class="crown-icon">👑</div>
+                <h1 class="title">ROYAL CHESS</h1>
+                <p style="color:#aaa;font-size:12px;">Play & Earn Arena</p>
+                <input type="text" id="nameInput" placeholder="Tu nombre" maxlength="15">
+                <button class="btn btn-play" onclick="playAI()">⚔️ PLAY NOW</button>
+                <button class="btn btn-secondary" onclick="playLocal()">👥 2 JUGADORES</button>
+                <button class="btn btn-secondary" onclick="openLobby()">🌐 MULTIJUGADOR</button>
+            </div>
+        </div>
+
+        <div class="screen" id="gameScreen">
+            <div class="game-screen">
+                <div class="game-header">
+                    <div class="player-info">
+                        <div class="player-dot white" id="topDot">⚪</div>
+                        <div><div class="player-name" id="topName">OPONENTE</div><div class="timer" id="topTimer">10:00</div></div>
+                        <div class="turn-dot opp" id="topTurn"></div>
+                    </div>
+                    <div class="player-info">
+                        <div class="player-dot white" id="bottomDot">⚪</div>
+                        <div><div class="player-name" id="bottomName">TÚ</div><div class="timer" id="bottomTimer">10:00</div></div>
+                        <div class="turn-dot you" id="bottomTurn"></div>
+                    </div>
+                </div>
+                <div class="board-container" id="boardContainer">
+                    <canvas id="chessCanvas"></canvas>
+                </div>
+                <div class="game-footer">
+                    <span style="color:#ffd700;font-size:10px;">⚡</span>
+                    <div class="energy-bar-wrap"><div class="energy-bar" id="energyBar" style="width:100%"></div></div>
+                    <button class="btn-back" onclick="goHome()">🏠</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="lobbyModal">
+        <div class="modal-box">
+            <h2>🌐 Salas</h2>
+            <button class="btn btn-secondary" onclick="createRoom()" style="margin-bottom:10px;">🏠 Crear Sala (Blancas)</button>
+            <div id="roomList" style="max-height:200px;overflow-y:auto;"></div>
+            <button class="btn-back" onclick="closeLobby()" style="width:100%;margin-top:10px;">CERRAR</button>
+        </div>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script>
-        function log(msg) {
-            const l = document.getElementById('log');
-            l.innerHTML += '<br>' + new Date().toLocaleTimeString().slice(0,8) + ': ' + msg;
-            l.scrollTop = l.scrollHeight;
-        }
 
-        // Firebase
+    <script>
+        // ============ FIREBASE ============
         firebase.initializeApp({
             apiKey: "AIzaSyDMu83hA5xjmwSlUX4KUgWkYlx6SqHcaAk",
             authDomain: "royal-chess-multiplayer.firebaseapp.com",
@@ -49,112 +113,292 @@
         });
         const db = firebase.database();
 
-        let myColor = null;
-        let currentGameId = null;
-        let moveCount = 0;
+        // ============ CHESS ENGINE ============
+        const chess = {
+            board: [],
+            init() { this.board = [['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']]; },
+            getPiece(r,c) { return this.board[r]?.[c]||''; },
+            isValid(fr,fc,tr,tc) {
+                const p=this.getPiece(fr,fc); if(!p)return false;
+                const tgt=this.getPiece(tr,tc); if(tgt&&((p===p.toUpperCase()&&tgt===tgt.toUpperCase())||(p===p.toLowerCase()&&tgt===tgt.toLowerCase())))return false;
+                const type=p.toLowerCase(),rd=tr-fr,cd=tc-fc,ard=Math.abs(rd),acd=Math.abs(cd);
+                const cp=(dr,dc)=>{const s=Math.max(Math.abs(dr),Math.abs(dc)),sr=dr===0?0:dr/Math.abs(dr),sc=dc===0?0:dc/Math.abs(dc);for(let i=1;i<s;i++)if(this.getPiece(fr+sr*i,fc+sc*i))return false;return true;};
+                switch(type){case'p':const d=p==='P'?-1:1,sr=p==='P'?6:1;if(cd===0&&!tgt){if(rd===d)return true;if(fr===sr&&rd===2*d&&!this.getPiece(fr+d,fc))return true;}return acd===1&&rd===d&&!!tgt;case'r':return(rd===0||cd===0)&&cp(rd,cd);case'n':return(ard===2&&acd===1)||(ard===1&&acd===2);case'b':return ard===acd&&cp(rd,cd);case'q':return(rd===0||cd===0||ard===acd)&&cp(rd,cd);case'k':return ard<=1&&acd<=1;}return false;
+            },
+            move(fr,fc,tr,tc){const p=this.getPiece(fr,fc),c=this.getPiece(tr,tc);this.board[tr][tc]=p;this.board[fr][fc]='';return{piece:p,captured:c};},
+            findKing(c){const k=c==='w'?'K':'k';for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++)if(this.board[r][cc]===k)return{row:r,col:cc};return null;},
+            inCheck(c){const k=this.findKing(c);if(!k)return false;for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++){const p=this.board[r][cc];if(p&&((c==='w'&&p===p.toLowerCase())||(c==='b'&&p===p.toUpperCase())))if(this.isValid(r,cc,k.row,k.col))return true;}return false;},
+            hasMoves(c){for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++){const p=this.board[r][cc];if((c==='w'&&p&&p===p.toUpperCase())||(c==='b'&&p&&p===p.toLowerCase()))for(let tr=0;tr<8;tr++)for(let tc=0;tc<8;tc++)if(this.isValid(r,cc,tr,tc)){const sv=this.board[tr][tc];this.board[tr][tc]=p;this.board[r][cc]='';if(!this.inCheck(c)){this.board[r][cc]=p;this.board[tr][tc]=sv;return true;}this.board[r][cc]=p;this.board[tr][tc]=sv;}}return false;},
+            aiMove(){const moves=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=this.board[r][c];if(p&&p===p.toLowerCase())for(let tr=0;tr<8;tr++)for(let tc=0;tc<8;tc++)if(this.isValid(r,c,tr,tc)){const sv=this.board[tr][tc];this.board[tr][tc]=p;this.board[r][c]='';if(!this.inCheck('b')){let sc=sv?(sv.toUpperCase()==='Q'?9:sv.toUpperCase()==='R'?5:'BN'.includes(sv.toUpperCase())?3:1):0;moves.push({fr:r,fc:c,tr,tc,score:sc});}this.board[r][c]=p;this.board[tr][tc]=sv;}}if(!moves.length)return null;moves.sort((a,b)=>b.score-a.score);return Math.random()<0.7?moves[0]:moves[Math.floor(Math.random()*Math.min(5,moves.length))];}
+        };
 
-        function createGame() {
-            const name = document.getElementById('myName').value || 'Jugador1';
-            const gid = 'game_' + Date.now();
-            
-            db.ref('games/' + gid).set({
-                white: name,
-                black: null,
-                turn: 'white',
-                moveCount: 0,
-                status: 'waiting'
-            }).then(() => {
-                currentGameId = gid;
-                myColor = 'white';
-                document.getElementById('gameId').value = gid;
-                document.getElementById('colorDisplay').textContent = '⚪ BLANCAS';
-                document.getElementById('turnDisplay').textContent = 'TU TURNO';
-                document.getElementById('moveBtn').disabled = false;
-                log('✅ Partida creada: ' + gid);
-                log('👤 Eres BLANCAS');
-                
-                // Escuchar cambios
-                db.ref('games/' + gid).on('value', (snap) => {
-                    const game = snap.val();
-                    if (!game) return;
-                    log('📩 Recibido - turno: ' + game.turn + ', miColor: ' + myColor + ', moveCount: ' + game.moveCount + ', miMoveCount: ' + moveCount);
-                    
-                    if (game.black && game.status === 'waiting') {
-                        log('👤 ¡Un oponente se unió!: ' + game.black);
-                    }
-                    
-                    // CORRECCIÓN: Es mi turno cuando game.turn === myColor
-                    if (game.turn === myColor && game.moveCount > moveCount) {
-                        moveCount = game.moveCount;
-                        document.getElementById('turnDisplay').textContent = 'TU TURNO';
-                        document.getElementById('moveBtn').disabled = false;
-                        log('🟢 Es tu turno ahora (moveCount=' + moveCount + ')');
-                    }
-                });
-            });
+        // ============ CANVAS ============
+        const canvas=document.getElementById('chessCanvas'),ctx=canvas.getContext('2d');
+        let B=0,S=0;
+        function resize(){const c=document.getElementById('boardContainer'),s=Math.floor(Math.min(c.clientWidth,c.clientHeight)*0.98);B=s;S=s/8;canvas.width=B;canvas.height=B;draw();}
+        const SYM={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
+        function draw(){
+            ctx.clearRect(0,0,B,B);
+            for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+                let dr=r,dc=c;if(gs.viewBlack){dr=7-r;dc=7-c;}
+                const x=dc*S,y=dr*S,light=(r+c)%2===0,g=ctx.createLinearGradient(x,y,x+S,y+S);
+                light?(g.addColorStop(0,'#f5deb3'),g.addColorStop(1,'#d2b48c')):(g.addColorStop(0,'#8b6914'),g.addColorStop(1,'#5c3d0e'));
+                ctx.fillStyle=g;ctx.fillRect(x,y,S,S);
+            }
+            if(gs.sel){
+                let r=gs.sel.row,c=gs.sel.col;if(gs.viewBlack){r=7-r;c=7-c;}
+                ctx.fillStyle='rgba(255,215,0,0.5)';ctx.fillRect(c*S,r*S,S,S);
+                ctx.strokeStyle='#ffd700';ctx.lineWidth=3;ctx.strokeRect(c*S+2,r*S+2,S-4,S-4);
+            }
+            for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+                const p=chess.getPiece(r,c);if(!p)continue;
+                let dr=r,dc=c;if(gs.viewBlack){dr=7-r;dc=7-c;}
+                const cx=dc*S+S/2,cy=dr*S+S/2,isW=p===p.toUpperCase(),R=S*0.4;
+                ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);
+                const g=ctx.createRadialGradient(cx-R*0.3,cy-R*0.3,R*0.05,cx,cy,R);
+                isW?(g.addColorStop(0,'#fff'),g.addColorStop(1,'#aaa')):(g.addColorStop(0,'#666'),g.addColorStop(1,'#000'));
+                ctx.fillStyle=g;ctx.fill();ctx.strokeStyle=isW?'#888':'#333';ctx.lineWidth=2;ctx.stroke();
+                ctx.fillStyle=isW?'#000':'#fff';ctx.font=`bold ${S*0.7}px Arial`;ctx.textAlign='center';ctx.textBaseline='middle';
+                ctx.fillText(SYM[p],cx,cy+2);
+            }
         }
 
-        function joinGame() {
-            const gid = document.getElementById('gameId').value.trim();
-            const name = document.getElementById('myName').value || 'Jugador2';
-            if (!gid) return alert('Ingresa un ID de partida');
+        // ============ GAME STATE ============
+        let gs={mode:'ai',sel:null,t1:600,t2:600,over:false,turn:'w',combo:0,energy:100,viewBlack:false};
+        let timer, myName='', myColor=null, oppName='', roomId=null, roomRef=null, moveCount=0;
+
+        function goHome(){clearInterval(timer);if(roomRef)roomRef.off();roomId=null;myColor=null;
+            document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+            document.getElementById('homeScreen').classList.add('active');}
+
+        function startTimers(){clearInterval(timer);timer=setInterval(()=>{if(gs.over)return;
+            if(gs.turn==='w'){gs.t1--;if(gs.t1<=0)endGame('time');}else{gs.t2--;if(gs.t2<=0)endGame('time');}
+            document.getElementById('bottomTimer').textContent=fmt(gs.t1);document.getElementById('topTimer').textContent=fmt(gs.t2);},1000);}
+        function fmt(s){return Math.floor(s/60)+':'+(s%60).toString().padStart(2,'0');}
+
+        function setupGame(){
+            document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+            document.getElementById('gameScreen').classList.add('active');
+            document.getElementById('energyBar').style.width=gs.energy+'%';
+            document.getElementById('bottomTimer').textContent=fmt(gs.t1);
+            document.getElementById('topTimer').textContent=fmt(gs.t2);
+            setTimeout(resize,50);setTimeout(resize,200);draw();startTimers();
+        }
+
+        function playAI(){
+            myName=document.getElementById('nameInput').value.trim()||'Jugador';
+            chess.init();gs={mode:'ai',sel:null,t1:600,t2:600,over:false,turn:'w',combo:0,energy:100,viewBlack:false};
+            document.getElementById('bottomName').textContent=myName+' ⚪';document.getElementById('bottomDot').className='player-dot white';document.getElementById('bottomDot').textContent='⚪';
+            document.getElementById('topName').textContent='IA ⚫';document.getElementById('topDot').className='player-dot black';document.getElementById('topDot').textContent='⚫';
+            document.getElementById('bottomTurn').className='turn-dot you';document.getElementById('topTurn').className='turn-dot opp';
+            setupGame();
+        }
+
+        function playLocal(){
+            myName=document.getElementById('nameInput').value.trim()||'J1';
+            chess.init();gs={mode:'local',sel:null,t1:600,t2:600,over:false,turn:'w',combo:0,energy:100,viewBlack:false};
+            document.getElementById('bottomName').textContent=myName+' ⚪';document.getElementById('bottomDot').className='player-dot white';document.getElementById('bottomDot').textContent='⚪';
+            document.getElementById('topName').textContent='J2 ⚫';document.getElementById('topDot').className='player-dot black';document.getElementById('topDot').textContent='⚫';
+            document.getElementById('bottomTurn').className='turn-dot you';document.getElementById('topTurn').className='turn-dot opp';
+            setupGame();
+        }
+
+        function endGame(reason){
+            gs.over=true;clearInterval(timer);
+            let msg=reason==='checkmate'?'🏆 JAQUE MATE!':reason==='time'?'⏰ TIEMPO!':'🤝 TABLAS!';
+            alert(msg);setTimeout(goHome,2000);
+        }
+
+        function makeMove(fr,fc,tr,tc){
+            chess.move(fr,fc,tr,tc);
+            gs.energy=Math.max(0,gs.energy-2);
+            document.getElementById('energyBar').style.width=gs.energy+'%';
             
-            db.ref('games/' + gid).once('value', (snap) => {
-                const game = snap.val();
-                if (!game) return alert('Partida no encontrada');
-                if (game.black) return alert('Partida llena');
-                
-                db.ref('games/' + gid).update({
-                    black: name,
-                    status: 'playing'
-                }).then(() => {
-                    currentGameId = gid;
-                    myColor = 'black';
-                    moveCount = game.moveCount;
-                    document.getElementById('colorDisplay').textContent = '⚫ NEGRAS';
-                    document.getElementById('turnDisplay').textContent = 'ESPERANDO...';
-                    document.getElementById('moveBtn').disabled = true;
-                    log('✅ Unido a partida: ' + gid);
-                    log('👤 Eres NEGRAS');
-                    log('📊 MoveCount inicial: ' + moveCount);
-                    
-                    // Escuchar cambios
-                    db.ref('games/' + gid).on('value', (snap) => {
-                        const game = snap.val();
-                        if (!game) return;
-                        log('📩 Recibido - turno: ' + game.turn + ', miColor: ' + myColor + ', moveCount: ' + game.moveCount + ', miMoveCount: ' + moveCount);
-                        
-                        // CORRECCIÓN: Es mi turno cuando game.turn === myColor
-                        if (game.turn === myColor && game.moveCount > moveCount) {
-                            moveCount = game.moveCount;
-                            document.getElementById('turnDisplay').textContent = 'TU TURNO';
-                            document.getElementById('moveBtn').disabled = false;
-                            log('🟢 Es tu turno ahora (moveCount=' + moveCount + ')');
+            const opp=gs.turn==='w'?'b':'w';
+            if(chess.inCheck(opp)&&!chess.hasMoves(opp)){endGame('checkmate');return;}
+            if(!chess.inCheck(opp)&&!chess.hasMoves(opp)){endGame('stalemate');return;}
+            
+            if(gs.mode==='multi'){
+                moveCount++;
+                const nextTurn = gs.turn==='w'?'b':'w';
+                db.ref('rooms/'+roomId).update({
+                    board:JSON.stringify(chess.board),
+                    turn:nextTurn,
+                    moveCount:moveCount
+                });
+            }
+        }
+
+        function getSquare(e){
+            const r=canvas.getBoundingClientRect(),sx=B/r.width,sy=B/r.height;
+            let c=Math.floor((e.clientX-r.left)*sx/S),row=Math.floor((e.clientY-r.top)*sy/S);
+            if(gs.viewBlack){row=7-row;c=7-c;}
+            return(row>=0&&row<8&&c>=0&&c<8)?{row,col:c}:null;
+        }
+
+        function click(row,col){
+            if(gs.over)return;
+            if(gs.mode==='ai'&&gs.turn!=='w')return;
+            if(gs.mode==='multi'){
+                const mt=(myColor==='w'&&gs.turn==='w')||(myColor==='b'&&gs.turn==='b');
+                if(!mt)return;
+            }
+
+            if(gs.sel){
+                const{row:fr,col:fc}=gs.sel;
+                if(fr===row&&fc===col){gs.sel=null;draw();return;}
+                if(chess.isValid(fr,fc,row,col)){
+                    const p=chess.getPiece(fr,fc),sv=chess.board[row][col];
+                    chess.board[row][col]=p;chess.board[fr][fc]='';
+                    if(!chess.inCheck(gs.turn)){
+                        makeMove(fr,fc,row,col);
+                        gs.sel=null;
+                        gs.turn=gs.turn==='w'?'b':'w';
+                        updateTurns();
+                        draw();
+                        if(gs.mode==='ai'&&gs.turn==='b'&&!gs.over){
+                            setTimeout(()=>{
+                                const m=chess.aiMove();
+                                if(m){
+                                    makeMove(m.fr,m.fc,m.tr,m.tc);
+                                    gs.turn='w';
+                                    gs.energy=Math.min(100,gs.energy+5);
+                                    document.getElementById('energyBar').style.width=gs.energy+'%';
+                                }
+                                updateTurns();
+                                draw();
+                            },400);
                         }
-                    });
+                    }else{
+                        chess.board[fr][fc]=p;chess.board[row][col]=sv;
+                        gs.sel=null;draw();
+                    }
+                }else{gs.sel=null;draw();}
+            }else{
+                const p=chess.getPiece(row,col);
+                if(p){
+                    const isW=p===p.toUpperCase();
+                    let ok=false;
+                    if(gs.mode==='ai')ok=isW;
+                    else if(gs.mode==='multi')ok=(myColor==='w'&&isW)||(myColor==='b'&&!isW);
+                    else ok=(gs.turn==='w'&&isW)||(gs.turn==='b'&&!isW);
+                    if(ok)gs.sel={row,col};
+                }
+            }
+            draw();
+        }
+
+        function updateTurns(){
+            const mt=(gs.mode==='multi')?((myColor==='w'&&gs.turn==='w')||(myColor==='b'&&gs.turn==='b')):(gs.turn==='w');
+            document.getElementById('bottomTurn').className=mt?'turn-dot you':'turn-dot opp';
+            document.getElementById('topTurn').className=mt?'turn-dot opp':'turn-dot you';
+        }
+
+        canvas.addEventListener('click',e=>{const s=getSquare(e);if(s)click(s.row,s.col);});
+        canvas.addEventListener('touchstart',e=>{e.preventDefault();const s=getSquare(e.touches[0]);if(s)click(s.row,s.col);},{passive:false});
+
+        // ============ MULTIJUGADOR (LÓGICA PROBADA) ============
+        function openLobby(){
+            myName=document.getElementById('nameInput').value.trim()||'Jugador';
+            document.getElementById('lobbyModal').classList.add('active');loadRooms();
+            if(window.li)clearInterval(window.li);window.li=setInterval(loadRooms,2000);
+        }
+        function closeLobby(){document.getElementById('lobbyModal').classList.remove('active');if(window.li)clearInterval(window.li);}
+
+        function loadRooms(){
+            db.ref('rooms').once('value',(snap)=>{
+                const rooms=snap.val(),c=document.getElementById('roomList');
+                if(!rooms){c.innerHTML='<p style="color:#888;">No hay salas</p>';return;}
+                let h='';Object.entries(rooms).forEach(([id,r])=>{
+                    if(r.status==='waiting')h+=`<div class="room-card"><div class="room-name">⚪ ${r.white}</div><button class="room-join" onclick="joinRoom('${id}')">UNIRSE</button></div>`;
+                });
+                c.innerHTML=h||'<p style="color:#888;">No hay salas</p>';
+            });
+        }
+
+        function createRoom(){
+            const rid='room_'+Date.now();
+            chess.init();
+            moveCount = 0;
+            
+            db.ref('rooms/'+rid).set({
+                white:myName,
+                black:null,
+                board:JSON.stringify(chess.board),
+                turn:'w',
+                moveCount:0,
+                status:'waiting'
+            }).then(()=>{
+                roomId=rid;myColor='w';closeLobby();
+                alert('✅ Sala creada. Esperando oponente...\n\nID: '+rid);
+                
+                roomRef=db.ref('rooms/'+rid);
+                roomRef.on('value',(snap)=>{
+                    const r=snap.val();if(!r)return;
+                    if(r.status==='playing'&&r.black){
+                        oppName=r.black;
+                        roomRef.off();
+                        startMulti(rid);
+                    }
                 });
             });
         }
 
-        function sendMove() {
-            if (!currentGameId) return;
-            
-            moveCount++;
-            const nextTurn = myColor === 'white' ? 'black' : 'white';
-            
-            log('📤 Enviando movimiento - nuevo turno: ' + nextTurn + ', moveCount: ' + moveCount);
-            
-            db.ref('games/' + currentGameId).update({
-                turn: nextTurn,
-                moveCount: moveCount
-            }).then(() => {
-                document.getElementById('turnDisplay').textContent = 'ESPERANDO...';
-                document.getElementById('moveBtn').disabled = true;
-                log('✅ Movimiento enviado');
-            }).catch((err) => {
-                log('❌ Error: ' + err.message);
+        function joinRoom(rid){
+            db.ref('rooms/'+rid).once('value',(snap)=>{
+                const r=snap.val();if(!r||r.black){alert('Sala no disponible');return;}
+                
+                db.ref('rooms/'+rid).update({black:myName,status:'playing'}).then(()=>{
+                    roomId=rid;myColor='b';oppName=r.white;closeLobby();
+                    if(r.board)chess.board=JSON.parse(r.board);
+                    moveCount = r.moveCount || 0;
+                    startMulti(rid);
+                });
             });
         }
+
+        function startMulti(rid){
+            gs={mode:'multi',sel:null,t1:600,t2:600,over:false,turn:'w',combo:0,energy:100,viewBlack:myColor==='b'};
+            
+            if(myColor==='w'){
+                document.getElementById('bottomName').textContent=myName+' ⚪';
+                document.getElementById('bottomDot').className='player-dot white';document.getElementById('bottomDot').textContent='⚪';
+                document.getElementById('topName').textContent=oppName+' ⚫';
+                document.getElementById('topDot').className='player-dot black';document.getElementById('topDot').textContent='⚫';
+            }else{
+                document.getElementById('bottomName').textContent=myName+' ⚫';
+                document.getElementById('bottomDot').className='player-dot black';document.getElementById('bottomDot').textContent='⚫';
+                document.getElementById('topName').textContent=oppName+' ⚪';
+                document.getElementById('topDot').className='player-dot white';document.getElementById('topDot').textContent='⚪';
+            }
+            
+            updateTurns();
+            setupGame();
+            
+            if(roomRef)roomRef.off();
+            roomRef=db.ref('rooms/'+rid);
+            roomRef.on('value',(snap)=>{
+                const r=snap.val();
+                if(!r||gs.over)return;
+                
+                // CORRECCIÓN: Es mi turno cuando turn === myColor Y moveCount aumentó
+                if(r.turn === myColor && r.moveCount > moveCount){
+                    moveCount = r.moveCount;
+                    if(r.board) chess.board = JSON.parse(r.board);
+                    gs.turn = r.turn;
+                    updateTurns();
+                    draw();
+                }
+                
+                if(r.status==='finished'){
+                    gs.over=true;clearInterval(timer);
+                    alert(r.winner===myColor?'🏆 ¡Ganaste!':'💀 Perdiste');
+                    roomRef.off();goHome();
+                }
+            });
+        }
+
+        window.addEventListener('resize',()=>{if(document.getElementById('gameScreen').classList.contains('active'))setTimeout(resize,150);});
     </script>
 </body>
 </html>
