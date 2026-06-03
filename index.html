@@ -51,7 +51,15 @@
         #academyMessage { position: absolute; top: 10px; background: rgba(0,0,0,0.9); color: #44ff44; padding: 10px; border-radius: 8px; border: 1px solid #44ff44; font-size: 13px; text-align: center; width: 90%; z-index: 10; display: none; }
         .trivia-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,215,0,0.5); padding: 10px; border-radius: 8px; color: white; cursor: pointer; text-align: left; transition: background 0.2s; margin-bottom: 5px; }
         .trivia-btn:active { background: rgba(255,215,0,0.3); }
-        .rank-item { background: rgba(255,255,255,0.1); padding: 10px; margin: 5px 0; border-radius: 10px; display: flex; justify-content: space-between; }
+        .rank-item { 
+            background: rgba(255,255,255,0.1); 
+            padding: 10px; 
+            margin: 5px 0; 
+            border-radius: 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -130,7 +138,6 @@
         <div class="modal-box"><h2 style="color:#ffd700;text-align:center">🌐 Salas Activas</h2><button class="btn btn-secondary" onclick="createRoom()" style="margin-bottom:10px;width:100%">🏠 Crear Sala de Juego</button><div id="roomList" style="max-height:200px;overflow-y:auto"></div><button class="btn-back" onclick="closeLobby()" style="width:100%;margin-top:10px">CERRAR</button></div>
     </div>
 
-    <!-- MODAL DE RESULTADO -->
     <div class="modal" id="resultModal">
         <div class="modal-box" style="text-align:center;">
             <h2 id="resultTitle" style="font-size:28px; margin-bottom:10px;"></h2>
@@ -195,6 +202,8 @@
         // ============ FIREBASE ============
         firebase.initializeApp({ apiKey: "AIzaSyDMu83hA5xjmwSlUX4KUgWkYlx6SqHcaAk", databaseURL: "https://royal-chess-multiplayer-default-rtdb.firebaseio.com" });
         const db = firebase.database();
+        let rankingListener = null;
+
         db.ref('users/' + userProfile.id).once('value', (snap) => {
             if (snap.exists()) userProfile.points = snap.val().points || 0;
             else db.ref('users/' + userProfile.id).set({ name: userProfile.name, points: 0 });
@@ -421,8 +430,25 @@
         }
 
         // ============ NAVEGACIÓN ============
-        function showScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id==='gameScreen') resize(); }
-        function goHome() { gs.over = true; document.getElementById('academyMessage').style.display = 'none'; showScreen('homeScreen'); }
+        function showScreen(id) { 
+            document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); 
+            document.getElementById(id).classList.add('active'); 
+            if(id==='gameScreen') resize(); 
+            // Desconectar listener de ranking si salimos de la pantalla de ranking
+            if(id !== 'rankingScreen' && rankingListener) {
+                db.ref('users').off('value', rankingListener);
+                rankingListener = null;
+            }
+        }
+        function goHome() { 
+            gs.over = true; 
+            document.getElementById('academyMessage').style.display = 'none'; 
+            if (rankingListener) {
+                db.ref('users').off('value', rankingListener);
+                rankingListener = null;
+            }
+            showScreen('homeScreen'); 
+        }
         function openSettings() { showScreen('settingsScreen'); }
         function playAI() { gs.mode='ai'; gs.roomId=null; gs.viewBlack=false; gs.turn='w'; gs.over=false; chess.init(); document.getElementById('topName').innerText="BOT (IA) ⚫"; document.getElementById('bottomName').innerText=userProfile.name+" ⚪"; updateTurns(); showScreen('gameScreen'); }
         function playLocal() { gs.mode='local'; gs.roomId=null; gs.viewBlack=false; gs.turn='w'; gs.over=false; chess.init(); document.getElementById('topName').innerText="RIVAL LOCAL"; document.getElementById('bottomName').innerText=userProfile.name+" (Blancas)"; updateTurns(); showScreen('gameScreen'); }
@@ -437,8 +463,27 @@
         function enterAcademyBoard() { gs.mode='academy'; gs.viewBlack=false; gs.lessonStep=0; chess.init(); document.getElementById('topName').innerText="TUTOR"; document.getElementById('bottomName').innerText="ESTUDIANTE"; showScreen('gameScreen'); document.getElementById('academyMessage').style.display='block'; updateAcademyMessage(); draw(); }
         function updateAcademyMessage() { const step=academyData[gs.lessonId].steps[gs.lessonStep]; if(step) document.getElementById('academyMessage').innerText=step.msg; }
 
-        // ============ RANKING ============
-        function showRanking() { showScreen('rankingScreen'); const list=document.getElementById('rankingList'); list.innerHTML='Cargando...'; db.ref('users').orderByChild('points').limitToLast(10).once('value',snap=>{ list.innerHTML=''; const users=[]; snap.forEach(child=>users.push({name:child.val().name,points:child.val().points})); users.reverse().forEach((u,i)=>{ list.innerHTML+=`<div class="rank-item"><span>${i+1}. ${u.name}</span><span>${u.points} pts</span></div>`; }); if(users.length===0) list.innerHTML='<p style="color:#888">No hay jugadores aún.</p>'; }); }
+        // ============ RANKING EN TIEMPO REAL ============
+        function showRanking() {
+            showScreen('rankingScreen');
+            const list = document.getElementById('rankingList');
+            list.innerHTML = 'Cargando...';
+
+            if (rankingListener) db.ref('users').off('value', rankingListener);
+
+            rankingListener = db.ref('users').orderByChild('points').limitToLast(10).on('value', snap => {
+                list.innerHTML = '';
+                const users = [];
+                snap.forEach(child => {
+                    users.push({ name: child.val().name || 'Jugador', points: child.val().points || 0 });
+                });
+                users.sort((a, b) => b.points - a.points);
+                users.forEach((u, i) => {
+                    list.innerHTML += `<div class="rank-item"><span>${i+1}. ${u.name}</span><span>${u.points} pts</span></div>`;
+                });
+                if (users.length === 0) list.innerHTML = '<p style="color:#888;">No hay jugadores aún.</p>';
+            });
+        }
 
         // ============ MULTIJUGADOR ============
         function openLobby() { document.getElementById('lobbyModal').classList.add('active'); db.ref('rooms').on('value', snap=>{ const list=document.getElementById('roomList'); list.innerHTML=''; snap.forEach(child=>{ const room=child.val(); if(room.status==='waiting') list.innerHTML+=`<div class="room-card"><span class="room-name">Sala de ${room.white}</span><button class="btn-secondary" onclick="joinRoom('${child.key}')">UNIRSE</button></div>`; }); }); }
