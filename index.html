@@ -235,7 +235,7 @@
         };
 
         // ============ ESTADO GLOBAL ============
-        const gs = { mode:'ai', roomId:null, role:'w', viewBlack:false, turn:'w', sel:null, lessonId:null, lessonStep:0, currentTriviaIndex:0, over:false, gameResult:null };
+        const gs = { mode:'ai', roomId:null, role:'w', viewBlack:false, turn:'w', sel:null, lessonId:null, lessonStep:0, currentTriviaIndex:0, over:false, gameResult:null, academyLock:false };
 
         // ============ MOTOR AJEDREZ ============
         const chess = {
@@ -362,7 +362,8 @@
 
         // ============ CLICK Y JUEGO ============
         canvas.addEventListener('click', (e) => {
-            if (gs.over || (gs.mode === 'multi' && gs.roomId && gs.turn !== gs.role)) return;
+            if (gs.over || gs.academyLock) return;
+            if (gs.mode === 'multi' && gs.roomId && gs.turn !== gs.role) return;
             if (gs.mode === 'ai' && gs.turn !== 'w') return;
 
             const rect = canvas.getBoundingClientRect();
@@ -381,10 +382,13 @@
                             addPoints(10);
                             setTimeout(goHome, 3000);
                         } else {
+                            gs.academyLock = true; // Bloquear clics durante la animación
                             setTimeout(() => {
                                 chess.move(step.opp.fr, step.opp.fc, step.opp.tr, step.opp.tc);
                                 gs.lessonStep++;
+                                gs.turn = 'w'; // Restablecer turno del estudiante
                                 updateAcademyMessage();
+                                gs.academyLock = false;
                                 draw();
                             }, 800);
                         }
@@ -418,7 +422,12 @@
                     else gs.sel = null;
                 }
             } else {
-                if (p && ((gs.turn === 'w' && p === p.toUpperCase()) || (gs.turn === 'b' && p === p.toLowerCase()))) gs.sel = {row:r, col:c};
+                // En academia, permitir seleccionar cualquier pieza blanca sin importar turno
+                if (gs.mode === 'academy') {
+                    if (p && p === p.toUpperCase()) gs.sel = {row:r, col:c};
+                } else {
+                    if (p && ((gs.turn === 'w' && p === p.toUpperCase()) || (gs.turn === 'b' && p === p.toLowerCase()))) gs.sel = {row:r, col:c};
+                }
             }
             draw();
         });
@@ -434,7 +443,6 @@
             document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); 
             document.getElementById(id).classList.add('active'); 
             if(id==='gameScreen') resize(); 
-            // Desconectar listener de ranking si salimos de la pantalla de ranking
             if(id !== 'rankingScreen' && rankingListener) {
                 db.ref('users').off('value', rankingListener);
                 rankingListener = null;
@@ -453,14 +461,27 @@
         function playAI() { gs.mode='ai'; gs.roomId=null; gs.viewBlack=false; gs.turn='w'; gs.over=false; chess.init(); document.getElementById('topName').innerText="BOT (IA) ⚫"; document.getElementById('bottomName').innerText=userProfile.name+" ⚪"; updateTurns(); showScreen('gameScreen'); }
         function playLocal() { gs.mode='local'; gs.roomId=null; gs.viewBlack=false; gs.turn='w'; gs.over=false; chess.init(); document.getElementById('topName').innerText="RIVAL LOCAL"; document.getElementById('bottomName').innerText=userProfile.name+" (Blancas)"; updateTurns(); showScreen('gameScreen'); }
 
-        // ============ ACADEMIA INTERACTIVA ============
+        // ============ ACADEMIA INTERACTIVA (CORREGIDA) ============
         const lessons = [{ id:'mate_pastor', name:'💥 El Mate del Pastor', desc:'Supera la trivia y domina la apertura.' }];
         function openAcademy() { showScreen('academyScreen'); document.getElementById('lessonsContainer').innerHTML = lessons.map(l=>`<div class="room-card" onclick="startLesson('${l.id}')" style="flex-direction:column;align-items:flex-start"><div style="font-weight:700;color:#ffd700">${l.name}</div><div style="font-size:12px;color:#bbb;margin-top:5px">${l.desc}</div></div>`).join(''); }
         function startLesson(id) { gs.lessonId=id; gs.currentTriviaIndex=0; document.getElementById('triviaTitle').innerText=academyData[id].title; showTriviaQuestion(); document.getElementById('triviaModal').classList.add('active'); }
         function closeTrivia() { document.getElementById('triviaModal').classList.remove('active'); }
         function showTriviaQuestion() { const t=academyData[gs.lessonId].trivia[gs.currentTriviaIndex]; document.getElementById('triviaQuestion').innerText=t.q; const optsDiv=document.getElementById('triviaOptions'); optsDiv.innerHTML=''; t.opts.forEach((opt,idx)=>{ optsDiv.innerHTML+=`<button class="trivia-btn" onclick="checkTrivia(${idx})">${opt}</button>`; }); }
         function checkTrivia(idx) { const t=academyData[gs.lessonId].trivia[gs.currentTriviaIndex]; if(idx===t.ans){ gs.currentTriviaIndex++; if(gs.currentTriviaIndex<academyData[gs.lessonId].trivia.length) showTriviaQuestion(); else{ closeTrivia(); enterAcademyBoard(); } } else alert("Respuesta incorrecta. ¡Intenta de nuevo!"); }
-        function enterAcademyBoard() { gs.mode='academy'; gs.viewBlack=false; gs.lessonStep=0; chess.init(); document.getElementById('topName').innerText="TUTOR"; document.getElementById('bottomName').innerText="ESTUDIANTE"; showScreen('gameScreen'); document.getElementById('academyMessage').style.display='block'; updateAcademyMessage(); draw(); }
+        function enterAcademyBoard() { 
+            gs.mode='academy'; 
+            gs.viewBlack=false; 
+            gs.lessonStep=0; 
+            gs.turn='w'; 
+            gs.academyLock = false;
+            chess.init(); 
+            document.getElementById('topName').innerText="TUTOR"; 
+            document.getElementById('bottomName').innerText="ESTUDIANTE"; 
+            showScreen('gameScreen'); 
+            document.getElementById('academyMessage').style.display='block'; 
+            updateAcademyMessage(); 
+            draw(); 
+        }
         function updateAcademyMessage() { const step=academyData[gs.lessonId].steps[gs.lessonStep]; if(step) document.getElementById('academyMessage').innerText=step.msg; }
 
         // ============ RANKING EN TIEMPO REAL ============
