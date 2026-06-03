@@ -16,7 +16,9 @@
         /* FONDOS */
         .home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 20px; width: 100%; height: 100%; text-align: center; background: linear-gradient(180deg, rgba(10,10,46,0.65), rgba(26,26,78,0.8)), url('1779421764793.png') center center / cover no-repeat; }
         .game-screen { display: flex; flex-direction: column; height: 100%; background: linear-gradient(180deg, rgba(10,10,26,0.5), rgba(10,10,26,0.7)), url('1779422040370.png') center center / cover no-repeat; }
-        
+        .academy-screen { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 40px 20px; width: 100%; height: 100%; text-align: center; background: linear-gradient(180deg, rgba(10,10,46,0.7), rgba(26,26,78,0.9)); overflow-y: auto; }
+        .ranking-screen { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 40px 20px; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(10,10,46,0.7), rgba(26,26,78,0.9)); overflow-y: auto; }
+
         .crown-icon { font-size: 50px; filter: drop-shadow(0 0 25px rgba(255,215,0,0.6)); }
         .title { font-size: 28px; font-weight: 900; background: linear-gradient(45deg, #ffd700, #ffed4a, #daa520); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
@@ -44,7 +46,7 @@
         .modal-box { background: linear-gradient(135deg, #16163e, #2a2a5e); border: 2px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 20px; max-width: 380px; width: 90%; color: white; }
         .room-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .locked-card { opacity: 0.5; cursor: not-allowed; }
-        
+
         .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .toggle-btn { background: #555; width: 50px; height: 26px; border-radius: 13px; position: relative; cursor: pointer; transition: 0.3s; }
         .toggle-btn.on { background: #44ff44; }
@@ -52,6 +54,8 @@
         .toggle-btn.on .toggle-circle { left: 26px; }
 
         #academyMessage { position: absolute; top: 10px; background: rgba(0,0,0,0.9); color: #44ff44; padding: 10px; border-radius: 8px; border: 1px solid #44ff44; font-size: 13px; text-align: center; width: 90%; z-index: 10; display: none; }
+
+        .rank-item { background: rgba(255,255,255,0.1); padding: 10px; margin: 5px 0; border-radius: 10px; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body>
@@ -69,6 +73,7 @@
                 <button class="btn btn-play" onclick="playAI()">🤖 JUGAR VS IA</button>
                 <button class="btn btn-secondary" onclick="openLobby()">🌐 MULTIJUGADOR</button>
                 <button class="btn btn-secondary" onclick="openAcademy()">🧠 ACADEMIA TUTOR</button>
+                <button class="btn btn-secondary" onclick="showRanking()">🏆 RANKING</button>
                 <button class="btn btn-secondary" onclick="openSettings()">⚙️ CONFIGURACIÓN</button>
             </div>
         </div>
@@ -113,9 +118,17 @@
         </div>
 
         <div class="screen" id="academyScreen">
-            <div class="home-screen" style="justify-content: flex-start; padding-top: 40px;">
+            <div class="academy-screen">
                 <div class="crown-icon">🧠</div><h1 class="title">ACADEMIA</h1>
-                <div id="lessonsContainer" style="width:100%; display:flex; flex-direction:column; gap:8px;"></div>
+                <div id="lessonsContainer" style="width:100%; display:flex; flex-direction:column; gap:8px; margin-top:20px;"></div>
+                <button class="btn btn-secondary" onclick="goHome()" style="margin-top: auto; margin-bottom: 20px;">🏠 VOLVER</button>
+            </div>
+        </div>
+
+        <div class="screen" id="rankingScreen">
+            <div class="ranking-screen">
+                <h1 class="title">🏆 TOP JUGADORES</h1>
+                <div id="rankingList" style="width:100%; max-width:350px; margin-top:20px;"></div>
                 <button class="btn btn-secondary" onclick="goHome()" style="margin-top: auto; margin-bottom: 20px;">🏠 VOLVER</button>
             </div>
         </div>
@@ -142,7 +155,7 @@
             userProfile.name = tg.initDataUnsafe.user.first_name;
         }
 
-        // ============ SISTEMA DE AUDIO (AUDIO MANAGER) ============
+        // ============ SISTEMA DE AUDIO ============
         const audioSys = {
             sfxOn: true,
             bgmOn: false,
@@ -173,7 +186,6 @@
             }
         }
 
-        // Detectar clicks en botones para sonido global
         document.body.addEventListener('click', (e) => {
             if(e.target.closest('button') || e.target.closest('.room-card')) playSound('click');
         });
@@ -229,7 +241,7 @@
             }
         };
 
-        // ============ RENDERIZADO (TUS PIEZAS ORIGINALES) ============
+        // ============ RENDERIZADO ============
         const canvas=document.getElementById('chessCanvas'), ctx=canvas.getContext('2d');
         let B=0, S=0;
         function resize(){const c=document.getElementById('boardContainer'); B=Math.floor(Math.min(c.clientWidth,c.clientHeight)*0.98); S=B/8; canvas.width=B; canvas.height=B; draw();}
@@ -237,43 +249,34 @@
 
         function draw(){
             ctx.clearRect(0,0,B,B);
-            
-            // 1. Tablero Base
             for(let r=0;r<8;r++)for(let c=0;c<8;c++){
                 let dr=r,dc=c;if(gs.viewBlack){dr=7-r;dc=7-c;}
                 const x=dc*S,y=dr*S,light=(r+c)%2===0,g=ctx.createLinearGradient(x,y,x+S,y+S);
                 light?(g.addColorStop(0,'#f5deb3'),g.addColorStop(1,'#d2b48c')):(g.addColorStop(0,'#8b6914'),g.addColorStop(1,'#5c3d0e'));
                 ctx.fillStyle=g;ctx.fillRect(x,y,S,S);
-
                 ctx.font = `bold ${S*0.18}px sans-serif`; ctx.fillStyle = light ? '#5c3d0e' : '#f5deb3';
                 if(dc === 0) { ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(gs.viewBlack ? dr+1 : 8-dr, x + 4, y + 4); }
                 if(dr === 7) { ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'; ctx.fillText(String.fromCharCode(97 + (gs.viewBlack ? 7-dc : dc)), x + S - 4, y + S - 4); }
             }
-
-            // 2. Selección
             if(gs.sel){
                 let r=gs.sel.row,c=gs.sel.col;if(gs.viewBlack){r=7-r;c=7-c;}
                 ctx.fillStyle='rgba(255,215,0,0.4)';ctx.fillRect(c*S,r*S,S,S);
                 ctx.strokeStyle='#ffd700';ctx.lineWidth=3;ctx.strokeRect(c*S+2,r*S+2,S-4,S-4);
             }
-
-            // 3. Tus Piezas Originales Circulares
             for(let r=0;r<8;r++)for(let c=0;c<8;c++){
                 const p=chess.getPiece(r,c);if(!p)continue;
                 let dr=r,dc=c;if(gs.viewBlack){dr=7-r;dc=7-c;}
                 const cx=dc*S+S/2,cy=dr*S+S/2,isW=p===p.toUpperCase(),R=S*0.4;
-                
                 ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);
                 const g=ctx.createRadialGradient(cx-R*0.3,cy-R*0.3,R*0.05,cx,cy,R);
                 isW?(g.addColorStop(0,'#fff'),g.addColorStop(1,'#aaa')):(g.addColorStop(0,'#666'),g.addColorStop(1,'#000'));
                 ctx.fillStyle=g;ctx.fill();ctx.strokeStyle=isW?'#888':'#333';ctx.lineWidth=2;ctx.stroke();
-                
                 ctx.fillStyle=isW?'#000':'#fff';ctx.font=`bold ${S*0.7}px Arial`;ctx.textAlign='center';ctx.textBaseline='middle';
                 ctx.fillText(SYM[p],cx,cy+2);
             }
         }
 
-        // ============ CLICK Y LÓGICA DE JUEGO ============
+        // ============ CLICK Y JUEGO ============
         canvas.addEventListener('click', (e) => {
             if (gs.over || (gs.mode === 'multi' && gs.roomId && gs.turn !== gs.role)) return;
             if (gs.mode === 'ai' && gs.turn !== 'w') return;
@@ -309,12 +312,60 @@
             draw();
         });
 
-        // ============ NAVEGACIÓN Y MENÚS ============
+        // ============ NAVEGACIÓN ============
         function showScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id==='gameScreen') resize(); }
         function goHome() { gs.over = true; showScreen('homeScreen'); }
         function openSettings() { showScreen('settingsScreen'); }
         function playAI() { gs.mode = 'ai'; gs.roomId = null; gs.viewBlack = false; gs.turn = 'w'; gs.over = false; chess.init(); document.getElementById('topName').innerText="BOT (IA) ⚫"; document.getElementById('bottomName').innerText=userProfile.name + " ⚪"; showScreen('gameScreen'); }
-        
+
+        // ============ ACADEMIA ============
+        const lessons = [
+            { name: 'Mate Pastor', points: 5, desc: 'Aprende el mate más rápido: 1.e4 e5 2.Ac4 Cc6 3.Dh5 Cf6 4.Dxf7#' },
+            { name: 'Enroque', points: 5, desc: 'Protege a tu rey moviéndolo dos casillas hacia la torre.' },
+            { name: 'Tenedor Real', points: 5, desc: 'Ataca dos piezas mayores simultáneamente con un caballo.' }
+        ];
+
+        function openAcademy() {
+            showScreen('academyScreen');
+            const container = document.getElementById('lessonsContainer');
+            container.innerHTML = lessons.map((l, i) => 
+                `<div class="room-card" onclick="startLesson(${i})" style="cursor:pointer;">
+                    <span>📖 ${l.name} (+${l.points} pts)</span>
+                    <span style="color:#aaa; font-size:12px;">▶</span>
+                </div>`
+            ).join('');
+        }
+
+        function startLesson(index) {
+            const lesson = lessons[index];
+            if (!lesson) return;
+            // Mostrar mensaje y sumar puntos
+            alert(`🧠 ${lesson.name}\n\n${lesson.desc}\n\n¡Lección completada! +${lesson.points} puntos.`);
+            // Sumar puntos y actualizar Firebase
+            userProfile.points += lesson.points;
+            document.getElementById('tgPoints').innerText = userProfile.points;
+            db.ref('users/' + userProfile.id).update({ points: userProfile.points });
+            playSound('click');
+            goHome();
+        }
+
+        // ============ RANKING ============
+        function showRanking() {
+            showScreen('rankingScreen');
+            const list = document.getElementById('rankingList');
+            list.innerHTML = 'Cargando...';
+            db.ref('users').orderByChild('points').limitToLast(10).once('value', snap => {
+                list.innerHTML = '';
+                const users = [];
+                snap.forEach(child => users.push({ name: child.val().name, points: child.val().points }));
+                users.reverse().forEach((u, i) => {
+                    list.innerHTML += `<div class="rank-item"><span>${i+1}. ${u.name}</span><span>${u.points} pts</span></div>`;
+                });
+                if (users.length === 0) list.innerHTML = '<p style="color:#888;">No hay jugadores aún.</p>';
+            });
+        }
+
+        // ============ MULTIJUGADOR ============
         function openLobby() { document.getElementById('lobbyModal').classList.add('active'); db.ref('rooms').on('value', snap => { const list=document.getElementById('roomList'); list.innerHTML=''; snap.forEach(child=>{ const room=child.val(); if(room.status==='waiting') list.innerHTML += `<div class="room-card"><span class="room-name">Sala de ${room.white}</span><button class="btn-secondary" onclick="joinRoom('${child.key}')">UNIRSE</button></div>`; }); }); }
         function closeLobby() { document.getElementById('lobbyModal').classList.remove('active'); db.ref('rooms').off(); }
         function createRoom() { const ref=db.ref('rooms').push(); gs.roomId=ref.key; gs.mode='multi'; gs.role='w'; gs.viewBlack=false; gs.over=false; chess.init(); ref.onDisconnect().remove(); ref.set({white:userProfile.name,status:'waiting',turn:'w',board:chess.board}); closeLobby(); listenRoom(gs.roomId); }
