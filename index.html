@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>♔ Royal Chess Arena</title>
+    <!-- Script Oficial de Telegram Mini Apps -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         html, body { width: 100%; height: 100%; overflow: hidden; }
@@ -12,43 +14,49 @@
         .screen { display: none; width: 100%; height: 100%; flex-direction: column; }
         .screen.active { display: flex; }
 
-        /* PORTADA Y ACADEMIA - Imagen 1 */
+        /* FONDOS PERSONALIZADOS */
         .home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 20px; width: 100%; height: 100%; text-align: center; background: linear-gradient(180deg, rgba(10,10,46,0.65), rgba(26,26,78,0.8)), url('1779421764793.png') center center / cover no-repeat; }
-        .crown-icon { font-size: 60px; filter: drop-shadow(0 0 25px rgba(255,215,0,0.6)); text-align: center; }
+        .game-screen { display: flex; flex-direction: column; height: 100%; background: linear-gradient(180deg, rgba(10,10,26,0.6), rgba(10,10,26,0.8)), url('1779422040370.png') center center / cover no-repeat; }
+        
+        .crown-icon { font-size: 50px; filter: drop-shadow(0 0 25px rgba(255,215,0,0.6)); text-align: center; }
         .title { font-size: 28px; font-weight: 900; background: linear-gradient(45deg, #ffd700, #ffed4a, #daa520); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* PERFIL DE USUARIO FIJO */
+        .user-badge { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,215,0,0.3); padding: 10px 20px; border-radius: 30px; color: white; display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: bold; font-size: 14px; margin-bottom: 10px; min-width: 200px; }
+        .points-display { color: #44ff44; font-size: 16px; font-weight: 900; }
+
         .btn { padding: 14px 30px; border: none; border-radius: 50px; font-size: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; width: 100%; max-width: 280px; transition: transform 0.1s; }
         .btn:active { transform: scale(0.95); }
         .btn-play { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a1a2e; font-size: 20px; padding: 18px; box-shadow: 0 8px 25px rgba(255,140,0,0.5); }
         .btn-secondary { background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,215,0,0.25); font-size: 13px; }
-        input { width: 260px; padding: 14px; border-radius: 50px; border: 2px solid rgba(255,215,0,0.4); background: rgba(0,0,0,0.4); color: white; font-size: 16px; text-align: center; outline: none; backdrop-filter: blur(4px); }
-
-        /* PANTALLA DE JUEGO - Imagen 2 */
-        .game-screen { display: flex; flex-direction: column; height: 100%; background: linear-gradient(180deg, rgba(10,10,26,0.6), rgba(10,10,26,0.8)), url('1779422040370.png') center center / cover no-repeat; }
-        .game-header { display: flex; justify-content: space-between; padding: 8px; background: rgba(10,10,30,0.85); border-bottom: 1px solid rgba(255,215,0,0.2); backdrop-filter: blur(4px); min-height: 65px; align-items: center; }
+        
+        /* INTERFAZ DE JUEGO */
+        .game-header { display: flex; justify-content: space-between; padding: 8px; background: rgba(10,10,30,0.85); border-bottom: 1px solid rgba(255,215,0,0.2); min-height: 65px; align-items: center; }
         .player-info { display: flex; align-items: center; gap: 6px; color: white; flex: 1; }
-        .player-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-        .player-dot.white { background: linear-gradient(135deg, #fff, #ccc); color: #000; }
-        .player-dot.black { background: linear-gradient(135deg, #333, #000); color: #fff; }
-        .player-name { font-size: 11px; font-weight: 500; }
-        .timer { font-size: 18px; font-weight: 900; color: #ffd700; font-family: monospace; }
+        .player-name { font-size: 12px; font-weight: 600; color: #ffd700; }
         .turn-dot { width: 10px; height: 10px; border-radius: 50%; }
         .turn-dot.you { background: #44ff44; box-shadow: 0 0 10px #44ff44; }
         .turn-dot.opp { background: #555; }
         .board-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 5px; position: relative; }
-        canvas { border-radius: 8px; box-shadow: 0 0 60px rgba(255,215,0,0.15); cursor: pointer; max-width: 100%; max-height: 100%; }
-        .game-footer { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: rgba(10,10,30,0.85); border-top: 1px solid rgba(255,215,0,0.2); }
+        canvas { border-radius: 8px; box-shadow: 0 0 60px rgba(0,0,0,0.8); cursor: pointer; max-width: 100%; max-height: 100%; }
+        .game-footer { display: flex; align-items: center; justify-content: center; padding: 10px; background: rgba(10,10,30,0.85); }
         .btn-back { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.2); color: #ffd700; padding: 8px 14px; border-radius: 18px; font-size: 11px; cursor: pointer; }
 
-        /* MODALES Y TARJETAS */
+        /* MODALES, ACADEMIA Y RANKING */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
-        .modal-box { background: linear-gradient(135deg, rgba(26,26,62,0.95), rgba(42,42,94,0.95)); border: 2px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 20px; max-width: 380px; width: 90%; color: white; }
+        .modal-box { background: linear-gradient(135deg, #16163e, #2a2a5e); border: 2px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 20px; max-width: 380px; width: 90%; color: white; }
         .room-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .room-name { color: #ffd700; font-weight: 700; font-size: 14px; }
-        .trivia-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,215,0,0.5); padding: 10px; border-radius: 8px; color: white; cursor: pointer; text-align: left; transition: background 0.2s; }
+        .locked-card { opacity: 0.5; background: rgba(50,50,50,0.4); border: 1px dashed #555; cursor: not-allowed; }
+        .trivia-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,215,0,0.5); padding: 10px; border-radius: 8px; color: white; cursor: pointer; text-align: left; }
         .trivia-btn:active { background: rgba(255,215,0,0.3); }
         
-        #academyMessage { position: absolute; top: 10px; background: rgba(0,0,0,0.8); color: #44ff44; padding: 10px; border-radius: 8px; border: 1px solid #44ff44; font-size: 13px; text-align: center; width: 90%; z-index: 10; display: none; }
+        #academyMessage { position: absolute; top: 10px; background: rgba(0,0,0,0.9); color: #44ff44; padding: 10px; border-radius: 8px; border: 1px solid #44ff44; font-size: 13px; text-align: center; width: 90%; z-index: 10; display: none; }
+        
+        /* TABLA DE POSICIONES */
+        .rank-item { display: flex; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid rgba(255,215,0,0.1); }
+        .rank-item:nth-child(1) { color: #ffd700; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -58,10 +66,17 @@
             <div class="home-screen">
                 <div class="crown-icon">👑</div>
                 <h1 class="title">ROYAL CHESS</h1>
-                <input type="text" id="nameInput" placeholder="Tu nombre" maxlength="15">
+                
+                <!-- Identificación única e inmutable de Telegram -->
+                <div class="user-badge">
+                    <span id="tgUsername">Cargando usuario...</span>
+                    <span class="points-display">⚡ <span id="tgPoints">0</span> PTS</span>
+                </div>
+
                 <button class="btn btn-play" onclick="playLocal()">⚔️ JUGAR LOCAL</button>
                 <button class="btn btn-secondary" onclick="openAcademy()">🧠 ACADEMIA TUTOR</button>
                 <button class="btn btn-secondary" onclick="openLobby()">🌐 MULTIJUGADOR</button>
+                <button class="btn btn-secondary" onclick="openRanking()">🏆 CLASIFICACIÓN</button>
             </div>
         </div>
 
@@ -70,11 +85,10 @@
             <div class="home-screen" style="justify-content: flex-start; padding-top: 40px;">
                 <div class="crown-icon">🧠</div>
                 <h1 class="title">ACADEMIA</h1>
-                <p style="color:#aaa;font-size:12px;margin-bottom:20px;">Aprende Jugadas Maestras</p>
-                <div class="room-card" style="cursor: pointer; flex-direction: column; align-items: flex-start;" onclick="startLesson('mate_pastor')">
-                    <div class="room-name">💥 El Mate del Pastor</div>
-                    <div style="font-size: 12px; color: #bbb; margin-top: 5px;">Supera la trivia y domina la apertura.</div>
-                </div>
+                <p style="color:#aaa;font-size:12px;margin-bottom:20px;">Desbloquea Jugadas con tus Puntos</p>
+                
+                <div id="lessonsContainer" style="width:100%; display:flex; flex-direction:column; gap:8px;"></div>
+                
                 <button class="btn btn-secondary" onclick="goHome()" style="margin-top: auto; margin-bottom: 20px;">🏠 VOLVER</button>
             </div>
         </div>
@@ -90,19 +104,27 @@
             </div>
         </div>
 
+        <!-- MODAL RANKING -->
+        <div class="modal" id="rankingModal">
+            <div class="modal-box">
+                <h2 style="color:#ffd700; text-align:center;">🏆 Top 10 Arena</h2>
+                <div style="border-bottom: 1px solid rgba(255,215,0,0.2); margin: 10px 0;"></div>
+                <div id="rankingList" style="max-height: 250px; overflow-y: auto;"></div>
+                <button class="btn-back" onclick="closeRanking()" style="width:100%; margin-top:15px;">CERRAR</button>
+            </div>
+        </div>
+
         <!-- PANTALLA DE JUEGO -->
         <div class="screen" id="gameScreen">
             <div class="game-screen">
                 <div class="game-header">
                     <div class="player-info">
-                        <div class="player-dot black" id="topDot">⚫</div>
                         <div><div class="player-name" id="topName">OPONENTE</div></div>
                         <div class="turn-dot opp" id="topTurn"></div>
                     </div>
-                    <div class="player-info">
-                        <div class="player-dot white" id="bottomDot">⚪</div>
-                        <div><div class="player-name" id="bottomName">TÚ</div></div>
+                    <div class="player-info" style="justify-content: flex-end;">
                         <div class="turn-dot you" id="bottomTurn"></div>
+                        <div><div class="player-name" id="bottomName">TÚ</div></div>
                     </div>
                 </div>
                 
@@ -118,11 +140,11 @@
         </div>
     </div>
 
-    <!-- MODAL LOBBY -->
+    <!-- MODAL LOBBY MULTIJUGADOR -->
     <div class="modal" id="lobbyModal">
         <div class="modal-box">
-            <h2 style="color:#ffd700; text-align:center;">🌐 Salas</h2>
-            <button class="btn btn-secondary" onclick="createRoom()" style="margin-bottom:10px; width: 100%;">🏠 Crear Sala</button>
+            <h2 style="color:#ffd700; text-align:center;">🌐 Salas Activas</h2>
+            <button class="btn btn-secondary" onclick="createRoom()" style="margin-bottom:10px; width: 100%;">🏠 Crear Sala de Juego</button>
             <div id="roomList" style="max-height:200px; overflow-y:auto;"></div>
             <button class="btn-back" onclick="closeLobby()" style="width:100%; margin-top:10px;">CERRAR</button>
         </div>
@@ -132,14 +154,30 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
+        // ============ INTEGRACIÓN TELEGRAM COMPLETA ============
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Abre la app a pantalla completa en el teléfono
+
+        // Datos del perfil por defecto si se abre fuera de Telegram (Desarrollo)
+        let userProfile = {
+            id: "dev_user_123",
+            name: "Invitado Local",
+            points: 0
+        };
+
+        // Si se ejecuta dentro de Telegram, extrae los datos reales e inmutables
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            userProfile.id = String(tg.initDataUnsafe.user.id);
+            userProfile.name = tg.initDataUnsafe.user.first_name + (tg.initDataUnsafe.user.last_name ? " " + tg.initDataUnsafe.user.last_name : "");
+        }
+
         // ============ AUDIOS ============
         const sndMove = new Audio('move.mp3');
         const sndCapture = new Audio('capture.mp3');
 
         // ============ ESTADO GLOBAL ============
         const gs = { 
-            mode: 'local', // 'local', 'multi', 'academy'
-            roomId: null, role: 'w', viewBlack: false, turn: 'w', sel: null,
+            mode: 'local', roomId: null, role: 'w', viewBlack: false, turn: 'w', sel: null,
             lessonId: null, lessonStep: 0, currentTriviaIndex: 0
         };
 
@@ -150,10 +188,28 @@
         });
         const db = firebase.database();
 
-        // ============ DATOS ACADEMIA ============
+        // Cargar o crear el perfil permanente en Firebase al iniciar
+        function initUserProfile() {
+            const userRef = db.ref('users/' + userProfile.id);
+            userRef.once('value', (snap) => {
+                if (snap.exists()) {
+                    userProfile.points = snap.val().points || 0;
+                    // Mantener el nombre de Telegram siempre actualizado en la DB
+                    userRef.update({ name: userProfile.name });
+                } else {
+                    userRef.set({ name: userProfile.name, points: 0 });
+                }
+                document.getElementById('tgUsername').innerText = userProfile.name;
+                document.getElementById('tgPoints').innerText = userProfile.points;
+            });
+        }
+        initUserProfile();
+
+        // ============ SISTEMA DE JUGADAS MAESTRAS (CON CANDADO DE PUNTOS) ============
         const academyData = {
             mate_pastor: {
-                title: "Mate del Pastor",
+                title: "💥 Mate del Pastor",
+                reqPoints: 0, // Gratis
                 trivia: [
                     { q: "¿A qué casilla apunta el ataque directo en f7?", opts: ["Alfil", "Caballo", "Reina", "Rey"], ans: 2 },
                     { q: "¿Cuántos movimientos se necesitan para este mate?", opts: ["2", "3", "4", "5"], ans: 2 }
@@ -164,8 +220,38 @@
                     { msg: "3. Saca tu Reina a h5.", fr: 7, fc: 3, tr: 3, tc: 7, opp: {fr: 0, fc: 6, tr: 2, tc: 5} },
                     { msg: "4. ¡Captura en f7 para dar Mate!", fr: 3, fc: 7, tr: 1, tc: 5, end: true }
                 ]
+            },
+            defensa_siciliana: {
+                title: "🛡️ Defensa Siciliana",
+                reqPoints: 50, // Requiere 50 puntos para desbloquear
+                trivia: [
+                    { q: "¿Cuál es la respuesta negra clásica a e4 en esta defensa?", opts: ["e5", "c5", "d5", "Nf6"], ans: 1 }
+                ],
+                steps: [
+                    { msg: "1. El blanco abre con e4. Responde con c5.", fr: 1, fc: 2, tr: 3, tc: 2, end: true }
+                ]
             }
         };
+
+        // ============ CARGA DE PIEZAS 3D REALISTAS (IMÁGENES EN CANVAS) ============
+        const imgPieces = {};
+        const piecesToLoad = ['kW', 'qW', 'rW', 'bW', 'nW', 'pW', 'kB', 'qB', 'rB', 'bB', 'nB', 'pB'];
+        let loadedCount = 0;
+
+        // NOTA: Para que se vean 3D reales, puedes diseñar o descargar un pack de imágenes con volumen (render 3D .png transparente)
+        // Mientras tanto, usamos una ruta CDN de piezas estilizadas con alta definición.
+        piecesToLoad.forEach(p => {
+            imgPieces[p] = new Image();
+            // Mapeo de nombres para la URL pública de Wikimedia (piezas de ajedrez HQ)
+            let urlMap = {
+                'kW': 'A/A0/Chess_klt45.svg', 'qW': '4/4d/Chess_qlt45.svg', 'rW': '7/72/Chess_rlt45.svg',
+                'bW': 'b/b1/Chess_blt45.svg', 'nW': '2/28/Chess_nlt45.svg', 'pW': '4/45/Chess_plt45.svg',
+                'kB': 'f/f0/Chess_kdt45.svg', 'qB': '4/47/Chess_qdt45.svg', 'rB': 'f/ff/Chess_rdt45.svg',
+                'bB': '9/98/Chess_bdt45.svg', 'nB': 'e/ef/Chess_ndt45.svg', 'pB': 'c/c7/Chess_pdt45.svg'
+            };
+            imgPieces[p].src = 'https://upload.wikimedia.org/wikipedia/commons/' + urlMap[p];
+            imgPieces[p].onload = () => { loadedCount++; if(loadedCount === piecesToLoad.length) draw(); };
+        });
 
         // ============ MOTOR AJEDREZ ============
         const chess = {
@@ -183,48 +269,48 @@
                 const p=this.getPiece(fr,fc), tgt=this.getPiece(tr,tc);
                 this.board[tr][tc]=p; this.board[fr][fc]='';
                 if(tgt) { 
-                    sndCapture.play().catch(e=>console.log("Audio no iniciado")); 
-                    spawnExplosion(tc, tr); // Disparar partículas
+                    sndCapture.play().catch(e=>console.log("Audio encendido")); 
+                    spawnExplosion(tc, tr);
+                    // 🎁 BONIFICACIÓN EN PARTIDAS REALES
+                    if(gs.mode === 'multi') addPoints(5); 
                 } else { 
-                    sndMove.play().catch(e=>console.log("Audio no iniciado")); 
+                    sndMove.play().catch(e=>console.log("Audio encendido")); 
                 }
             }
         };
 
-        // ============ SISTEMA DE PARTÍCULAS (Desintegración) ============
+        // ============ EFECTO DE DESINTEGRACIÓN (PARTÍCULAS) ============
         let particles = [];
         function spawnExplosion(c, r) {
             let cx = c * S + S/2; let cy = r * S + S/2;
             if(gs.viewBlack) { cx = (7-c)*S + S/2; cy = (7-r)*S + S/2; }
-            for(let i=0; i<15; i++) {
-                particles.push({x: cx, y: cy, vx: (Math.random()-0.5)*8, vy: (Math.random()-0.5)*8, life: 1, color: '#ffaa00'});
+            for(let i=0; i<20; i++) {
+                particles.push({x: cx, y: cy, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10, life: 1});
             }
             requestAnimationFrame(animateEffects);
         }
         function animateEffects() {
             if(particles.length === 0) return;
-            drawBaseBoard(); // Redibujar sin borrar fondo
+            drawBaseBoard();
             ctx.globalCompositeOperation = 'lighter';
             for(let i=particles.length-1; i>=0; i--) {
-                let p = particles[i];
-                p.x += p.vx; p.y += p.vy; p.life -= 0.05;
+                let p = particles[i]; p.x += p.vx; p.y += p.vy; p.life -= 0.04;
                 if(p.life <= 0) { particles.splice(i, 1); continue; }
-                ctx.fillStyle = `rgba(255, 100, 0, ${p.life})`;
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.life * S*0.15, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = `rgba(255, 140, 0, ${p.life})`;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.life * S * 0.12, 0, Math.PI*2); ctx.fill();
             }
             ctx.globalCompositeOperation = 'source-over';
             requestAnimationFrame(animateEffects);
         }
 
-        // ============ MOTOR GRÁFICO ============
+        // ============ RENDERIZADO DEL TABLERO Y COORDENADAS ============
         const canvas = document.getElementById('chessCanvas'), ctx = canvas.getContext('2d');
         let B = 0, S = 0;
         function resize() { 
             const c = document.getElementById('boardContainer'); 
-            B = Math.floor(Math.min(c.clientWidth, c.clientHeight) * 0.98); 
-            S = B / 8; canvas.width = B; canvas.height = B; draw(); 
+            B = Math.floor(Math.min(c.clientWidth, c.clientHeight) * 0.98); S = B / 8; 
+            canvas.width = B; canvas.height = B; draw(); 
         }
-        const SYM = {K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
 
         function drawBaseBoard() {
             ctx.clearRect(0,0,B,B);
@@ -232,64 +318,61 @@
                 let dr=r,dc=c; if(gs.viewBlack){dr=7-r;dc=7-c;}
                 const x=dc*S, y=dr*S, light=(r+c)%2===0;
                 
-                // Color Madera del Tablero
-                ctx.fillStyle = light ? '#e8cfa6' : '#8b5a2b';
+                ctx.fillStyle = light ? '#e2c499' : '#7c4c24';
                 ctx.fillRect(x,y,S,S);
 
-                // COORDENADAS
-                ctx.font = `bold ${S*0.2}px sans-serif`;
-                ctx.fillStyle = light ? '#8b5a2b' : '#e8cfa6';
-                if(dc === 0) { ctx.textAlign='left'; ctx.textBaseline='top'; ctx.fillText(gs.viewBlack?dr+1:8-dr, x+3, y+3); }
-                if(dr === 7) { ctx.textAlign='right'; ctx.textBaseline='bottom'; ctx.fillText(String.fromCharCode(97+(gs.viewBlack?7-dc:dc)), x+S-3, y+S-3); }
+                // Coordenadas dinámicas integradas
+                ctx.font = `bold ${S*0.18}px sans-serif`;
+                ctx.fillStyle = light ? '#7c4c24' : '#e2c499';
+                if(dc === 0) { ctx.textAlign='left'; ctx.textBaseline='top'; ctx.fillText(gs.viewBlack?dr+1:8-dr, x+4, y+4); }
+                if(dr === 7) { ctx.textAlign='right'; ctx.textBaseline='bottom'; ctx.fillText(String.fromCharCode(97+(gs.viewBlack?7-dc:dc)), x+S-4, y+S-4); }
             }
 
-            // Resaltado Academia
+            // Destellos de la Academia
             if(gs.mode === 'academy' && academyData[gs.lessonId]) {
                 const step = academyData[gs.lessonId].steps[gs.lessonStep];
                 if(step) {
-                    let sc = gs.viewBlack ? 7-step.fc : step.fc;
-                    let sr = gs.viewBlack ? 7-step.fr : step.fr;
-                    let tc = gs.viewBlack ? 7-step.tc : step.tc;
-                    let tr = gs.viewBlack ? 7-step.tr : step.tr;
-                    ctx.fillStyle = 'rgba(68, 255, 68, 0.4)'; ctx.fillRect(sc*S, sr*S, S, S);
+                    let sc = gs.viewBlack ? 7-step.fc : step.fc; let sr = gs.viewBlack ? 7-step.fr : step.fr;
+                    let tc = gs.viewBlack ? 7-step.tc : step.tc; let tr = gs.viewBlack ? 7-step.tr : step.tr;
+                    ctx.fillStyle = 'rgba(0, 255, 0, 0.35)'; ctx.fillRect(sc*S, sr*S, S, S);
                     ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 3; ctx.strokeRect(tc*S+2, tr*S+2, S-4, S-4);
                 }
             }
 
-            // Resaltado Selección
+            // Selección activa
             if(gs.sel){
                 let r=gs.sel.row, c=gs.sel.col; if(gs.viewBlack){r=7-r;c=7-c;}
-                ctx.fillStyle='rgba(255,215,0,0.5)'; ctx.fillRect(c*S,r*S,S,S);
+                ctx.fillStyle='rgba(255,215,0,0.45)'; ctx.fillRect(c*S,r*S,S,S);
             }
 
-            // DIBUJAR PIEZAS REALISTAS
+            // DIBUJAR LAS PIEZAS CON RENDER DE IMAGENES Y PROFUNDIDAD REALISTA
             for(let r=0;r<8;r++)for(let c=0;c<8;c++){
                 const p=chess.getPiece(r,c); if(!p)continue;
                 let dr=r,dc=c; if(gs.viewBlack){dr=7-r;dc=7-c;}
-                const cx=dc*S+S/2, cy=dr*S+S/2, isW=p===p.toUpperCase();
                 
-                // Efecto 3D Sombra
-                ctx.shadowColor = 'rgba(0,0,0,0.6)';
-                ctx.shadowBlur = 6;
-                ctx.shadowOffsetY = 4;
+                const isW = p === p.toUpperCase();
+                const pKey = p.toLowerCase() + (isW ? 'W' : 'B');
+                const img = imgPieces[pKey];
+                
+                if(img && img.complete) {
+                    // Inyección de Sombra Realista en el Canvas para dar elevación 3D
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
+                    ctx.shadowBlur = 8;
+                    ctx.shadowOffsetY = 6;
+                    ctx.shadowOffsetX = 2;
 
-                ctx.fillStyle = isW ? '#ffffff' : '#222222';
-                ctx.strokeStyle = isW ? '#555' : '#000';
-                ctx.lineWidth = 1.5;
-                ctx.font = `bold ${S*0.75}px Arial`; 
-                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                ctx.fillText(SYM[p], cx, cy + S*0.05);
-                ctx.strokeText(SYM[p], cx, cy + S*0.05);
+                    // Ajuste de márgenes para centrar el render 3D
+                    const pad = S * 0.08;
+                    ctx.drawImage(img, dc*S + pad, dr*S + pad, S - pad*2, S - pad*2);
 
-                // Resetear sombra para no afectar otras cosas
-                ctx.shadowColor = 'transparent';
-                ctx.shadowBlur = 0;
-                ctx.shadowOffsetY = 0;
+                    // Desactivar sombras de forma inmediata
+                    ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; ctx.shadowOffsetX = 0;
+                }
             }
         }
         function draw() { drawBaseBoard(); }
 
-        // ============ LÓGICA DE CLICKS ============
+        // ============ CONTROL DE TURNOS Y CLICKS ============
         canvas.addEventListener('click', (e) => {
             if (gs.mode === 'multi' && gs.roomId && gs.turn !== gs.role) return;
 
@@ -297,65 +380,76 @@
             let c = Math.floor((e.clientX - rect.left) / S);
             let r = Math.floor((e.clientY - rect.top) / S);
             if (gs.viewBlack) { r = 7 - r; c = 7 - c; }
-            
             const p = chess.getPiece(r, c);
 
             if (gs.sel) {
-                // MODO ACADEMIA TUTOR
                 if(gs.mode === 'academy') {
                     const step = academyData[gs.lessonId].steps[gs.lessonStep];
                     if(gs.sel.row === step.fr && gs.sel.col === step.fc && r === step.tr && c === step.tc) {
-                        chess.move(step.fr, step.fc, step.tr, step.tc);
-                        gs.sel = null; draw();
-                        
+                        chess.move(step.fr, step.fc, step.tr, step.tc); gs.sel = null; draw();
                         if(step.end) {
-                            document.getElementById('academyMessage').innerText = "¡Mate Conseguido! Lección Completada.";
+                            document.getElementById('academyMessage').innerText = "🏆 ¡Felicidades! +20 Puntos conseguidos.";
+                            addPoints(20); // 🎁 Sistema de bonificación por completar lecciones
                             setTimeout(goHome, 3000);
                         } else {
                             setTimeout(() => {
                                 chess.move(step.opp.fr, step.opp.fc, step.opp.tr, step.opp.tc);
-                                gs.lessonStep++;
-                                updateAcademyMessage();
-                                draw();
+                                gs.lessonStep++; updateAcademyMessage(); draw();
                             }, 800);
                         }
                     } else { gs.sel = null; draw(); }
                     return;
                 }
 
-                // MODO NORMAL / MULTI
                 if (chess.isValid(gs.sel.row, gs.sel.col, r, c)) {
-                    chess.move(gs.sel.row, gs.sel.col, r, c);
-                    gs.sel = null;
+                    chess.move(gs.sel.row, gs.sel.col, r, c); gs.sel = null;
                     const nextTurn = gs.turn === 'w' ? 'b' : 'w';
-
                     if (gs.mode === 'multi' && gs.roomId) {
                         db.ref('rooms/' + gs.roomId).update({ board: chess.board, turn: nextTurn });
                     } else { gs.turn = nextTurn; draw(); }
                 } else {
-                    if(p && ((gs.turn === 'w' && p === p.toUpperCase()) || (gs.turn === 'b' && p === p.toLowerCase()))) {
-                        gs.sel = {row: r, col: c};
-                    } else { gs.sel = null; }
+                    if(p && ((gs.turn === 'w' && p === p.toUpperCase()) || (gs.turn === 'b' && p === p.toLowerCase()))) gs.sel = {row: r, col: c};
+                    else gs.sel = null;
                 }
             } else {
-                if(p && ((gs.turn === 'w' && p === p.toUpperCase()) || (gs.turn === 'b' && p === p.toLowerCase()))) {
-                    gs.sel = {row: r, col: c};
-                }
+                if(p && ((gs.turn === 'w' && p === p.toUpperCase()) || (gs.turn === 'b' && p === p.toLowerCase()))) gs.sel = {row: r, col: c};
             }
             draw();
         });
 
-        // ============ NAVEGACIÓN Y MENÚS ============
-        function showScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id==='gameScreen') resize(); }
-        function goHome() { document.getElementById('academyMessage').style.display = 'none'; showScreen('homeScreen'); }
-        function openAcademy() { showScreen('academyScreen'); }
-        function playLocal() { gs.mode = 'local'; gs.roomId = null; gs.viewBlack = false; gs.turn = 'w'; chess.init(); document.getElementById('topName').innerText="RIVAL"; document.getElementById('bottomName').innerText="JUGADOR 1"; showScreen('gameScreen'); }
-        
-        // ============ ACADEMIA Y TRIVIA ============
+        // ============ SISTEMA DE RECOMPENSAS Y MEMORIA FIJA ============
+        function addPoints(pts) {
+            userProfile.points += pts;
+            document.getElementById('tgPoints').innerText = userProfile.points;
+            db.ref('users/' + userProfile.id).update({ points: userProfile.points });
+        }
+
+        function openAcademy() {
+            showScreen('academyScreen');
+            const container = document.getElementById('lessonsContainer');
+            container.innerHTML = '';
+
+            for(let id in academyData) {
+                const les = academyData[id];
+                const isLocked = userProfile.points < les.reqPoints;
+
+                if(isLocked) {
+                    container.innerHTML += `<div class="room-card locked-card">
+                        <div class="room-name">🔒 ${les.title}</div>
+                        <div style="font-size:11px; color:#ff4444;">Necesitas ${les.reqPoints} PTS (Tienes ${userProfile.points})</div>
+                    </div>`;
+                } else {
+                    container.innerHTML += `<div class="room-card" style="cursor:pointer;" onclick="startLesson('${id}')">
+                        <div class="room-name">${les.title}</div>
+                        <div style="font-size:11px; color:#44ff44;">¡Disponible! Toca para aprender.</div>
+                    </div>`;
+                }
+            }
+        }
+
         function startLesson(id) {
             gs.lessonId = id; gs.currentTriviaIndex = 0;
-            const lesson = academyData[id];
-            document.getElementById('triviaTitle').innerText = lesson.title;
+            document.getElementById('triviaTitle').innerText = academyData[id].title;
             showTriviaQuestion();
             document.getElementById('triviaModal').classList.add('active');
         }
@@ -363,8 +457,7 @@
         function showTriviaQuestion() {
             const t = academyData[gs.lessonId].trivia[gs.currentTriviaIndex];
             document.getElementById('triviaQuestion').innerText = t.q;
-            const optsDiv = document.getElementById('triviaOptions');
-            optsDiv.innerHTML = '';
+            const optsDiv = document.getElementById('triviaOptions'); optsDiv.innerHTML = '';
             t.opts.forEach((opt, idx) => {
                 optsDiv.innerHTML += `<button class="trivia-btn" onclick="checkTrivia(${idx})">${opt}</button>`;
             });
@@ -373,28 +466,45 @@
             const t = academyData[gs.lessonId].trivia[gs.currentTriviaIndex];
             if(idx === t.ans) {
                 gs.currentTriviaIndex++;
-                if(gs.currentTriviaIndex < academyData[gs.lessonId].trivia.length) { showTriviaQuestion(); } 
+                if(gs.currentTriviaIndex < academyData[gs.lessonId].trivia.length) showTriviaQuestion();
                 else { closeTrivia(); enterAcademyBoard(); }
-            } else { alert("Respuesta incorrecta. ¡Intenta de nuevo!"); }
+            } else { alert("Respuesta incorrecta. ¡Sigue intentando!"); }
         }
         function enterAcademyBoard() {
             gs.mode = 'academy'; gs.viewBlack = false; gs.lessonStep = 0; chess.init();
-            document.getElementById('topName').innerText="TUTOR"; document.getElementById('bottomName').innerText="ESTUDIANTE";
-            showScreen('gameScreen');
-            document.getElementById('academyMessage').style.display = 'block';
-            updateAcademyMessage();
+            document.getElementById('topName').innerText="PROFESOR"; document.getElementById('bottomName').innerText="ALUMNO";
+            showScreen('gameScreen'); document.getElementById('academyMessage').style.display = 'block'; updateAcademyMessage();
         }
-        function updateAcademyMessage() {
-            const step = academyData[gs.lessonId].steps[gs.lessonStep];
-            if(step) document.getElementById('academyMessage').innerText = step.msg;
-        }
+        function updateAcademyMessage() { const step = academyData[gs.lessonId].steps[gs.lessonStep]; if(step) document.getElementById('academyMessage').innerText = step.msg; }
 
-        // ============ MULTIJUGADOR ============
+        // ============ SECCIÓN DEL RANKING GLOBAL ============
+        function openRanking() {
+            document.getElementById('rankingModal').classList.add('active');
+            db.ref('users').orderByChild('points').limitToLast(10).once('value', snap => {
+                const list = document.getElementById('rankingList'); list.innerHTML = '';
+                let arr = [];
+                snap.forEach(child => { arr.push(child.val()); });
+                arr.reverse(); // Mayor a menor
+                arr.forEach((u, i) => {
+                    list.innerHTML += `<div class="rank-item">
+                        <span>#${i+1} ${u.name}</span>
+                        <span style="color:#44ff44;">${u.points} PTS</span>
+                    </div>`;
+                });
+            });
+        }
+        function closeRanking() { document.getElementById('rankingModal').classList.remove('active'); }
+
+        // ============ MULTIJUGADOR ACTUALIZADO CON NOMBRE DE TELEGRAM ============
         function openLobby() { document.getElementById('lobbyModal').classList.add('active'); db.ref('rooms').on('value', snap => { const list=document.getElementById('roomList'); list.innerHTML=''; snap.forEach(child=>{ const room=child.val(); if(room.status==='waiting') list.innerHTML += `<div class="room-card"><span class="room-name">Sala de ${room.white}</span><button class="btn-secondary" onclick="joinRoom('${child.key}')">UNIRSE</button></div>`; }); }); }
         function closeLobby() { document.getElementById('lobbyModal').classList.remove('active'); db.ref('rooms').off(); }
-        function createRoom() { const name=document.getElementById('nameInput').value||'Anfitrión'; const ref=db.ref('rooms').push(); gs.roomId=ref.key; gs.mode='multi'; gs.role='w'; gs.viewBlack=false; chess.init(); ref.onDisconnect().remove(); ref.set({white:name,status:'waiting',turn:'w',board:chess.board}); closeLobby(); listenRoom(gs.roomId); }
-        function joinRoom(id) { const name=document.getElementById('nameInput').value||'Invitado'; gs.roomId=id; gs.mode='multi'; gs.role='b'; gs.viewBlack=true; db.ref('rooms/'+id).onDisconnect().remove(); db.ref('rooms/'+id).update({black:name,status:'playing'}).then(()=>{ closeLobby(); listenRoom(id); }); }
-        function listenRoom(id) { db.ref('rooms/'+id).on('value', snap=>{ const room=snap.val(); if(!room){ alert('Sala cerrada.'); exitGame(); return; } if(room.status==='playing'){ chess.board=room.board; gs.turn=room.turn; document.getElementById('topName').innerText=gs.role==='w'?room.black:room.white; document.getElementById('bottomName').innerText=gs.role==='w'?room.white:room.black; document.getElementById('bottomTurn').className=gs.turn===gs.role?"turn-dot you":"turn-dot opp"; document.getElementById('topTurn').className=gs.turn===gs.role?"turn-dot opp":"turn-dot you"; showScreen('gameScreen'); draw(); }}); }
+        function createRoom() { const ref=db.ref('rooms').push(); gs.roomId=ref.key; gs.mode='multi'; gs.role='w'; gs.viewBlack=false; chess.init(); ref.onDisconnect().remove(); ref.set({white:userProfile.name,status:'waiting',turn:'w',board:chess.board}); closeLobby(); listenRoom(gs.roomId); }
+        function joinRoom(id) { gs.roomId=id; gs.mode='multi'; gs.role='b'; gs.viewBlack=true; db.ref('rooms/'+id).onDisconnect().remove(); db.ref('rooms/'+id).update({black:userProfile.name,status:'playing'}).then(()=>{ closeLobby(); listenRoom(id); }); }
+        function listenRoom(id) { db.ref('rooms/'+id).on('value', snap=>{ const room=snap.val(); if(!room){ alert('Partida terminada.'); exitGame(); return; } if(room.status==='playing'){ chess.board=room.board; gs.turn=room.turn; document.getElementById('topName').innerText=gs.role==='w'?room.black:room.white; document.getElementById('bottomName').innerText=gs.role==='w'?room.white:room.black; document.getElementById('bottomTurn').className=gs.turn===gs.role?"turn-dot you":"turn-dot opp"; document.getElementById('topTurn').className=gs.turn===gs.role?"turn-dot opp":"turn-dot you"; showScreen('gameScreen'); draw(); }}); }
+        
+        function showScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id==='gameScreen') resize(); }
+        function goHome() { document.getElementById('academyMessage').style.display = 'none'; showScreen('homeScreen'); }
+        function playLocal() { gs.mode = 'local'; gs.roomId = null; gs.viewBlack = false; gs.turn = 'w'; chess.init(); document.getElementById('topName').innerText="RIVAL MÁQUINA"; document.getElementById('bottomName').innerText=userProfile.name; showScreen('gameScreen'); }
         function exitGame() { if(gs.mode==='multi'&&gs.roomId){ db.ref('rooms/'+gs.roomId).remove(); db.ref('rooms/'+gs.roomId).off(); gs.roomId=null; } goHome(); }
 
         window.addEventListener('resize', resize);
