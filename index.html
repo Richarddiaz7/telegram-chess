@@ -13,7 +13,7 @@
         .screen.active { display: flex; }
 
         /* PORTADA PRINCIPAL */
-        .home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 20px; width: 100%; height: 100%; text-align: center; background: linear-gradient(180deg, rgba(10,10,46,0.65), rgba(26,26,78,0.8)), url('1779421764793.png') center center / cover no-repeat; }
+        .home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 20px; width: 100%; height: 100%; text-align: center; background: linear-gradient(180deg, rgba(10,10,46,0.65), rgba(26,26,78,0.8)); }
         .crown-icon { font-size: 60px; filter: drop-shadow(0 0 25px rgba(255,215,0,0.6)); text-align: center; }
         .title { font-size: 28px; font-weight: 900; background: linear-gradient(45deg, #ffd700, #ffed4a, #daa520); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; width: 100%; }
         .btn { padding: 14px 30px; border: none; border-radius: 50px; font-size: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; width: 100%; max-width: 280px; }
@@ -23,14 +23,14 @@
         input { width: 260px; padding: 14px; border-radius: 50px; border: 2px solid rgba(255,215,0,0.4); background: rgba(0,0,0,0.4); color: white; font-size: 16px; text-align: center; outline: none; backdrop-filter: blur(4px); }
 
         /* PANTALLA DE JUEGO */
-        .game-screen { display: flex; flex-direction: column; height: 100%; background: linear-gradient(180deg, rgba(10,10,26,0.5), rgba(10,10,26,0.7)), url('1779422040370.png') center center / cover no-repeat; }
-        .game-header { display: flex; justify-content: space-between; padding: 8px; background: rgba(10,10,30,0.85); border-bottom: 1px solid rgba(255,215,0,0.2); backdrop-filter: blur(4px); min-height: 65px; }
+        .game-screen { display: flex; flex-direction: column; height: 100%; background: linear-gradient(180deg, rgba(10,10,26,0.5), rgba(10,10,26,0.7)); }
+        .game-header { display: flex; justify-content: space-between; padding: 8px; background: rgba(10,10,30,0.85); border-bottom: 1px solid rgba(255,215,0,0.2); backdrop-filter: blur(4px); min-height: 65px; align-items: center; }
         .player-info { display: flex; align-items: center; gap: 6px; color: white; flex: 1; }
         .player-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
         .player-dot.white { background: linear-gradient(135deg, #fff, #ccc); color: #000; }
         .player-dot.black { background: linear-gradient(135deg, #333, #000); color: #fff; }
         .player-name { font-size: 11px; color: #fff; font-weight: 500; }
-        .timer { font-size: 20px; font-weight: 900; color: #ffd700; font-family: monospace; }
+        .timer { font-size: 18px; font-weight: 900; color: #ffd700; font-family: monospace; }
         .turn-dot { width: 10px; height: 10px; border-radius: 50%; }
         .turn-dot.you { background: #44ff44; box-shadow: 0 0 10px #44ff44; }
         .turn-dot.opp { background: #555; }
@@ -41,15 +41,14 @@
         .energy-bar { height: 100%; background: linear-gradient(90deg, #ff3333, #ffd700, #44ff44); transition: width 0.4s; }
         .btn-back { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.2); color: #ffd700; padding: 8px 14px; border-radius: 18px; font-size: 11px; cursor: pointer; }
 
-        /* MODAL / LOBBY / TRIVIA BOX */
+        /* MODAL / LOBBY */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
-        .modal-box { background: linear-gradient(135deg, rgba(26,26,62,0.95), rgba(42,42,94,0.95)), url('1779421764793.png') center center / cover no-repeat; border: 2px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 20px; max-width: 380px; width: 90%; color: white; box-shadow: 0 0 30px rgba(0,0,0,0.7); }
+        .modal-box { background: #1a1a3a; border: 2px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 20px; max-width: 380px; width: 90%; color: white; box-shadow: 0 0 30px rgba(0,0,0,0.7); }
         .modal-box h2 { color: #ffd700; text-align: center; margin-bottom: 15px; }
-        .room-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(4px); width: 100%; }
-        .room-name { color: #ffd700; font-weight: 700; }
-        .room-join { background: rgba(255,215,0,0.2); color: #ffd700; padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700; }
-        #triviaOptions { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
+        .room-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .room-name { color: #ffd700; font-weight: 700; font-size: 14px; }
+        .room-join { background: #ffd700; color: #000; padding: 6px 12px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -60,23 +59,8 @@
                 <h1 class="title">ROYAL CHESS</h1>
                 <p style="color:#aaa;font-size:12px;margin-bottom:8px;">Play & Earn Arena</p>
                 <input type="text" id="nameInput" placeholder="Tu nombre" maxlength="15">
-                <button class="btn btn-play" onclick="playAI()">⚔️ PLAY NOW</button>
-                <button class="btn btn-secondary" onclick="openAcademy()">🧠 ACADEMIA TUTOR</button>
-                <button class="btn btn-secondary" onclick="playLocal()">👥 2 JUGADORES</button>
+                <button class="btn btn-play" onclick="playLocal()">⚔️ MODO LOCAL</button>
                 <button class="btn btn-secondary" onclick="openLobby()">🌐 MULTIJUGADOR</button>
-            </div>
-        </div>
-
-        <div class="screen" id="academyScreen">
-            <div class="home-screen" style="justify-content: flex-start; padding-top: 40px;">
-                <div class="crown-icon">🧠</div>
-                <h1 class="title">ACADEMIA</h1>
-                <p style="color:#aaa;font-size:12px;margin-bottom:20px;">Aprende Jugadas Maestras</p>
-                <div class="room-card" style="cursor: pointer; text-align: left; flex-direction: column; align-items: flex-start; gap: 4px;" onclick="startLesson('mate_pastor')">
-                    <div class="room-name">💥 El Mate del Pastor</div>
-                    <div style="font-size: 12px; color: #bbb;">Aprende el ataque fulminante de 4 movimientos.</div>
-                </div>
-                <button class="btn btn-secondary" onclick="goHome()" style="margin-top: 20px;">🏠 VOLVER AL MENÚ</button>
             </div>
         </div>
 
@@ -84,13 +68,13 @@
             <div class="game-screen">
                 <div class="game-header">
                     <div class="player-info">
-                        <div class="player-dot white" id="topDot">⚪</div>
-                        <div><div class="player-name" id="topName">OPONENTE</div><div class="timer" id="topTimer">10:00</div></div>
+                        <div class="player-dot white" id="topDot">⚫</div>
+                        <div><div class="player-name" id="topName">OPONENTE</div></div>
                         <div class="turn-dot opp" id="topTurn"></div>
                     </div>
-                    <div class="player-info" id="bottomPlayerArea">
+                    <div class="player-info">
                         <div class="player-dot white" id="bottomDot">⚪</div>
-                        <div><div class="player-name" id="bottomName">TÚ</div><div class="timer" id="bottomTimer">10:00</div></div>
+                        <div><div class="player-name" id="bottomName">TÚ</div></div>
                         <div class="turn-dot you" id="bottomTurn"></div>
                     </div>
                 </div>
@@ -100,7 +84,7 @@
                 <div class="game-footer">
                     <span style="color:#ffd700;font-size:10px;">⚡</span>
                     <div class="energy-bar-wrap"><div class="energy-bar" id="energyBar" style="width:100%"></div></div>
-                    <button class="btn-back" onclick="goHome()">🏠</button>
+                    <button class="btn-back" onclick="exitRoom()">🏠 SALIR</button>
                 </div>
             </div>
         </div>
@@ -108,10 +92,10 @@
 
     <div class="modal" id="lobbyModal">
         <div class="modal-box">
-            <h2>🌐 Salas</h2>
-            <button class="btn btn-secondary" onclick="createRoom()" style="margin-bottom:10px; width: 100%;">🏠 Crear Sala (Blancas)</button>
-            <div id="roomList" style="max-height:200px;overflow-y:auto;"></div>
-            <button class="btn-back" onclick="closeLobby()" style="width:100%;margin-top:10px;">CERRAR</button>
+            <h2>🌐 Salas Disponibles</h2>
+            <button class="btn btn-secondary" onclick="createRoom()" style="margin-bottom:10px; width: 100%;">🏠 Crear Nueva Sala</button>
+            <div id="roomList" style="max-height:200px; overflow-y:auto;"></div>
+            <button class="btn-back" onclick="closeLobby()" style="width:100%; margin-top:10px;">CERRAR</button>
         </div>
     </div>
 
@@ -119,33 +103,23 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
-        // ============ ESTADO DEL JUEGO (Lo que faltaba) ============
-        const gs = { viewBlack: false, mode: 'local', triviaMode: false, lessonId: null, lessonStep: 0, sel: null, turn: 'w' };
+        // ============ CONFIGURACIÓN GLOBAL DEL ESTADO ============
+        const gs = { 
+            viewBlack: false, 
+            roomId: null, 
+            role: 'w', // 'w' para creador (blancas), 'b' para invitado (negras)
+            turn: 'w', 
+            sel: null 
+        };
 
-        // ============ FIREBASE ============
+        // ============ INICIALIZAR FIREBASE ============
         firebase.initializeApp({
             apiKey: "AIzaSyDMu83hA5xjmwSlUX4KUgWkYlx6SqHcaAk",
-            authDomain: "royal-chess-multiplayer.firebaseapp.com",
-            databaseURL: "https://royal-chess-multiplayer-default-rtdb.firebaseio.com",
-            projectId: "royal-chess-multiplayer",
-            storageBucket: "royal-chess-multiplayer.firebasestorage.app",
-            messagingSenderId: "380447919929",
-            appId: "1:380447919929:web:13c8584bf1e688830ea2e8"
+            databaseURL: "https://royal-chess-multiplayer-default-rtdb.firebaseio.com"
         });
         const db = firebase.database();
 
-        // ============ BASE DE DATOS DE LA ACADEMIA ============
-        const academyData = {
-            mate_pastor: {
-                title: "Mate del Pastor",
-                steps: [
-                    { msg: "1. Abre paso a tu Alfil y Reina.", fr: 6, fc: 4, tr: 4, tc: 4, response: {fr: 1, fc: 4, tr: 3, tc: 4} },
-                    { msg: "2. Desarrolla el Alfil a c4.", fr: 7, fc: 5, tr: 4, tc: 2, response: {fr: 0, fc: 1, tr: 2, tc: 2} }
-                ]
-            }
-        };
-
-        // ============ CHESS ENGINE ============
+        // ============ MOTOR DE AJEDREZ ============
         const chess = {
             board: [],
             init() { this.board = [['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']]; },
@@ -157,10 +131,10 @@
                 const cp=(dr,dc)=>{const s=Math.max(Math.abs(dr),Math.abs(dc)),sr=dr===0?0:dr/Math.abs(dr),sc=dc===0?0:dc/Math.abs(dc);for(let i=1;i<s;i++)if(this.getPiece(fr+sr*i,fc+sc*i))return false;return true;};
                 switch(type){case'p':const d=p==='P'?-1:1,sr=p==='P'?6:1;if(cd===0&&!tgt){if(rd===d)return true;if(fr===sr&&rd===2*d&&!this.getPiece(fr+d,fc))return true;}return acd===1&&rd===d&&!!tgt;case'r':return(rd===0||cd===0)&&cp(rd,cd);case'n':return(ard===2&&acd===1)||(ard===1&&acd===2);case'b':return ard===acd&&cp(rd,cd);case'q':return(rd===0||cd===0||ard===acd)&&cp(rd,cd);case'k':return ard<=1&&acd<=1;}return false;
             },
-            move(fr,fc,tr,tc){const p=this.getPiece(fr,fc),c=this.getPiece(tr,tc);this.board[tr][tc]=p;this.board[fr][fc]='';return{piece:p,captured:c};}
+            move(fr,fc,tr,tc){const p=this.getPiece(fr,fc);this.board[tr][tc]=p;this.board[fr][fc]='';}
         };
 
-        // ============ CANVAS Y DIBUJO (Reparado) ============
+        // ============ MOTOR GRÁFICO (CANVAS) ============
         const canvas = document.getElementById('chessCanvas'), ctx = canvas.getContext('2d');
         let B = 0, S = 0;
         function resize() { 
@@ -173,79 +147,72 @@
         function draw() {
             ctx.clearRect(0,0,B,B);
             for(let r=0;r<8;r++)for(let c=0;c<8;c++){
-                let dr=r,dc=c;if(gs.viewBlack){dr=7-r;dc=7-c;}
-                const x=dc*S,y=dr*S,light=(r+c)%2===0,g=ctx.createLinearGradient(x,y,x+S,y+S);
-                light?(g.addColorStop(0,'#f5deb3'),g.addColorStop(1,'#d2b48c')):(g.addColorStop(0,'#8b6914'),g.addColorStop(1,'#5c3d0e'));
-                ctx.fillStyle=g;ctx.fillRect(x,y,S,S);
-
-                ctx.font = `bold ${S*0.18}px sans-serif`;
-                ctx.fillStyle = light ? '#5c3d0e' : '#f5deb3';
-                if(dc === 0) {
-                    let rank = gs.viewBlack ? (dr + 1) : (8 - dr);
-                    ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(rank, x + 4, y + 4);
-                }
-                if(dr === 7) {
-                    let file = String.fromCharCode(97 + (gs.viewBlack ? (7 - dc) : dc));
-                    ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'; ctx.fillText(file, x + S - 4, y + S - 4);
-                }
+                let dr=r,dc=c; if(gs.viewBlack){dr=7-r;dc=7-c;}
+                const x=dc*S,y=dr*S,light=(r+c)%2===0;
+                ctx.fillStyle = light ? '#f5deb3' : '#8b6914';
+                ctx.fillRect(x,y,S,S);
             }
-
             if(gs.sel){
-                let r=gs.sel.row,c=gs.sel.col;if(gs.viewBlack){r=7-r;c=7-c;}
-                ctx.fillStyle='rgba(255,215,0,0.4)';ctx.fillRect(c*S,r*S,S,S);
-                ctx.strokeStyle='#ffd700';ctx.lineWidth=3;ctx.strokeRect(c*S+2,r*S+2,S-4,S-4);
+                let r=gs.sel.row,c=gs.sel.col; if(gs.viewBlack){r=7-r;c=7-c;}
+                ctx.fillStyle='rgba(255,215,0,0.4)'; ctx.fillRect(c*S,r*S,S,S);
             }
-
             for(let r=0;r<8;r++)for(let c=0;c<8;c++){
-                const p=chess.getPiece(r,c);if(!p)continue;
-                let dr=r,dc=c;if(gs.viewBlack){dr=7-r;dc=7-c;}
-                const cx=dc*S+S/2,cy=dr*S+S/2,isW=p===p.toUpperCase(),R=S*0.4;
-                
-                // Aquí estaba el corte. Todo esto es nuevo para completar el dibujo de la pieza
-                ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);
-                const grad=ctx.createRadialGradient(cx-R*0.3,cy-R*0.3,R*0.05,cx,cy,R);
-                isW?(grad.addColorStop(0,'#fff'),grad.addColorStop(1,'#aaa')):(grad.addColorStop(0,'#666'),grad.addColorStop(1,'#000'));
-                ctx.fillStyle=grad;ctx.fill();ctx.strokeStyle=isW?'#888':'#333';ctx.lineWidth=2;ctx.stroke();
-                
-                ctx.fillStyle = isW ? '#000' : '#fff'; 
-                ctx.font = `bold ${S*0.7}px Arial`; 
-                ctx.textAlign = 'center'; 
-                ctx.textBaseline = 'middle';
-                ctx.fillText(SYM[p], cx, cy + S * 0.05);
+                const p=chess.getPiece(r,c); if(!p)continue;
+                let dr=r,dc=c; if(gs.viewBlack){dr=7-r;dc=7-c;}
+                const cx=dc*S+S/2,cy=dr*S+S/2,isW=p===p.toUpperCase();
+                ctx.fillStyle = isW ? '#fff' : '#000';
+                ctx.strokeStyle = isW ? '#000' : '#fff';
+                ctx.font = `bold ${S*0.7}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(SYM[p], cx, cy);
             }
         }
 
-        // Eventos del Canvas
+        // ============ CLICK DEL JUGADOR SINCRO CON FIREBASE ============
         canvas.addEventListener('click', (e) => {
+            // Si estamos en multijugador y no es tu turno, bloquear clicks
+            if (gs.roomId && gs.turn !== gs.role) return;
+
             const rect = canvas.getBoundingClientRect();
             let c = Math.floor((e.clientX - rect.left) / S);
             let r = Math.floor((e.clientY - rect.top) / S);
             if (gs.viewBlack) { r = 7 - r; c = 7 - c; }
             
+            const p = chess.getPiece(r, c);
+
             if (gs.sel) {
                 if (chess.isValid(gs.sel.row, gs.sel.col, r, c)) {
                     chess.move(gs.sel.row, gs.sel.col, r, c);
                     gs.sel = null;
-                } else { gs.sel = {row: r, col: c}; }
-            } else { gs.sel = {row: r, col: c}; }
+                    const nextTurn = gs.turn === 'w' ? 'b' : 'w';
+
+                    if (gs.roomId) {
+                        // Enviamos el movimiento al servidor Firebase en tiempo real
+                        db.ref('rooms/' + gs.roomId).update({
+                            board: chess.board,
+                            turn: nextTurn
+                        });
+                    } else {
+                        gs.turn = nextTurn;
+                        draw();
+                    }
+                } else {
+                    // Seleccionar otra pieza propia
+                    if(p && ((gs.turn === 'w' && p === p.toUpperCase()) || (gs.turn === 'b' && p === p.toLowerCase()))) {
+                        gs.sel = {row: r, col: c};
+                    } else { gs.sel = null; }
+                }
+            } else {
+                if(p && ((gs.turn === 'w' && p === p.toUpperCase()) || (gs.turn === 'b' && p === p.toLowerCase()))) {
+                    gs.sel = {row: r, col: c};
+                }
+            }
             draw();
         });
 
-        // ============ INTERFAZ Y NAVEGACIÓN ============
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            if(id === 'gameScreen') resize();
-        }
-        
-        function goHome() { showScreen('homeScreen'); }
-        function playLocal() { chess.init(); showScreen('gameScreen'); }
-        function playAI() { chess.init(); showScreen('gameScreen'); }
-        function openAcademy() { showScreen('academyScreen'); }
-
-        // ============ FIREBASE (Lobby y Salas) ============
-        function openLobby() { 
-            document.getElementById('lobbyModal').classList.add('active'); 
+        // ============ LÓGICA DE SALAS Y LOBBY EN TIEMPO REAL ============
+        function openLobby() {
+            document.getElementById('lobbyModal').classList.add('active');
+            // Muestra solo salas con estatus 'waiting'
             db.ref('rooms').on('value', (snap) => {
                 const list = document.getElementById('roomList');
                 list.innerHTML = '';
@@ -260,25 +227,116 @@
                 });
             });
         }
-        function closeLobby() { document.getElementById('lobbyModal').classList.remove('active'); db.ref('rooms').off(); }
+
+        function closeLobby() { document.getElementById('lobbyModal').classList.remove('active'); }
+
         function createRoom() {
-            const name = document.getElementById('nameInput').value || 'Jugador';
+            const name = document.getElementById('nameInput').value || 'Anfitrión';
             const roomRef = db.ref('rooms').push();
-            roomRef.set({ white: name, status: 'waiting' });
-            alert('Sala creada');
+            
+            gs.roomId = roomRef.key;
+            gs.role = 'w'; // Creador es Blancas
+            gs.viewBlack = false; // Vista normal
+            chess.init();
+
+            // 🔥 CRUCIAL: Si el creador cierra la app o pierde internet, la sala se destruye sola
+            roomRef.onDisconnect().remove();
+
+            roomRef.set({
+                white: name,
+                status: 'waiting',
+                turn: 'w',
+                board: chess.board
+            });
+
             closeLobby();
+            listenToRoom(gs.roomId);
         }
+
         function joinRoom(id) {
-            const name = document.getElementById('nameInput').value || 'Jugador';
-            db.ref('rooms/' + id).update({ black: name, status: 'playing' }).then(() => {
-                alert('Te uniste correctamente a la sala.');
+            const name = document.getElementById('nameInput').value || 'Invitado';
+            gs.roomId = id;
+            gs.role = 'b'; // Invitado es Negras
+            gs.viewBlack = true; // Volteamos el tablero automáticamente para las negras
+
+            // Una vez que te unes, también escuchamos si te desconectas para limpiar
+            db.ref('rooms/' + id).onDisconnect().remove();
+
+            db.ref('rooms/' + id).update({
+                black: name,
+                status: 'playing'
+            }).then(() => {
                 closeLobby();
-                playLocal(); // Iniciar partida
+                listenToRoom(id);
             });
         }
 
+        // ============ EL ESCUCHADOR CENTRAL DE LA PARTIDA ============
+        function listenToRoom(id) {
+            db.ref('rooms/' + id).on('value', (snap) => {
+                const room = snap.val();
+                if (!room) {
+                    alert('La sala se ha cerrado o el rival abandonó.');
+                    exitRoom();
+                    return;
+                }
+
+                // Si entra el segundo jugador, Firebase cambia el estatus y arranca para ambos
+                if (room.status === 'playing') {
+                    chess.board = room.board;
+                    gs.turn = room.turn;
+
+                    // Actualizar Interfaz Gráfica de nombres dinámicamente
+                    document.getElementById('topName').innerText = gs.role === 'w' ? room.black : room.white;
+                    document.getElementById('bottomName').innerText = gs.role === 'w' ? room.white : room.black;
+                    
+                    // Colocar luces indicadoras de turno
+                    if (gs.turn === gs.role) {
+                        document.getElementById('bottomTurn').className = "turn-dot you";
+                        document.getElementById('topTurn').className = "turn-dot opp";
+                    } else {
+                        document.getElementById('bottomTurn').className = "turn-dot opp";
+                        document.getElementById('topTurn').className = "turn-dot you";
+                    }
+
+                    // Forzar el cambio de pantalla a la zona de juego
+                    if(!document.getElementById('gameScreen').classList.contains('active')) {
+                        document.getElementById('homeScreen').classList.remove('active');
+                        document.getElementById('gameScreen').classList.add('active');
+                        resize();
+                    }
+                    draw();
+                }
+            });
+        }
+
+        // ============ SALIR Y RESETEAR (LIMPIEZA DE BASES DE DATOS) ============
+        function exitRoom() {
+            if (gs.roomId) {
+                // Borra la sala de Firebase para que no quede basura guardada
+                db.ref('rooms/' + gs.roomId).remove();
+                db.ref('rooms/' + gs.roomId).off();
+                gs.roomId = null;
+            }
+            document.getElementById('gameScreen').classList.remove('active');
+            document.getElementById('homeScreen').classList.add('active');
+            db.ref('rooms').off();
+        }
+
+        function playLocal() {
+            gs.roomId = null;
+            gs.role = 'w';
+            gs.viewBlack = false;
+            gs.turn = 'w';
+            chess.init();
+            document.getElementById('homeScreen').classList.remove('active');
+            document.getElementById('gameScreen').classList.add('active');
+            document.getElementById('topName').innerText = "RIVAL LOCAL";
+            document.getElementById('bottomName').innerText = "JUGADOR 1";
+            resize();
+        }
+
         window.addEventListener('resize', resize);
-        chess.init();
     </script>
 </body>
 </html>
