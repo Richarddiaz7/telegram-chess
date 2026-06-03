@@ -43,6 +43,7 @@
         .modal.active { display: flex; }
         .modal-box { background: linear-gradient(135deg, #16163e, #2a2a5e); border: 2px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 20px; max-width: 380px; width: 90%; color: white; }
         .room-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; width: 100%; cursor: pointer; }
+        .locked-lesson { opacity: 0.6; cursor: not-allowed; }
         .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .toggle-btn { background: #555; width: 50px; height: 26px; border-radius: 13px; position: relative; cursor: pointer; transition: 0.3s; }
         .toggle-btn.on { background: #44ff44; }
@@ -175,13 +176,58 @@
         function addPoints(amount) { userProfile.points += amount; document.getElementById('tgPoints').innerText = userProfile.points; db.ref('users/' + userProfile.id).update({ points: userProfile.points }); }
         function showToast(msg) { const t = document.getElementById('toastNotification'); t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2000); }
 
-        // ============ DATOS ACADEMIA ============
-        const academyData = { mate_pastor: { title: "Mate del Pastor", trivia: [ { q: "¿A qué casilla apunta el ataque directo en f7?", opts: ["Alfil", "Caballo", "Reina", "Rey"], ans: 2 }, { q: "¿Cuántos movimientos se necesitan para este mate?", opts: ["2", "3", "4", "5"], ans: 2 } ], steps: [ { msg: "1. Mueve el peón de Rey a e4.", fr:6, fc:4, tr:4, tc:4, opp:{fr:1, fc:4, tr:3, tc:4} }, { msg: "2. Desarrolla el Alfil a c4.", fr:7, fc:5, tr:4, tc:2, opp:{fr:0, fc:1, tr:2, tc:2} }, { msg: "3. Saca tu Reina a h5.", fr:7, fc:3, tr:3, tc:7, opp:{fr:0, fc:6, tr:2, tc:5} }, { msg: "4. ¡Captura en f7 para dar Mate!", fr:3, fc:7, tr:1, tc:5, end:true } ] } };
+        // ============ DATOS ACADEMIA (3 LECCIONES) ============
+        const academyData = {
+            mate_pastor: {
+                title: "Mate del Pastor",
+                trivia: [
+                    { q: "¿A qué casilla apunta el ataque directo en f7?", opts: ["Alfil", "Caballo", "Reina", "Rey"], ans: 2 },
+                    { q: "¿Cuántos movimientos se necesitan para este mate?", opts: ["2", "3", "4", "5"], ans: 2 }
+                ],
+                steps: [
+                    { msg: "1. Mueve el peón de Rey a e4.", fr:6, fc:4, tr:4, tc:4, opp:{fr:1, fc:4, tr:3, tc:4} },
+                    { msg: "2. Desarrolla el Alfil a c4.", fr:7, fc:5, tr:4, tc:2, opp:{fr:0, fc:1, tr:2, tc:2} },
+                    { msg: "3. Saca tu Reina a h5.", fr:7, fc:3, tr:3, tc:7, opp:{fr:0, fc:6, tr:2, tc:5} },
+                    { msg: "4. ¡Captura en f7 para dar Mate!", fr:3, fc:7, tr:1, tc:5, end:true }
+                ]
+            },
+            enroque: {
+                title: "El Enroque Corto",
+                trivia: [
+                    { q: "¿Cuántas casillas se mueve el rey en el enroque?", opts: ["1", "2", "3", "4"], ans: 1 },
+                    { q: "¿Qué pieza se mueve junto al rey?", opts: ["La Dama", "El Alfil", "La Torre", "El Caballo"], ans: 2 }
+                ],
+                steps: [
+                    { msg: "1. Adelanta el peón de rey a e4.", fr:6, fc:4, tr:4, tc:4, opp:{fr:1, fc:4, tr:3, tc:4} },
+                    { msg: "2. Saca el caballo a f3.", fr:7, fc:6, tr:5, tc:5, opp:{fr:0, fc:1, tr:2, tc:2} },
+                    { msg: "3. Desarrolla el alfil a c4.", fr:7, fc:5, tr:4, tc:2, opp:{fr:0, fc:6, tr:2, tc:5} },
+                    { msg: "4. ¡Enroca! Mueve el rey dos casillas hacia la torre.", fr:7, fc:4, tr:7, tc:6, end:true }
+                ]
+            },
+            captura_al_paso: {
+                title: "Captura al Paso",
+                trivia: [
+                    { q: "¿Qué peón puede capturar al paso?", opts: ["Cualquiera", "Solo el peón de rey", "Solo el peón de dama", "Un peón que avanzó dos casillas"], ans: 3 },
+                    { q: "¿En qué rango de filas ocurre?", opts: ["4 y 5", "3 y 6", "5 y 6", "3 y 4"], ans: 0 }
+                ],
+                steps: [
+                    { msg: "1. Avanza tu peón de rey a e4.", fr:6, fc:4, tr:4, tc:4, opp:{fr:1, fc:3, tr:3, tc:3} },
+                    { msg: "2. El rival avanza su peón de dama dos casillas.", fr:1, fc:3, tr:3, tc:3, opp:null },
+                    { msg: "3. Captura al paso: mueve tu peón a d3 y elimina el peón negro.", fr:4, fc:4, tr:5, tc:3, end:true }
+                ]
+            }
+        };
+
+        const lessons = [
+            { id: 'mate_pastor', name: '💥 El Mate del Pastor', desc: 'Aprende el mate más rápido del ajedrez.', unlockPoints: 0 },
+            { id: 'enroque', name: '🏰 El Enroque Corto', desc: 'Protege a tu rey y activa tu torre.', unlockPoints: 1000 },
+            { id: 'captura_al_paso', name: '👻 Captura al Paso', desc: 'Domina esta regla especial.', unlockPoints: 1000 }
+        ];
 
         // ============ ESTADO GLOBAL ============
         const gs = { mode:'ai', roomId:null, role:'w', viewBlack:false, turn:'w', sel:null, lessonId:null, lessonStep:0, currentTriviaIndex:0, over:false, academyLock:false };
 
-        // ============ MOTOR AJEDREZ (CORREGIDO) ============
+        // ============ MOTOR AJEDREZ ============
         const chess = {
             board:[],
             init(){ this.board = [['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']]; },
@@ -244,58 +290,33 @@
         function showResultModal(title, message, points) { document.getElementById('resultTitle').innerText = title; document.getElementById('resultMessage').innerText = message; document.getElementById('resultPoints').innerText = points ? `+${points} PTS` : ''; document.getElementById('resultModal').classList.add('active'); }
         function closeResultModal() { document.getElementById('resultModal').classList.remove('active'); exitGame(); }
 
-        // ============ LÓGICA DE FIN DE JUEGO ============
         function checkGameEnd() {
             const currentTurn = gs.turn;
             const inCheck = chess.inCheck(currentTurn);
             const hasMoves = chess.hasMoves(currentTurn);
-
             if (inCheck && !hasMoves) {
-                playSound('checkmate');
-                gs.over = true;
+                playSound('checkmate'); gs.over = true;
                 const winnerColor = currentTurn === 'w' ? 'Negras' : 'Blancas';
                 if (gs.mode === 'ai') {
                     if (currentTurn === 'b') { playSound('victory'); addPoints(10); showResultModal('🏆 ¡Victoria!', 'Has derrotado a la IA con Jaque Mate.', 10); }
                     else { playSound('defeat'); showResultModal('💀 Derrota', 'La IA te ha dado Jaque Mate.', 0); }
-                } else if (gs.mode === 'local') {
-                    addPoints(5); playSound('victory');
-                    showResultModal('🏆 ¡Jaque Mate!', `${winnerColor} ganan la partida.`, 5);
-                } else if (gs.mode === 'multi') {
+                } else if (gs.mode === 'local') { addPoints(5); playSound('victory'); showResultModal('🏆 ¡Jaque Mate!', `${winnerColor} ganan la partida.`, 5); }
+                else if (gs.mode === 'multi') {
                     if (currentTurn === gs.role) { playSound('defeat'); showResultModal('💀 Derrota', 'Tu oponente te ha dado Jaque Mate.', 0); }
                     else { playSound('victory'); addPoints(15); showResultModal('🏆 ¡Victoria!', 'Has derrotado a tu oponente con Jaque Mate.', 15); }
                     db.ref('rooms/' + gs.roomId).update({ status: 'finished', winner: currentTurn === 'w' ? 'b' : 'w' });
                 }
                 return true;
-            } else if (!hasMoves) {
-                playSound('defeat'); gs.over = true;
-                showResultModal('🤝 Tablas', 'La partida termina en ahogado.', 0);
-                return true;
-            } else if (inCheck) { playSound('check'); }
+            } else if (!hasMoves) { playSound('defeat'); gs.over = true; showResultModal('🤝 Tablas', 'La partida termina en ahogado.', 0); return true; }
+            else if (inCheck) { playSound('check'); }
             return false;
         }
 
-        // ============ MOVIMIENTO UNIFICADO (CORREGIDO - SIN DOBLE MOVIMIENTO) ============
         function tryMove(fr, fc, tr, tc) {
-            const movingPiece = chess.board[fr][fc];
-            const capturedPiece = chess.board[tr][tc];
-            
-            // Ejecutar movimiento temporal
-            chess.board[tr][tc] = movingPiece;
-            chess.board[fr][fc] = '';
-
-            // Verificar que el rey propio no quede en jaque
-            if (chess.inCheck(gs.turn)) {
-                // Revertir
-                chess.board[fr][fc] = movingPiece;
-                chess.board[tr][tc] = capturedPiece;
-                showToast("Movimiento ilegal: No puedes poner a tu rey en jaque.");
-                return false;
-            }
-            
-            // Movimiento legal: confirmar (ya está aplicado) y reproducir sonido
-            if (capturedPiece) playSound('capture');
-            else playSound('move');
-            
+            const movingPiece = chess.board[fr][fc], capturedPiece = chess.board[tr][tc];
+            chess.board[tr][tc] = movingPiece; chess.board[fr][fc] = '';
+            if (chess.inCheck(gs.turn)) { chess.board[fr][fc] = movingPiece; chess.board[tr][tc] = capturedPiece; showToast("Movimiento ilegal: No puedes poner a tu rey en jaque."); return false; }
+            if (capturedPiece) playSound('capture'); else playSound('move');
             return true;
         }
 
@@ -312,46 +333,47 @@
             if (gs.sel) {
                 if (gs.mode === 'academy') {
                     const step = academyData[gs.lessonId].steps[gs.lessonStep];
-                    if (gs.sel.row === step.fr && gs.sel.col === step.fc && r === step.tr && c === step.tc) {
-                        // La academia usa chess.move directamente porque no necesita tryMove
+                    if (step && gs.sel.row === step.fr && gs.sel.col === step.fc && r === step.tr && c === step.tc) {
                         chess.move(step.fr, step.fc, step.tr, step.tc);
                         gs.sel = null; draw();
-                        if (step.end) { document.getElementById('academyMessage').innerText = "¡Mate Conseguido! Lección Completada. +10 PTS"; addPoints(10); setTimeout(goHome, 3000); }
-                        else { gs.academyLock = true; setTimeout(() => { chess.move(step.opp.fr, step.opp.fc, step.opp.tr, step.opp.tc); gs.lessonStep++; gs.turn = 'w'; updateAcademyMessage(); gs.academyLock = false; draw(); }, 800); }
+                        if (step.end) {
+                            document.getElementById('academyMessage').innerText = "¡Lección Completada! +10 PTS";
+                            addPoints(10); setTimeout(goHome, 3000);
+                        } else {
+                            gs.academyLock = true;
+                            if (step.opp) {
+                                setTimeout(() => {
+                                    chess.move(step.opp.fr, step.opp.fc, step.opp.tr, step.opp.tc);
+                                    gs.lessonStep++;
+                                    gs.turn = 'w';
+                                    updateAcademyMessage();
+                                    gs.academyLock = false;
+                                    draw();
+                                }, 800);
+                            } else {
+                                gs.lessonStep++;
+                                updateAcademyMessage();
+                                gs.academyLock = false;
+                                draw();
+                            }
+                        }
                     } else { gs.sel = null; draw(); }
                     return;
                 }
 
                 if (chess.isValid(gs.sel.row, gs.sel.col, r, c)) {
                     if (tryMove(gs.sel.row, gs.sel.col, r, c)) {
-                        gs.sel = null;
-                        const nextTurn = gs.turn === 'w' ? 'b' : 'w';
-                        gs.turn = nextTurn;
+                        gs.sel = null; gs.turn = gs.turn === 'w' ? 'b' : 'w';
                         draw();
-                        
-                        if (gs.mode === 'multi' && gs.roomId) {
-                            db.ref('rooms/' + gs.roomId).update({ board: chess.board, turn: nextTurn });
-                        }
-                        
-                        checkGameEnd();
-                        
+                        if (gs.mode === 'multi' && gs.roomId) db.ref('rooms/' + gs.roomId).update({ board: chess.board, turn: gs.turn });
+                        if (checkGameEnd()) return;
                         if (gs.mode === 'ai' && gs.turn === 'b' && !gs.over) {
                             setTimeout(() => {
                                 const m = chess.aiMove();
-                                if (m) {
-                                    // La IA también usa tryMove
-                                    if (tryMove(m.fr, m.fc, m.tr, m.tc)) {
-                                        gs.turn = 'w';
-                                        draw();
-                                        checkGameEnd();
-                                    }
-                                }
+                                if (m && tryMove(m.fr, m.fc, m.tr, m.tc)) { gs.turn = 'w'; draw(); checkGameEnd(); }
                             }, 500);
                         }
-                    } else {
-                        gs.sel = null;
-                        draw();
-                    }
+                    } else { gs.sel = null; draw(); }
                 } else {
                     if (p && ((gs.turn === 'w' && p === p.toUpperCase()) || (gs.turn === 'b' && p === p.toLowerCase()))) gs.sel = {row:r, col:c};
                     else gs.sel = null;
@@ -371,17 +393,83 @@
         function playAI() { gs.mode='ai'; gs.roomId=null; gs.viewBlack=false; gs.turn='w'; gs.over=false; chess.init(); document.getElementById('topName').innerText="BOT (IA) ⚫"; document.getElementById('bottomName').innerText=userProfile.name+" ⚪"; updateTurns(); showScreen('gameScreen'); }
         function playLocal() { gs.mode='local'; gs.roomId=null; gs.viewBlack=false; gs.turn='w'; gs.over=false; chess.init(); document.getElementById('topName').innerText="RIVAL LOCAL"; document.getElementById('bottomName').innerText=userProfile.name+" (Blancas)"; updateTurns(); showScreen('gameScreen'); }
 
-        const lessons = [{ id:'mate_pastor', name:'💥 El Mate del Pastor', desc:'Supera la trivia y domina la apertura.' }];
-        function openAcademy() { showScreen('academyScreen'); document.getElementById('lessonsContainer').innerHTML = lessons.map(l=>`<div class="room-card" onclick="startLesson('${l.id}')" style="flex-direction:column;align-items:flex-start"><div style="font-weight:700;color:#ffd700">${l.name}</div><div style="font-size:12px;color:#bbb;margin-top:5px">${l.desc}</div></div>`).join(''); }
-        function startLesson(id) { gs.lessonId=id; gs.currentTriviaIndex=0; document.getElementById('triviaTitle').innerText=academyData[id].title; showTriviaQuestion(); document.getElementById('triviaModal').classList.add('active'); }
+        // ============ ACADEMIA MEJORADA ============
+        function openAcademy() {
+            showScreen('academyScreen');
+            const container = document.getElementById('lessonsContainer');
+            container.innerHTML = lessons.map(l => {
+                const unlocked = userProfile.points >= l.unlockPoints;
+                const cardClass = unlocked ? 'room-card' : 'room-card locked-lesson';
+                const clickHandler = unlocked ? `onclick="startLesson('${l.id}')"` : `onclick="showToast('Necesitas ${l.unlockPoints} puntos para desbloquear esta lección.')"`;
+                const lockIcon = unlocked ? '' : ' 🔒';
+                return `<div class="${cardClass}" ${clickHandler} style="flex-direction:column;align-items:flex-start">
+                    <div style="font-weight:700;color:#ffd700">${l.name}${lockIcon}</div>
+                    <div style="font-size:12px;color:#bbb;margin-top:5px">${l.desc}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function startLesson(id) {
+            if (!academyData[id]) return;
+            const lesson = academyData[id];
+            if (userProfile.points < (lessons.find(l=>l.id===id)?.unlockPoints || 0)) {
+                showToast("No tienes suficientes puntos para esta lección.");
+                return;
+            }
+            gs.lessonId = id;
+            gs.currentTriviaIndex = 0;
+            document.getElementById('triviaTitle').innerText = lesson.title;
+            showTriviaQuestion();
+            document.getElementById('triviaModal').classList.add('active');
+        }
+
         function closeTrivia() { document.getElementById('triviaModal').classList.remove('active'); }
-        function showTriviaQuestion() { const t=academyData[gs.lessonId].trivia[gs.currentTriviaIndex]; document.getElementById('triviaQuestion').innerText=t.q; const optsDiv=document.getElementById('triviaOptions'); optsDiv.innerHTML=''; t.opts.forEach((opt,idx)=>{ optsDiv.innerHTML+=`<button class="trivia-btn" onclick="checkTrivia(${idx})">${opt}</button>`; }); }
-        function checkTrivia(idx) { const t=academyData[gs.lessonId].trivia[gs.currentTriviaIndex]; if(idx===t.ans){ gs.currentTriviaIndex++; if(gs.currentTriviaIndex<academyData[gs.lessonId].trivia.length) showTriviaQuestion(); else{ closeTrivia(); enterAcademyBoard(); } } else alert("Respuesta incorrecta. ¡Intenta de nuevo!"); }
-        function enterAcademyBoard() { gs.mode='academy'; gs.viewBlack=false; gs.lessonStep=0; gs.turn='w'; gs.academyLock = false; chess.init(); document.getElementById('topName').innerText="TUTOR"; document.getElementById('bottomName').innerText="ESTUDIANTE"; showScreen('gameScreen'); document.getElementById('academyMessage').style.display='block'; updateAcademyMessage(); draw(); }
-        function updateAcademyMessage() { const step=academyData[gs.lessonId].steps[gs.lessonStep]; if(step) document.getElementById('academyMessage').innerText=step.msg; }
+        function showTriviaQuestion() {
+            const t = academyData[gs.lessonId].trivia[gs.currentTriviaIndex];
+            document.getElementById('triviaQuestion').innerText = t.q;
+            const optsDiv = document.getElementById('triviaOptions');
+            optsDiv.innerHTML = '';
+            t.opts.forEach((opt, idx) => { optsDiv.innerHTML += `<button class="trivia-btn" onclick="checkTrivia(${idx})">${opt}</button>`; });
+        }
+        function checkTrivia(idx) {
+            const t = academyData[gs.lessonId].trivia[gs.currentTriviaIndex];
+            if (idx === t.ans) {
+                gs.currentTriviaIndex++;
+                if (gs.currentTriviaIndex < academyData[gs.lessonId].trivia.length) showTriviaQuestion();
+                else { closeTrivia(); enterAcademyBoard(); }
+            } else { alert("Respuesta incorrecta. ¡Intenta de nuevo!"); }
+        }
+        function enterAcademyBoard() {
+            gs.mode = 'academy'; gs.viewBlack = false; gs.lessonStep = 0; gs.turn = 'w'; gs.academyLock = false;
+            chess.init();
+            document.getElementById('topName').innerText = "TUTOR"; document.getElementById('bottomName').innerText = "ESTUDIANTE";
+            showScreen('gameScreen');
+            document.getElementById('academyMessage').style.display = 'block';
+            updateAcademyMessage();
+            draw();
+        }
+        function updateAcademyMessage() {
+            const step = academyData[gs.lessonId].steps[gs.lessonStep];
+            if (step) document.getElementById('academyMessage').innerText = step.msg;
+        }
 
-        function showRanking() { showScreen('rankingScreen'); const list = document.getElementById('rankingList'); list.innerHTML = 'Cargando...'; if (rankingListener) db.ref('users').off('value', rankingListener); rankingListener = db.ref('users').orderByChild('points').limitToLast(10).on('value', snap => { list.innerHTML = ''; const users = []; snap.forEach(child => { users.push({ name: child.val().name || 'Jugador', points: child.val().points || 0 }); }); users.sort((a, b) => b.points - a.points); users.forEach((u, i) => { list.innerHTML += `<div class="rank-item"><span>${i+1}. ${u.name}</span><span>${u.points} pts</span></div>`; }); if (users.length === 0) list.innerHTML = '<p style="color:#888;">No hay jugadores aún.</p>'; }); }
+        // ============ RANKING ============
+        function showRanking() {
+            showScreen('rankingScreen');
+            const list = document.getElementById('rankingList');
+            list.innerHTML = 'Cargando...';
+            if (rankingListener) db.ref('users').off('value', rankingListener);
+            rankingListener = db.ref('users').orderByChild('points').limitToLast(10).on('value', snap => {
+                list.innerHTML = '';
+                const users = [];
+                snap.forEach(child => { users.push({ name: child.val().name || 'Jugador', points: child.val().points || 0 }); });
+                users.sort((a, b) => b.points - a.points);
+                users.forEach((u, i) => { list.innerHTML += `<div class="rank-item"><span>${i+1}. ${u.name}</span><span>${u.points} pts</span></div>`; });
+                if (users.length === 0) list.innerHTML = '<p style="color:#888;">No hay jugadores aún.</p>';
+            });
+        }
 
+        // ============ MULTIJUGADOR ============
         function openLobby() { document.getElementById('lobbyModal').classList.add('active'); db.ref('rooms').on('value', snap=>{ const list=document.getElementById('roomList'); list.innerHTML=''; snap.forEach(child=>{ const room=child.val(); if(room.status==='waiting') list.innerHTML+=`<div class="room-card"><span class="room-name">Sala de ${room.white}</span><button class="btn-secondary" onclick="joinRoom('${child.key}')">UNIRSE</button></div>`; }); }); }
         function closeLobby() { document.getElementById('lobbyModal').classList.remove('active'); db.ref('rooms').off(); }
         function createRoom() { const name=userProfile.name; const ref=db.ref('rooms').push(); gs.roomId=ref.key; gs.mode='multi'; gs.role='w'; gs.viewBlack=false; gs.over=false; chess.init(); ref.onDisconnect().remove(); ref.set({white:name,status:'waiting',turn:'w',board:chess.board}); closeLobby(); listenRoom(gs.roomId); }
