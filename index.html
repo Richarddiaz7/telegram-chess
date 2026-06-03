@@ -73,7 +73,6 @@
                 <button class="btn btn-secondary" onclick="openSettings()">⚙️ CONFIGURACIÓN</button>
             </div>
         </div>
-
         <div class="screen" id="settingsScreen">
             <div class="home-screen" style="justify-content: flex-start; padding-top: 40px;">
                 <h1 class="title">⚙️ AJUSTES</h1>
@@ -90,7 +89,6 @@
                 <button class="btn btn-secondary" onclick="goHome()" style="margin-top: auto; margin-bottom: 20px;">🏠 VOLVER</button>
             </div>
         </div>
-
         <div class="screen" id="gameScreen">
             <div class="game-screen">
                 <div class="game-header">
@@ -104,7 +102,6 @@
                 <div class="game-footer"><button class="btn-back" onclick="exitGame()">🏠 SALIR</button></div>
             </div>
         </div>
-
         <div class="screen" id="academyScreen">
             <div class="academy-screen">
                 <div class="crown-icon">🧠</div><h1 class="title">ACADEMIA</h1>
@@ -113,7 +110,6 @@
                 <button class="btn btn-secondary" onclick="goHome()" style="margin-top: auto; margin-bottom: 20px;">🏠 VOLVER</button>
             </div>
         </div>
-
         <div class="screen" id="rankingScreen">
             <div class="ranking-screen">
                 <h1 class="title">🏆 TOP JUGADORES</h1>
@@ -126,11 +122,9 @@
     <div class="modal" id="triviaModal">
         <div class="modal-box"><h2 id="triviaTitle">Trivia</h2><div style="border-bottom:1px solid rgba(255,215,0,0.2);margin:10px 0"></div><p id="triviaQuestion" style="font-size:16px;margin-bottom:15px"></p><div id="triviaOptions" style="display:flex;flex-direction:column;gap:8px"></div><button class="btn-back" onclick="closeTrivia()" style="width:100%;margin-top:15px">CANCELAR</button></div>
     </div>
-
     <div class="modal" id="lobbyModal">
         <div class="modal-box"><h2 style="color:#ffd700;text-align:center">🌐 Salas Activas</h2><button class="btn btn-secondary" onclick="createRoom()" style="margin-bottom:10px;width:100%">🏠 Crear Sala de Juego</button><div id="roomList" style="max-height:200px;overflow-y:auto"></div><button class="btn-back" onclick="closeLobby()" style="width:100%;margin-top:10px">CERRAR</button></div>
     </div>
-
     <div class="modal" id="resultModal">
         <div class="modal-box" style="text-align:center;">
             <h2 id="resultTitle" style="font-size:28px; margin-bottom:10px;"></h2>
@@ -250,7 +244,7 @@
         function showResultModal(title, message, points) { document.getElementById('resultTitle').innerText = title; document.getElementById('resultMessage').innerText = message; document.getElementById('resultPoints').innerText = points ? `+${points} PTS` : ''; document.getElementById('resultModal').classList.add('active'); }
         function closeResultModal() { document.getElementById('resultModal').classList.remove('active'); exitGame(); }
 
-        // ============ LÓGICA DE FIN DE JUEGO (CORREGIDA) ============
+        // ============ LÓGICA DE FIN DE JUEGO ============
         function checkGameEnd() {
             const currentTurn = gs.turn;
             const inCheck = chess.inCheck(currentTurn);
@@ -280,24 +274,28 @@
             return false;
         }
 
-        // ============ LÓGICA DE MOVIMIENTO UNIFICADA ============
+        // ============ MOVIMIENTO UNIFICADO (CORREGIDO - SIN DOBLE MOVIMIENTO) ============
         function tryMove(fr, fc, tr, tc) {
             const movingPiece = chess.board[fr][fc];
             const capturedPiece = chess.board[tr][tc];
             
+            // Ejecutar movimiento temporal
             chess.board[tr][tc] = movingPiece;
             chess.board[fr][fc] = '';
 
-            const currentPlayerColor = gs.turn; // 'w' o 'b'
-            if (chess.inCheck(currentPlayerColor)) {
-                // Revertir movimiento ilegal
+            // Verificar que el rey propio no quede en jaque
+            if (chess.inCheck(gs.turn)) {
+                // Revertir
                 chess.board[fr][fc] = movingPiece;
                 chess.board[tr][tc] = capturedPiece;
                 showToast("Movimiento ilegal: No puedes poner a tu rey en jaque.");
                 return false;
             }
-            // Movimiento legal, confirmar
-            chess.move(fr, fc, tr, tc);
+            
+            // Movimiento legal: confirmar (ya está aplicado) y reproducir sonido
+            if (capturedPiece) playSound('capture');
+            else playSound('move');
+            
             return true;
         }
 
@@ -315,6 +313,7 @@
                 if (gs.mode === 'academy') {
                     const step = academyData[gs.lessonId].steps[gs.lessonStep];
                     if (gs.sel.row === step.fr && gs.sel.col === step.fc && r === step.tr && c === step.tc) {
+                        // La academia usa chess.move directamente porque no necesita tryMove
                         chess.move(step.fr, step.fc, step.tr, step.tc);
                         gs.sel = null; draw();
                         if (step.end) { document.getElementById('academyMessage').innerText = "¡Mate Conseguido! Lección Completada. +10 PTS"; addPoints(10); setTimeout(goHome, 3000); }
@@ -340,6 +339,7 @@
                             setTimeout(() => {
                                 const m = chess.aiMove();
                                 if (m) {
+                                    // La IA también usa tryMove
                                     if (tryMove(m.fr, m.fc, m.tr, m.tc)) {
                                         gs.turn = 'w';
                                         draw();
