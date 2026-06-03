@@ -130,6 +130,16 @@
         <div class="modal-box"><h2 style="color:#ffd700;text-align:center">🌐 Salas Activas</h2><button class="btn btn-secondary" onclick="createRoom()" style="margin-bottom:10px;width:100%">🏠 Crear Sala de Juego</button><div id="roomList" style="max-height:200px;overflow-y:auto"></div><button class="btn-back" onclick="closeLobby()" style="width:100%;margin-top:10px">CERRAR</button></div>
     </div>
 
+    <!-- MODAL DE RESULTADO -->
+    <div class="modal" id="resultModal">
+        <div class="modal-box" style="text-align:center;">
+            <h2 id="resultTitle" style="font-size:28px; margin-bottom:10px;"></h2>
+            <p id="resultMessage" style="font-size:16px; margin-bottom:15px;"></p>
+            <p id="resultPoints" style="color:#ffd700; font-weight:700;"></p>
+            <button class="btn btn-play" onclick="closeResultModal()" style="margin-top:15px; width:100%;">CONTINUAR</button>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
@@ -283,44 +293,62 @@
             }
         }
 
-        // ============ DETECCIÓN DE FIN DE JUEGO Y PUNTOS ============
+        // ============ RESULTADO Y FIN DE JUEGO ============
+        function showResultModal(title, message, points) {
+            document.getElementById('resultTitle').innerText = title;
+            document.getElementById('resultMessage').innerText = message;
+            document.getElementById('resultPoints').innerText = points ? `+${points} PTS` : '';
+            document.getElementById('resultModal').classList.add('active');
+        }
+
+        function closeResultModal() {
+            document.getElementById('resultModal').classList.remove('active');
+            exitGame();
+        }
+
         function checkGameEnd() {
-            const opponent = gs.turn === 'w' ? 'b' : 'w';
-            const inCheck = chess.inCheck(opponent);
-            const hasMoves = chess.hasMoves(opponent);
+            const currentTurn = gs.turn;
+            const inCheck = chess.inCheck(currentTurn);
+            const hasMoves = chess.hasMoves(currentTurn);
+
             if (inCheck && !hasMoves) {
-                // Jaque mate
                 playSound('checkmate');
-                const winner = gs.turn; // el que movió acaba de dar mate
-                if ((gs.mode === 'ai' && winner === 'w') || (gs.mode === 'local' && winner === 'w')) {
-                    playSound('victory');
-                    addPoints(10);
-                    gs.gameResult = 'win';
-                } else if (gs.mode === 'ai' && winner === 'b') {
-                    playSound('defeat');
-                    gs.gameResult = 'loss';
-                } else if (gs.mode === 'multi') {
-                    // En multijugador, el que da mate es el ganador; el otro recibirá la notificación via Firebase
-                    if (winner === gs.role) {
+                gs.over = true;
+                const winnerColor = currentTurn === 'w' ? 'Negras' : 'Blancas';
+                if (gs.mode === 'ai') {
+                    if (currentTurn === 'b') {
                         playSound('victory');
-                        addPoints(15);
+                        addPoints(10);
+                        showResultModal('🏆 ¡Victoria!', 'Has derrotado a la IA con Jaque Mate.', 10);
                     } else {
                         playSound('defeat');
+                        showResultModal('💀 Derrota', 'La IA te ha dado Jaque Mate.', 0);
                     }
-                    db.ref('rooms/' + gs.roomId).update({ status: 'finished', winner: winner });
+                } else if (gs.mode === 'local') {
+                    addPoints(5);
+                    playSound('victory');
+                    showResultModal('🏆 ¡Jaque Mate!', `${winnerColor} ganan la partida.`, 5);
+                } else if (gs.mode === 'multi') {
+                    if (currentTurn === gs.role) {
+                        playSound('defeat');
+                        showResultModal('💀 Derrota', 'Tu oponente te ha dado Jaque Mate.', 0);
+                    } else {
+                        playSound('victory');
+                        addPoints(15);
+                        showResultModal('🏆 ¡Victoria!', 'Has derrotado a tu oponente con Jaque Mate.', 15);
+                    }
+                    db.ref('rooms/' + gs.roomId).update({ status: 'finished', winner: currentTurn === 'w' ? 'b' : 'w' });
                 }
-                gs.over = true;
-                setTimeout(() => { alert(winner === 'w' ? '¡Blancas ganan por Jaque Mate!' : '¡Negras ganan por Jaque Mate!'); exitGame(); }, 500);
-                return;
+                return true;
             } else if (!hasMoves) {
-                // Tablas (ahogado)
-                playSound('defeat'); // o un sonido de tablas
+                playSound('defeat');
                 gs.over = true;
-                setTimeout(() => { alert('¡Tablas!'); exitGame(); }, 500);
-                return;
+                showResultModal('🤝 Tablas', 'La partida termina en ahogado.', 0);
+                return true;
             } else if (inCheck) {
                 playSound('check');
             }
+            return false;
         }
 
         // ============ CLICK Y JUEGO ============
@@ -364,8 +392,7 @@
                     } else {
                         gs.turn = nextTurn;
                         draw();
-                        checkGameEnd();
-                        if (gs.mode === 'ai' && gs.turn === 'b' && !gs.over) {
+                        if (!checkGameEnd() && gs.mode === 'ai' && gs.turn === 'b' && !gs.over) {
                             setTimeout(() => {
                                 const m = chess.aiMove();
                                 if (m) {
