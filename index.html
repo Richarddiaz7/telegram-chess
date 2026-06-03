@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>♔ Royal Chess Arena</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         html, body { width: 100%; height: 100%; overflow: hidden; }
@@ -12,62 +13,45 @@
         .screen { display: none; width: 100%; height: 100%; flex-direction: column; }
         .screen.active { display: flex; }
 
-        /* PORTADA PRINCIPAL - Centrada y con Imagen 1 */
-        .home-screen { 
-            display: flex;
-            flex-direction: column;
-            align-items: center; 
-            justify-content: center; 
-            gap: 12px; 
-            padding: 20px; 
-            width: 100%;
-            height: 100%;
-            text-align: center;
-            background: linear-gradient(180deg, rgba(10,10,46,0.65), rgba(26,26,78,0.8)), url('1779421764793.png') center center / cover no-repeat; 
-        }
-        .crown-icon { font-size: 60px; filter: drop-shadow(0 0 25px rgba(255,215,0,0.6)); text-align: center; }
-        .title { font-size: 28px; font-weight: 900; background: linear-gradient(45deg, #ffd700, #ffed4a, #daa520); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; width: 100%; }
-        .btn { padding: 14px 30px; border: none; border-radius: 50px; font-size: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; width: 100%; max-width: 280px; }
-        .btn:active { transform: scale(0.95); }
-        .btn-play { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a1a2e; font-size: 20px; padding: 18px; box-shadow: 0 8px 25px rgba(255,140,0,0.5); margin-bottom: 5px; }
-        .btn-secondary { background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,215,0,0.25); font-size: 13px; padding: 10px; }
-        input { width: 260px; padding: 14px; border-radius: 50px; border: 2px solid rgba(255,215,0,0.4); background: rgba(0,0,0,0.4); color: white; font-size: 16px; text-align: center; outline: none; backdrop-filter: blur(4px); }
+        /* FONDOS */
+        .home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 20px; width: 100%; height: 100%; text-align: center; background: linear-gradient(180deg, rgba(10,10,46,0.65), rgba(26,26,78,0.8)), url('1779421764793.png') center center / cover no-repeat; }
+        .game-screen { display: flex; flex-direction: column; height: 100%; background: linear-gradient(180deg, rgba(10,10,26,0.5), rgba(10,10,26,0.7)), url('1779422040370.png') center center / cover no-repeat; }
+        
+        .crown-icon { font-size: 50px; filter: drop-shadow(0 0 25px rgba(255,215,0,0.6)); }
+        .title { font-size: 28px; font-weight: 900; background: linear-gradient(45deg, #ffd700, #ffed4a, #daa520); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .user-badge { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,215,0,0.3); padding: 10px 20px; border-radius: 30px; color: white; display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: bold; font-size: 14px; margin-bottom: 10px; min-width: 200px; }
+        .points-display { color: #44ff44; font-size: 16px; font-weight: 900; }
 
-        /* PANTALLA DE JUEGO - Con Imagen 2 */
-        .game-screen { 
-            display: flex; 
-            flex-direction: column; 
-            height: 100%; 
-            background: linear-gradient(180deg, rgba(10,10,26,0.5), rgba(10,10,26,0.7)), url('1779422040370.png') center center / cover no-repeat; 
-        }
-        .game-header { display: flex; justify-content: space-between; padding: 8px; background: rgba(10,10,30,0.85); border-bottom: 1px solid rgba(255,215,0,0.2); backdrop-filter: blur(4px); min-height: 65px; }
+        .btn { padding: 14px 30px; border: none; border-radius: 50px; font-size: 14px; font-weight: 700; cursor: pointer; text-transform: uppercase; width: 100%; max-width: 280px; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn:active { transform: scale(0.95); }
+        .btn-play { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a1a2e; font-size: 18px; padding: 16px; box-shadow: 0 8px 25px rgba(255,140,0,0.5); }
+        .btn-secondary { background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,215,0,0.25); }
+        
+        .game-header { display: flex; justify-content: space-between; padding: 8px; background: rgba(10,10,30,0.85); border-bottom: 1px solid rgba(255,215,0,0.2); min-height: 65px; align-items: center; }
         .player-info { display: flex; align-items: center; gap: 6px; color: white; flex: 1; }
-        .player-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
-        .player-dot.white { background: linear-gradient(135deg, #fff, #ccc); color: #000; }
-        .player-dot.black { background: linear-gradient(135deg, #333, #000); color: #fff; }
-        .player-name { font-size: 11px; color: #fff; font-weight: 500; }
-        .timer { font-size: 20px; font-weight: 900; color: #ffd700; font-family: monospace; }
+        .player-name { font-size: 12px; font-weight: 600; color: #ffd700; }
         .turn-dot { width: 10px; height: 10px; border-radius: 50%; }
         .turn-dot.you { background: #44ff44; box-shadow: 0 0 10px #44ff44; }
         .turn-dot.opp { background: #555; }
-        .board-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 5px; }
+        .board-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 5px; position: relative; }
         canvas { border-radius: 8px; box-shadow: 0 0 60px rgba(255,215,0,0.15); cursor: pointer; max-width: 100%; max-height: 100%; }
-        .game-footer { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: rgba(10,10,30,0.85); border-top: 1px solid rgba(255,215,0,0.2); backdrop-filter: blur(4px); }
-        .energy-bar-wrap { flex: 1; height: 14px; background: rgba(255,255,255,0.08); border-radius: 7px; overflow: hidden; }
-        .energy-bar { height: 100%; background: linear-gradient(90deg, #ff3333, #ffd700, #44ff44); transition: width 0.4s; }
+        .game-footer { display: flex; justify-content: space-between; padding: 10px; background: rgba(10,10,30,0.85); }
         .btn-back { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.2); color: #ffd700; padding: 8px 14px; border-radius: 18px; font-size: 11px; cursor: pointer; }
 
-        /* MODAL / LOBBY / TRIVIA BOX */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
-        .modal-box { background: linear-gradient(135deg, rgba(26,26,62,0.95), rgba(42,42,94,0.95)), url('1779421764793.png') center center / cover no-repeat; border: 2px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 20px; max-width: 380px; width: 90%; color: white; box-shadow: 0 0 30px rgba(0,0,0,0.7); }
-        .modal-box h2 { color: #ffd700; text-align: center; margin-bottom: 15px; }
-        .room-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(4px); width: 100%; }
-        .room-name { color: #ffd700; font-weight: 700; }
-        .room-join { background: rgba(255,215,0,0.2); color: #ffd700; padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700; }
+        .modal-box { background: linear-gradient(135deg, #16163e, #2a2a5e); border: 2px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 20px; max-width: 380px; width: 90%; color: white; }
+        .room-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .locked-card { opacity: 0.5; cursor: not-allowed; }
         
-        /* Estilos específicos para la trivia */
-        #triviaOptions { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .toggle-btn { background: #555; width: 50px; height: 26px; border-radius: 13px; position: relative; cursor: pointer; transition: 0.3s; }
+        .toggle-btn.on { background: #44ff44; }
+        .toggle-circle { width: 22px; height: 22px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.3s; }
+        .toggle-btn.on .toggle-circle { left: 26px; }
+
+        #academyMessage { position: absolute; top: 10px; background: rgba(0,0,0,0.9); color: #44ff44; padding: 10px; border-radius: 8px; border: 1px solid #44ff44; font-size: 13px; text-align: center; width: 90%; z-index: 10; display: none; }
     </style>
 </head>
 <body>
@@ -76,40 +60,33 @@
             <div class="home-screen">
                 <div class="crown-icon">👑</div>
                 <h1 class="title">ROYAL CHESS</h1>
-                <p style="color:#aaa;font-size:12px;margin-bottom:8px;">Play & Earn Arena</p>
-                <input type="text" id="nameInput" placeholder="Tu nombre" maxlength="15">
-                <button class="btn btn-play" onclick="playAI()">⚔️ PLAY NOW</button>
-                <button class="btn btn-secondary" onclick="openAcademy()">🧠 ACADEMIA TUTOR</button>
-                <button class="btn btn-secondary" onclick="playLocal()">👥 2 JUGADORES</button>
-                <button class="btn btn-secondary" onclick="openLobby()">🌐 MULTIJUGADOR</button>
-            </div>
-        </div>
-
-        <div class="screen" id="academyScreen">
-            <div class="home-screen" style="justify-content: flex-start; padding-top: 40px;">
-                <div class="crown-icon">🧠</div>
-                <h1 class="title">ACADEMIA</h1>
-                <p style="color:#aaa;font-size:12px;margin-bottom:20px;">Aprende Jugadas Maestras</p>
                 
-                <div class="room-card" style="cursor: pointer; text-align: left; flex-direction: column; align-items: flex-start; gap: 4px;" onclick="startLesson('mate_pastor')">
-                    <div class="room-name">💥 El Mate del Pastor</div>
-                    <div style="font-size: 12px; color: #bbb;">Aprende el ataque fulminante de 4 movimientos aprovechando las debilidades del rival.</div>
+                <div class="user-badge">
+                    <span id="tgUsername">Cargando...</span>
+                    <span class="points-display">⚡ <span id="tgPoints">0</span> PTS</span>
                 </div>
 
-                <button class="btn btn-secondary" onclick="goHome()" style="margin-top: 20px;">🏠 VOLVER AL MENÚ</button>
+                <button class="btn btn-play" onclick="playAI()">🤖 JUGAR VS IA</button>
+                <button class="btn btn-secondary" onclick="openLobby()">🌐 MULTIJUGADOR</button>
+                <button class="btn btn-secondary" onclick="openAcademy()">🧠 ACADEMIA TUTOR</button>
+                <button class="btn btn-secondary" onclick="openSettings()">⚙️ CONFIGURACIÓN</button>
             </div>
         </div>
 
-        <div class="screen" id="triviaScreen">
-            <div class="modal-box" style="display: block; position: relative; width: 90%; max-width: 400px; margin: auto;">
-                <h2 id="triviaLessonTitle">💥 Mate del Pastor</h2>
-                <p style="color:#aaa; font-size: 13px; text-align: center;">Módulo de Trivia Didáctica</p>
-                <div style="border-bottom: 1px solid rgba(255,215,0,0.2); margin: 10px 0;"></div>
-                
-                <p id="triviaQuestion" style="font-size: 16px; color: #fff; text-align: center; font-weight: 500;"></p>
-                <div id="triviaOptions">
+        <div class="screen" id="settingsScreen">
+            <div class="home-screen" style="justify-content: flex-start; padding-top: 40px;">
+                <h1 class="title">⚙️ AJUSTES</h1>
+                <div style="width: 100%; max-width: 300px; margin-top: 30px; background: rgba(0,0,0,0.5); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,215,0,0.3);">
+                    <div class="setting-row">
+                        <span>🎵 Música de Fondo</span>
+                        <div class="toggle-btn" id="toggleMusic" onclick="toggleAudio('bgm')"><div class="toggle-circle"></div></div>
                     </div>
-                <button class="btn btn-secondary" onclick="goHome()" style="width: 100%; margin-top: 15px;">🏠 VOLVER AL MENÚ</button>
+                    <div class="setting-row" style="border-bottom:none;">
+                        <span>🔊 Efectos de Sonido</span>
+                        <div class="toggle-btn on" id="toggleSfx" onclick="toggleAudio('sfx')"><div class="toggle-circle"></div></div>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" onclick="goHome()" style="margin-top: auto; margin-bottom: 20px;">🏠 VOLVER</button>
             </div>
         </div>
 
@@ -117,34 +94,39 @@
             <div class="game-screen">
                 <div class="game-header">
                     <div class="player-info">
-                        <div class="player-dot white" id="topDot">⚪</div>
-                        <div><div class="player-name" id="topName">OPONENTE</div><div class="timer" id="topTimer">10:00</div></div>
+                        <div><div class="player-name" id="topName">OPONENTE</div></div>
                         <div class="turn-dot opp" id="topTurn"></div>
                     </div>
-                    <div class="player-info" id="bottomPlayerArea">
-                        <div class="player-dot white" id="bottomDot">⚪</div>
-                        <div><div class="player-name" id="bottomName">TÚ</div><div class="timer" id="bottomTimer">10:00</div></div>
+                    <div class="player-info" style="justify-content: flex-end;">
                         <div class="turn-dot you" id="bottomTurn"></div>
+                        <div><div class="player-name" id="bottomName">TÚ</div></div>
                     </div>
                 </div>
                 <div class="board-container" id="boardContainer">
+                    <div id="academyMessage">...</div>
                     <canvas id="chessCanvas"></canvas>
                 </div>
                 <div class="game-footer">
-                    <span style="color:#ffd700;font-size:10px;">⚡</span>
-                    <div class="energy-bar-wrap"><div class="energy-bar" id="energyBar" style="width:100%"></div></div>
-                    <button class="btn-back" onclick="goHome()">🏠</button>
+                    <button class="btn-back" onclick="exitGame()">🏠 SALIR</button>
                 </div>
+            </div>
+        </div>
+
+        <div class="screen" id="academyScreen">
+            <div class="home-screen" style="justify-content: flex-start; padding-top: 40px;">
+                <div class="crown-icon">🧠</div><h1 class="title">ACADEMIA</h1>
+                <div id="lessonsContainer" style="width:100%; display:flex; flex-direction:column; gap:8px;"></div>
+                <button class="btn btn-secondary" onclick="goHome()" style="margin-top: auto; margin-bottom: 20px;">🏠 VOLVER</button>
             </div>
         </div>
     </div>
 
     <div class="modal" id="lobbyModal">
         <div class="modal-box">
-            <h2>🌐 Salas</h2>
-            <button class="btn btn-secondary" onclick="createRoom()" style="margin-bottom:10px; width: 100%; max-width: 100%;">🏠 Crear Sala (Blancas)</button>
-            <div id="roomList" style="max-height:200px;overflow-y:auto;"></div>
-            <button class="btn-back" onclick="closeLobby()" style="width:100%;margin-top:10px;">CERRAR</button>
+            <h2 style="color:#ffd700; text-align:center;">🌐 Salas Activas</h2>
+            <button class="btn btn-secondary" onclick="createRoom()" style="margin-bottom:10px; width: 100%;">🏠 Crear Sala de Juego</button>
+            <div id="roomList" style="max-height:200px; overflow-y:auto;"></div>
+            <button class="btn-back" onclick="closeLobby()" style="width:100%; margin-top:10px;">CERRAR</button>
         </div>
     </div>
 
@@ -152,392 +134,195 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
-        // ============ FIREBASE ============
-        firebase.initializeApp({
-            apiKey: "AIzaSyDMu83hA5xjmwSlUX4KUgWkYlx6SqHcaAk",
-            authDomain: "royal-chess-multiplayer.firebaseapp.com",
-            databaseURL: "https://royal-chess-multiplayer-default-rtdb.firebaseio.com",
-            projectId: "royal-chess-multiplayer",
-            storageBucket: "royal-chess-multiplayer.firebasestorage.app",
-            messagingSenderId: "380447919929",
-            appId: "1:380447919929:web:13c8584bf1e688830ea2e8"
-        });
-        const db = firebase.database();
+        // ============ TELEGRAM Y PERFIL ============
+        const tg = window.Telegram.WebApp; tg.expand();
+        let userProfile = { id: "dev_123", name: "Jugador Local", points: 0 };
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            userProfile.id = String(tg.initDataUnsafe.user.id);
+            userProfile.name = tg.initDataUnsafe.user.first_name;
+        }
 
-        // ============ BASE DE DATOS DE LA ACADEMIA Y TRIVIA ============
-        const academyData = {
-            mate_pastor: {
-                title: "Mate del Pastor",
-                // PANTALLA DE TRIVIA (DESBLOQUEO)
-                trivia: [
-                    { pregunta: "¿A qué casilla apunta el ataque directo en f7?", opciones: ["Alfil", "Caballo", "Reina", "Rey"], correcta: 2 }, // Reina (Opción index 2)
-                    { pregunta: "¿Cuántos movimientos se necesitan para este mate?", opciones: ["2", "3", "4", "5"], correcta: 2 }, // 4 (Opción index 2)
-                    { pregunta: "¿Cuál es la pieza más importante a proteger en la apertura?", opciones: ["Reina", "Torre", "Alfil", "Rey"], correcta: 3 } // Rey (Opción index 3)
-                ],
-                // PANTALLA DE PRÁCTICA (TABLERO)
-                steps: [
-                    { msg: "1. Abre paso a tu Alfil y Reina. Mueve el peón de Rey a e4.", fr: 6, fc: 4, tr: 4, tc: 4, response: {fr: 1, fc: 4, tr: 3, tc: 4} }, 
-                    { msg: "2. Desarrolla el Alfil a c4 apuntando al punto débil f7.", fr: 7, fc: 5, tr: 4, tc: 2, response: {fr: 0, fc: 1, tr: 2, tc: 2} }, 
-                    { msg: "3. Saca tu Reina a h5 sumando ataque sobre f7.", fr: 7, fc: 3, tr: 3, tc: 7, response: {fr: 0, fc: 6, tr: 2, tc: 5} }, 
-                    { msg: "4. ¡Momento final! Captura el peón en f7 con la Reina para dar Mate.", fr: 3, fc: 7, tr: 1, tc: 5, isEnd: true } 
-                ]
-            }
+        // ============ SISTEMA DE AUDIO (AUDIO MANAGER) ============
+        const audioSys = {
+            sfxOn: true,
+            bgmOn: false,
+            click: new Audio('sounds/click.mp3'),
+            move: new Audio('sounds/move.mp3'),
+            capture: new Audio('sounds/capture.mp3'),
+            bgm: new Audio('sounds/bgm.mp3')
         };
+        audioSys.bgm.loop = true;
 
-        // ============ CHESS ENGINE ============
+        function playSound(type) {
+            if(!audioSys.sfxOn) return;
+            try {
+                audioSys[type].currentTime = 0;
+                audioSys[type].play().catch(e=>{});
+            } catch(e) {}
+        }
+
+        function toggleAudio(type) {
+            playSound('click');
+            if(type === 'bgm') {
+                audioSys.bgmOn = !audioSys.bgmOn;
+                document.getElementById('toggleMusic').className = audioSys.bgmOn ? 'toggle-btn on' : 'toggle-btn';
+                if(audioSys.bgmOn) audioSys.bgm.play().catch(e=>{}); else audioSys.bgm.pause();
+            } else {
+                audioSys.sfxOn = !audioSys.sfxOn;
+                document.getElementById('toggleSfx').className = audioSys.sfxOn ? 'toggle-btn on' : 'toggle-btn';
+            }
+        }
+
+        // Detectar clicks en botones para sonido global
+        document.body.addEventListener('click', (e) => {
+            if(e.target.closest('button') || e.target.closest('.room-card')) playSound('click');
+        });
+
+        // ============ FIREBASE ============
+        firebase.initializeApp({ apiKey: "AIzaSyDMu83hA5xjmwSlUX4KUgWkYlx6SqHcaAk", databaseURL: "https://royal-chess-multiplayer-default-rtdb.firebaseio.com" });
+        const db = firebase.database();
+        
+        db.ref('users/' + userProfile.id).once('value', (snap) => {
+            if (snap.exists()) userProfile.points = snap.val().points || 0;
+            else db.ref('users/' + userProfile.id).set({ name: userProfile.name, points: 0 });
+            document.getElementById('tgUsername').innerText = userProfile.name;
+            document.getElementById('tgPoints').innerText = userProfile.points;
+        });
+
+        // ============ MOTOR DE AJEDREZ ============
+        const gs = { mode: 'ai', roomId: null, role: 'w', viewBlack: false, turn: 'w', sel: null, lessonId: null, lessonStep: 0, over: false };
         const chess = {
             board: [],
             init() { this.board = [['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']]; },
             getPiece(r,c) { return this.board[r]?.[c]||''; },
             isValid(fr,fc,tr,tc) {
-                const p=this.getPiece(fr,fc); if(!p)return false;
-                const tgt=this.getPiece(tr,tc); if(tgt&&((p===p.toUpperCase()&&tgt===tgt.toUpperCase())||(p===p.toLowerCase()&&tgt===tgt.toLowerCase())))return false;
-                const type=p.toLowerCase(),rd=tr-fr,cd=tc-fc,ard=Math.abs(rd),acd=Math.abs(cd);
+                const p=this.getPiece(fr,fc), tgt=this.getPiece(tr,tc);
+                if(!p || (tgt && ((p===p.toUpperCase()&&tgt===tgt.toUpperCase())||(p===p.toLowerCase()&&tgt===tgt.toLowerCase())))) return false;
+                const type=p.toLowerCase(), rd=tr-fr, cd=tc-fc, ard=Math.abs(rd), acd=Math.abs(cd);
                 const cp=(dr,dc)=>{const s=Math.max(Math.abs(dr),Math.abs(dc)),sr=dr===0?0:dr/Math.abs(dr),sc=dc===0?0:dc/Math.abs(dc);for(let i=1;i<s;i++)if(this.getPiece(fr+sr*i,fc+sc*i))return false;return true;};
                 switch(type){case'p':const d=p==='P'?-1:1,sr=p==='P'?6:1;if(cd===0&&!tgt){if(rd===d)return true;if(fr===sr&&rd===2*d&&!this.getPiece(fr+d,fc))return true;}return acd===1&&rd===d&&!!tgt;case'r':return(rd===0||cd===0)&&cp(rd,cd);case'n':return(ard===2&&acd===1)||(ard===1&&acd===2);case'b':return ard===acd&&cp(rd,cd);case'q':return(rd===0||cd===0||ard===acd)&&cp(rd,cd);case'k':return ard<=1&&acd<=1;}return false;
             },
-            move(fr,fc,tr,tc){const p=this.getPiece(fr,fc),c=this.getPiece(tr,tc);this.board[tr][tc]=p;this.board[fr][fc]='';return{piece:p,captured:c};},
-            findKing(c){const k=c==='w'?'K':'k';for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++)if(this.board[r][cc]===k)return{row:r,col:cc};return null;},
-            inCheck(c){const k=this.findKing(c);if(!k)return false;for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++){const p=this.board[r][cc];if(p&&((c==='w'&&p===p.toLowerCase())||(c==='b'&&p===p.toUpperCase())))if(this.isValid(r,cc,k.row,k.col))return true;}return false;},
-            hasMoves(c){for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++){const p=this.board[r][cc];if((c==='w'&&p&&p===p.toUpperCase())||(c==='b'&&p&&p===p.toLowerCase()))for(let tr=0;tr<8;tr++)for(let tc=0;tc<8;tc++)if(this.isValid(r,cc,tr,tc)){const sv=this.board[tr][tc];this.board[tr][tc]=p;this.board[r][cc]='';if(!this.inCheck(c)){this.board[r][cc]=p;this.board[tr][tc]=sv;return true;}this.board[r][cc]=p;this.board[tr][tc]=sv;}}return false;},
-            aiMove(){const moves=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=this.board[r][c];if(p&&p===p.toLowerCase())for(let tr=0;tr<8;tr++)for(let tc=0;tc<8;tc++)if(this.isValid(r,c,tr,tc)){const sv=this.board[tr][tc];this.board[tr][tc]=p;this.board[r][c]='';if(!this.inCheck('b')){let sc=sv?(sv.toUpperCase()==='Q'?9:sv.toUpperCase()==='R'?5:'BN'.includes(sv.toUpperCase())?3:1):0;moves.push({fr:r,fc:c,tr,tc,score:sc});}this.board[r][c]=p;this.board[tr][tc]=sv;}}if(!moves.length)return null;moves.sort((a,b)=>b.score-a.score);return Math.random()<0.7?moves[0]:moves[Math.floor(Math.random()*Math.min(5,moves.length))];}
+            inCheck(c){const k=c==='w'?'K':'k';let kr=-1,kc=-1;for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++)if(this.board[r][cc]===k){kr=r;kc=cc;}if(kr===-1)return false;for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++){const p=this.board[r][cc];if(p&&((c==='w'&&p===p.toLowerCase())||(c==='b'&&p===p.toUpperCase())))if(this.isValid(r,cc,kr,kc))return true;}return false;},
+            aiMove(){
+                const moves=[];
+                for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+                    const p=this.board[r][c];
+                    if(p&&p===p.toLowerCase())for(let tr=0;tr<8;tr++)for(let tc=0;tc<8;tc++){
+                        if(this.isValid(r,c,tr,tc)){
+                            const sv=this.board[tr][tc]; this.board[tr][tc]=p; this.board[r][c]='';
+                            if(!this.inCheck('b')){
+                                let sc=sv?(sv.toUpperCase()==='Q'?9:sv.toUpperCase()==='R'?5:'BN'.includes(sv.toUpperCase())?3:1):0;
+                                moves.push({fr:r,fc:c,tr,tc,score:sc});
+                            }
+                            this.board[r][c]=p; this.board[tr][tc]=sv;
+                        }
+                    }
+                }
+                if(!moves.length)return null;
+                moves.sort((a,b)=>b.score-a.score);
+                return Math.random()<0.7 ? moves[0] : moves[Math.floor(Math.random()*Math.min(5,moves.length))];
+            },
+            move(fr,fc,tr,tc){
+                const p=this.getPiece(fr,fc), tgt=this.getPiece(tr,tc);
+                this.board[tr][tc]=p; this.board[fr][fc]='';
+                if(tgt) { playSound('capture'); } else { playSound('move'); }
+            }
         };
 
-        // ============ CANVAS ============
-        const canvas=document.getElementById('chessCanvas'),ctx=canvas.getContext('2d');
-        let B=0,S=0;
-        function resize(){const c=document.getElementById('boardContainer'),s=Math.floor(Math.min(c.clientWidth,c.clientHeight)*0.98);B=s;S=s/8;canvas.width=B;canvas.height=B;draw();}
+        // ============ RENDERIZADO (TUS PIEZAS ORIGINALES) ============
+        const canvas=document.getElementById('chessCanvas'), ctx=canvas.getContext('2d');
+        let B=0, S=0;
+        function resize(){const c=document.getElementById('boardContainer'); B=Math.floor(Math.min(c.clientWidth,c.clientHeight)*0.98); S=B/8; canvas.width=B; canvas.height=B; draw();}
         const SYM={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
-        
+
         function draw(){
             ctx.clearRect(0,0,B,B);
             
-            // 1. Dibujar el tablero base e inyectar coordenadas numéricas/alfabéticas
+            // 1. Tablero Base
             for(let r=0;r<8;r++)for(let c=0;c<8;c++){
                 let dr=r,dc=c;if(gs.viewBlack){dr=7-r;dc=7-c;}
                 const x=dc*S,y=dr*S,light=(r+c)%2===0,g=ctx.createLinearGradient(x,y,x+S,y+S);
                 light?(g.addColorStop(0,'#f5deb3'),g.addColorStop(1,'#d2b48c')):(g.addColorStop(0,'#8b6914'),g.addColorStop(1,'#5c3d0e'));
                 ctx.fillStyle=g;ctx.fillRect(x,y,S,S);
 
-                // COORDENADAS INTEGRADAS ESTILO PREMIUM
-                ctx.font = `bold ${S*0.18}px sans-serif`;
-                ctx.fillStyle = light ? '#5c3d0e' : '#f5deb3';
-                
-                // Números en el borde izquierdo
-                if(dc === 0) {
-                    let rank = gs.viewBlack ? (dr + 1) : (8 - dr);
-                    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-                    ctx.fillText(rank, x + 4, y + 4);
-                }
-                // Letras en el borde inferior
-                if(dr === 7) {
-                    let file = String.fromCharCode(97 + (gs.viewBlack ? (7 - dc) : dc));
-                    ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-                    ctx.fillText(file, x + S - 4, y + S - 4);
-                }
+                ctx.font = `bold ${S*0.18}px sans-serif`; ctx.fillStyle = light ? '#5c3d0e' : '#f5deb3';
+                if(dc === 0) { ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(gs.viewBlack ? dr+1 : 8-dr, x + 4, y + 4); }
+                if(dr === 7) { ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'; ctx.fillText(String.fromCharCode(97 + (gs.viewBlack ? 7-dc : dc)), x + S - 4, y + S - 4); }
             }
 
-            // 2. DESTELLO DE ASISTENCIA / GLOW PARA EL MODO TUTOR
-            if(gs.mode === 'academy' && !gs.triviaMode){
-                const lesson = academyData[gs.lessonId];
-                const step = lesson.steps[gs.lessonStep];
-                if(step){
-                    // Iluminar Casilla de origen (Pieza que se debe mover - Verde Suave)
-                    let sr = step.fr, sc = step.fc;
-                    if(gs.viewBlack){sr=7-sr; sc=7-sc;}
-                    ctx.fillStyle = 'rgba(68, 255, 68, 0.25)';
-                    ctx.fillRect(sc*S, sr*S, S, S);
-
-                    // Iluminar Casilla de destino (Meta del movimiento - Celeste Eléctrico)
-                    let tr = step.tr, tc = step.tc;
-                    if(gs.viewBlack){tr=7-tr; tc=7-tc;}
-                    ctx.fillStyle = 'rgba(0, 255, 255, 0.2)';
-                    ctx.fillRect(tc*S, tr*S, S, S);
-                    ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 2;
-                    ctx.strokeRect(tc*S+3, tr*S+3, S-6, S-6);
-                }
-            }
-
-            // 3. Resaltado de selección manual tradicional
+            // 2. Selección
             if(gs.sel){
                 let r=gs.sel.row,c=gs.sel.col;if(gs.viewBlack){r=7-r;c=7-c;}
                 ctx.fillStyle='rgba(255,215,0,0.4)';ctx.fillRect(c*S,r*S,S,S);
                 ctx.strokeStyle='#ffd700';ctx.lineWidth=3;ctx.strokeRect(c*S+2,r*S+2,S-4,S-4);
             }
 
-            // 4. Dibujar las piezas por encima de los fondos y destellos
+            // 3. Tus Piezas Originales Circulares
             for(let r=0;r<8;r++)for(let c=0;c<8;c++){
                 const p=chess.getPiece(r,c);if(!p)continue;
                 let dr=r,dc=c;if(gs.viewBlack){dr=7-r;dc=7-c;}
                 const cx=dc*S+S/2,cy=dr*S+S/2,isW=p===p.toUpperCase(),R=S*0.4;
+                
                 ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);
                 const g=ctx.createRadialGradient(cx-R*0.3,cy-R*0.3,R*0.05,cx,cy,R);
                 isW?(g.addColorStop(0,'#fff'),g.addColorStop(1,'#aaa')):(g.addColorStop(0,'#666'),g.addColorStop(1,'#000'));
                 ctx.fillStyle=g;ctx.fill();ctx.strokeStyle=isW?'#888':'#333';ctx.lineWidth=2;ctx.stroke();
+                
                 ctx.fillStyle=isW?'#000':'#fff';ctx.font=`bold ${S*0.7}px Arial`;ctx.textAlign='center';ctx.textBaseline='middle';
                 ctx.fillText(SYM[p],cx,cy+2);
             }
         }
 
-        // ============ GAME STATE ============
-        let gs={mode:'ai',lessonId:null,lessonStep:0,triviaMode: false, triviaIndex: 0, correctAnswers: 0, sel:null,t1:600,t2:600,over:false,turn:'w',combo:0,energy:100,viewBlack:false};
-        let timer, myName='', myColor=null, oppName='', roomId=null, roomRef=null, moveCount=0;
+        // ============ CLICK Y LÓGICA DE JUEGO ============
+        canvas.addEventListener('click', (e) => {
+            if (gs.over || (gs.mode === 'multi' && gs.roomId && gs.turn !== gs.role)) return;
+            if (gs.mode === 'ai' && gs.turn !== 'w') return;
 
-        function goHome(){clearInterval(timer);if(roomRef)roomRef.off();roomId=null;myColor=null;
-            document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-            document.getElementById('homeScreen').classList.add('active');}
+            const rect = canvas.getBoundingClientRect();
+            let c = Math.floor((e.clientX - rect.left) / S), r = Math.floor((e.clientY - rect.top) / S);
+            if (gs.viewBlack) { r = 7 - r; c = 7 - c; }
+            const p = chess.getPiece(r, c);
 
-        function openAcademy(){
-            document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-            document.getElementById('academyScreen').classList.add('active');
-        }
+            if (gs.sel) {
+                if (chess.isValid(gs.sel.row, gs.sel.col, r, c)) {
+                    chess.move(gs.sel.row, gs.sel.col, r, c); gs.sel = null;
+                    const nextTurn = gs.turn === 'w' ? 'b' : 'w';
 
-        function startTimers(){
-            if(gs.mode==='academy') return; 
-            clearInterval(timer);timer=setInterval(()=>{if(gs.over)return;
-                if(gs.turn==='w'){gs.t1--;if(gs.t1<=0)endGame('time');}else{gs.t2--;if(gs.t2<=0)endGame('time');}
-                document.getElementById('bottomTimer').textContent=fmt(gs.t1);document.getElementById('topTimer').textContent=fmt(gs.t2);},1000);
-        }
-        function fmt(s){return Math.floor(s/60)+':'+(s%60).toString().padStart(2,'0');}
-
-        function setupGame(){
-            document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-            document.getElementById('gameScreen').classList.add('active');
-            document.getElementById('energyBar').style.width=gs.energy+'%';
-            
-            document.getElementById('topTimer').style.display = 'block';
-            document.getElementById('bottomTimer').style.display = 'block';
-            document.getElementById('bottomPlayerArea').style.display = 'flex';
-
-            document.getElementById('bottomTimer').textContent=fmt(gs.t1);
-            document.getElementById('topTimer').textContent=fmt(gs.t2);
-            setTimeout(resize,50);setTimeout(resize,200);draw();startTimers();
-        }
-
-        function playAI(){
-            myName=document.getElementById('nameInput').value.trim()||'Jugador';
-            chess.init();gs={mode:'ai',triviaMode: false,sel:null,t1:600,t2:600,over:false,turn:'w',combo:0,energy:100,viewBlack:false};
-            document.getElementById('bottomName').textContent=myName+' ⚪';document.getElementById('bottomDot').className='player-dot white';document.getElementById('bottomDot').textContent='⚪';
-            document.getElementById('topName').textContent='IA ⚫';document.getElementById('topDot').className='player-dot black';document.getElementById('topDot').textContent='⚫';
-            document.getElementById('bottomTurn').className='turn-dot you';document.getElementById('topTurn').className='turn-dot opp';
-            setupGame();
-        }
-
-        function playLocal(){
-            myName=document.getElementById('nameInput').value.trim()||'J1';
-            chess.init();gs={mode:'local',triviaMode: false,sel:null,t1:600,t2:600,over:false,turn:'w',combo:0,energy:100,viewBlack:false};
-            document.getElementById('bottomName').textContent=myName+' ⚪';document.getElementById('bottomDot').className='player-dot white';document.getElementById('bottomDot').textContent='⚪';
-            document.getElementById('topName').textContent='J2 ⚫';document.getElementById('topDot').className='player-dot black';document.getElementById('topDot').textContent='⚫';
-            document.getElementById('bottomTurn').className='turn-dot you';document.getElementById('topTurn').className='turn-dot opp';
-            setupGame();
-        }
-
-        // ============ LÓGICA DE DETONACIÓN DEL MODO TUTOR Y TRIVIA ============
-        function startLesson(id){
-            gs.mode = 'academy';
-            gs.lessonId = id;
-            gs.lessonStep = 0;
-            gs.sel = null;
-            gs.triviaMode = true; // Iniciar primero con la Trivia
-            gs.triviaIndex = 0;
-            gs.correctAnswers = 0;
-
-            openTriviaScreen();
-        }
-
-        function openTriviaScreen(){
-            document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-            document.getElementById('triviaScreen').classList.add('active');
-            loadTriviaQuestion();
-        }
-
-        function loadTriviaQuestion(){
-            const lesson = academyData[gs.lessonId];
-            const questionData = lesson.trivia[gs.triviaIndex];
-            
-            document.getElementById('triviaQuestion').innerHTML = `<span style="color:#ffd700; font-weight:bold;">PREGUNTA ${gs.triviaIndex + 1}:</span> ${questionData.pregunta}`;
-            
-            const optionsContainer = document.getElementById('triviaOptions');
-            optionsContainer.innerHTML = '';
-            
-            questionData.opciones.forEach((opcion, index) => {
-                const btn = document.createElement('button');
-                btn.className = 'btn btn-secondary';
-                btn.style.width = '100%';
-                btn.style.margin = '4px 0';
-                btn.textContent = opcion;
-                btn.onclick = () => selectTriviaOption(index);
-                optionsContainer.appendChild(btn);
-            });
-        }
-
-        function selectTriviaOption(index){
-            const lesson = academyData[gs.lessonId];
-            const questionData = lesson.trivia[gs.triviaIndex];
-            
-            // Validar respuesta
-            if(index === questionData.correcta){
-                gs.correctAnswers++;
-                alert("✅ ¡Correcto!");
-            } else {
-                alert("❌ Incorrecto. Vuelve a intentarlo.");
-            }
-
-            gs.triviaIndex++;
-            
-            if(gs.triviaIndex < lesson.trivia.length){
-                // Cargar siguiente pregunta
-                loadTriviaQuestion();
-            } else {
-                // Fin de la trivia
-                finishTrivia();
-            }
-        }
-
-        function finishTrivia(){
-            if(gs.correctAnswers >= 2){ // Desbloqueo si responde 2 de 3 correctas
-                alert("🧠 ¡Excelente! Tienes la teoría. Ahora, has desbloqueado la práctica en el tablero.");
-                gs.triviaMode = false; // Desactivar modo trivia plano
-                setupPracticeBoard();
-            } else {
-                alert("💡 Lo siento, necesitas repasar un poco más la teoría. Vuelve a intentarlo.");
-                goHome();
-            }
-        }
-
-        function setupPracticeBoard(){
-            chess.init();
-            gs.turn = 'w'; // Empieza el usuario con blancas
-            gs.viewBlack = false;
-            setupGame(); 
-            
-            // Ocultar timers, Tutor arriba con glow
-            document.getElementById('topTimer').style.display = 'none';
-            document.getElementById('bottomTimer').style.display = 'none';
-            document.getElementById('bottomPlayerArea').style.display = 'none';
-            document.getElementById('topDot').className = 'player-dot';
-            document.getElementById('topDot').textContent = '👨‍🏫';
-            document.getElementById('topTurn').className = 'turn-dot you';
-
-            updateTutorMsg();
-        }
-
-        function updateTutorMsg(){
-            const lesson = academyData[gs.lessonId];
-            const currentStep = lesson.steps[gs.lessonStep];
-            document.getElementById('topName').innerHTML = `<span style="color:#ffd700; font-weight:bold;">TUTOR:</span> ${currentStep.msg}`;
-        }
-
-        function endGame(reason){
-            gs.over=true;clearInterval(timer);
-            let msg=reason==='checkmate'?'🏆 JAQUE MATE!':reason==='time'?'⏰ TIEMPO!':'🤝 TABLAS!';
-            alert(msg);setTimeout(goHome,2000);
-        }
-
-        function makeMove(fr,fc,tr,tc){
-            chess.move(fr,fc,tr,tc);
-            gs.energy=Math.max(0,gs.energy-2);
-            document.getElementById('energyBar').style.width=gs.energy+'%';
-            
-            const opp=gs.turn==='w'?'b':'w';
-            if(chess.inCheck(opp)&&!chess.hasMoves(opp)){endGame('checkmate');return;}
-            if(!chess.inCheck(opp)&&!chess.hasMoves(opp)){endGame('stalemate');return;}
-        }
-
-        function getSquare(e){
-            const r=canvas.getBoundingClientRect(),sx=B/r.width,sy=B/r.height;
-            let c=Math.floor((e.clientX-r.left)*sx/S),row=Math.floor((e.clientY-r.top)*sy/S);
-            if(gs.viewBlack){row=7-row;c=7-c;}
-            return(row>=0&&row<8&&c>=0&&c<8)?{row,col:c}:null;
-        }
-
-        function click(row,col){
-            if(gs.over || gs.triviaMode)return; // En trivia no hay clicks de tablero
-            if(gs.mode=='ai'&&gs.turn!=='w')return;
-            if(gs.sel){
-                const{row:fr,col:fc}=gs.sel;
-                if(fr===row&&fc===col){gs.sel=null;draw();return;}
-                if(chess.isValid(fr,fc,row,col)){
-                    
-                    if(gs.mode === 'academy'){
-                        const lesson = academyData[gs.lessonId];
-                        const step = lesson.steps[gs.lessonStep];
-                        
-                        if(fr === step.fr && fc === step.fc && row === step.tr && col === step.tc){
-                            chess.move(fr, fc, row, col);
-                            gs.sel = null;
-                            
-                            if(step.isEnd){
-                                draw();
-                                setTimeout(() => {
-                                    alert("🧠 ¡Magnífico! Has completado con éxito la lección de estrategia avanzada.");
-                                    goHome();
-                                }, 400);
-                                return;
-                            }
-                            
-                            gs.lessonStep++;
-                            draw();
-                            
+                    if (gs.mode === 'multi' && gs.roomId) {
+                        db.ref('rooms/' + gs.roomId).update({ board: chess.board, turn: nextTurn });
+                    } else { 
+                        gs.turn = nextTurn; draw(); 
+                        if(gs.mode === 'ai' && gs.turn === 'b') {
                             setTimeout(() => {
-                                chess.move(step.response.fr, step.response.fc, step.response.tr, step.response.tc);
-                                updateTutorMsg();
-                                draw();
-                            }, 800);
-                        } else {
-                            alert("💡 ¡No! Esa no es la jugada maestra para esta lección. Sigue la guía del tablero.");
-                            gs.sel = null;
-                            draw();
+                                const m = chess.aiMove();
+                                if(m) { chess.move(m.fr, m.fc, m.tr, m.tc); gs.turn = 'w'; draw(); }
+                            }, 500);
                         }
-                        return;
                     }
-
-                    const p=chess.getPiece(fr,fc),sv=chess.board[row][col];
-                    chess.board[row][col]=p;chess.board[fr][fc]='';
-                    if(!chess.inCheck(gs.turn)){
-                        chess.board[fr][fc]=p;chess.board[row][col]=sv;
-                        makeMove(fr,fc,row,col);
-                        gs.sel=null;
-                        gs.turn=gs.turn==='w'?'b':'w';
-                        updateTurns(); draw();
-                        if(gs.mode==='ai'&&gs.turn==='b'&&!gs.over){
-                            setTimeout(()=>{
-                                const m=chess.aiMove();
-                                if(m){makeMove(m.fr,m.fc,m.tr,m.tc); gs.turn='w';
-                                    gs.energy=Math.min(100,gs.energy+5);
-                                    document.getElementById('energyBar').style.width=gs.energy+'%';
-                                }
-                                updateTurns(); draw();
-                            },400);
-                        }
-                    }else{ chess.board[fr][fc]=p;chess.board[row][col]=sv; gs.sel=null;draw(); }
-                }else{gs.sel=null;draw();}
-            }else{
-                const p=chess.getPiece(row,col);
-                if(p){
-                    const isW=p===p.toUpperCase();
-                    let ok=false;
-                    if(gs.mode==='ai' || gs.mode==='academy')ok=isW;
-                    else ok=(gs.turn==='w'&&isW)||(gs.turn==='b'&&!isW);
-                    if(ok)gs.sel={row,col};
+                } else {
+                    if(p && ((gs.turn === 'w' && p === p.toUpperCase()) || (gs.turn === 'b' && p === p.toLowerCase()))) gs.sel = {row: r, col: c};
+                    else gs.sel = null;
                 }
+            } else {
+                if(p && ((gs.turn === 'w' && p === p.toUpperCase()) || (gs.turn === 'b' && p === p.toLowerCase()))) gs.sel = {row: r, col: c};
             }
             draw();
-        }
+        });
 
-        function updateTurns(){
-            if(gs.mode === 'academy' || gs.triviaMode) return;
-            const mt=(gs.turn==='w');
-            document.getElementById('bottomTurn').className=mt?'turn-dot you':'turn-dot opp';
-            document.getElementById('topTurn').className=mt?'turn-dot opp':'turn-dot you';
-        }
-
-        canvas.addEventListener('click',e=>{const s=getSquare(e);if(s)click(s.row,s.col);});
-        canvas.addEventListener('touchstart',e=>{e.preventDefault();const s=getSquare(e.touches[0]);if(s)click(s.row,s.col);},{passive:false});
-
-        // ... (Multijugador sin cambios)
+        // ============ NAVEGACIÓN Y MENÚS ============
+        function showScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id==='gameScreen') resize(); }
+        function goHome() { gs.over = true; showScreen('homeScreen'); }
+        function openSettings() { showScreen('settingsScreen'); }
+        function playAI() { gs.mode = 'ai'; gs.roomId = null; gs.viewBlack = false; gs.turn = 'w'; gs.over = false; chess.init(); document.getElementById('topName').innerText="BOT (IA) ⚫"; document.getElementById('bottomName').innerText=userProfile.name + " ⚪"; showScreen('gameScreen'); }
         
-        window.addEventListener('resize',()=>{if(document.getElementById('gameScreen').classList.contains('active'))setTimeout(resize,150);});
+        function openLobby() { document.getElementById('lobbyModal').classList.add('active'); db.ref('rooms').on('value', snap => { const list=document.getElementById('roomList'); list.innerHTML=''; snap.forEach(child=>{ const room=child.val(); if(room.status==='waiting') list.innerHTML += `<div class="room-card"><span class="room-name">Sala de ${room.white}</span><button class="btn-secondary" onclick="joinRoom('${child.key}')">UNIRSE</button></div>`; }); }); }
+        function closeLobby() { document.getElementById('lobbyModal').classList.remove('active'); db.ref('rooms').off(); }
+        function createRoom() { const ref=db.ref('rooms').push(); gs.roomId=ref.key; gs.mode='multi'; gs.role='w'; gs.viewBlack=false; gs.over=false; chess.init(); ref.onDisconnect().remove(); ref.set({white:userProfile.name,status:'waiting',turn:'w',board:chess.board}); closeLobby(); listenRoom(gs.roomId); }
+        function joinRoom(id) { gs.roomId=id; gs.mode='multi'; gs.role='b'; gs.viewBlack=true; gs.over=false; db.ref('rooms/'+id).onDisconnect().remove(); db.ref('rooms/'+id).update({black:userProfile.name,status:'playing'}).then(()=>{ closeLobby(); listenRoom(id); }); }
+        function listenRoom(id) { db.ref('rooms/'+id).on('value', snap=>{ const room=snap.val(); if(!room){ alert('Partida terminada.'); exitGame(); return; } if(room.status==='playing'){ chess.board=room.board; gs.turn=room.turn; document.getElementById('topName').innerText=gs.role==='w'?room.black+" ⚫":room.white+" ⚪"; document.getElementById('bottomName').innerText=gs.role==='w'?room.white+" ⚪":room.black+" ⚫"; document.getElementById('bottomTurn').className=gs.turn===gs.role?"turn-dot you":"turn-dot opp"; document.getElementById('topTurn').className=gs.turn===gs.role?"turn-dot opp":"turn-dot you"; showScreen('gameScreen'); draw(); }}); }
+        function exitGame() { if(gs.mode==='multi'&&gs.roomId){ db.ref('rooms/'+gs.roomId).remove(); db.ref('rooms/'+gs.roomId).off(); gs.roomId=null; } goHome(); }
+
+        window.addEventListener('resize', resize);
     </script>
 </body>
 </html>
