@@ -13,7 +13,6 @@
         .screen { display: none; width: 100%; height: 100%; flex-direction: column; }
         .screen.active { display: flex; }
 
-        /* FONDOS */
         .home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 20px; width: 100%; height: 100%; text-align: center; background: linear-gradient(180deg, rgba(10,10,46,0.65), rgba(26,26,78,0.8)), url('1779421764793.png') center center / cover no-repeat; }
         .game-screen { display: flex; flex-direction: column; height: 100%; background: linear-gradient(180deg, rgba(10,10,26,0.6), rgba(10,10,26,0.8)), url('1779422040370.png') center center / cover no-repeat; }
         .academy-screen { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 40px 20px; width: 100%; height: 100%; text-align: center; background: linear-gradient(180deg, rgba(10,10,46,0.7), rgba(26,26,78,0.9)); overflow-y: auto; }
@@ -21,7 +20,6 @@
 
         .crown-icon { font-size: 50px; filter: drop-shadow(0 0 25px rgba(255,215,0,0.6)); }
         .title { font-size: 28px; font-weight: 900; background: linear-gradient(45deg, #ffd700, #ffed4a, #daa520); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
         .user-badge { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,215,0,0.3); padding: 10px 20px; border-radius: 30px; color: white; display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: bold; font-size: 14px; margin-bottom: 10px; min-width: 200px; }
         .points-display { color: #44ff44; font-size: 16px; font-weight: 900; }
 
@@ -29,7 +27,7 @@
         .btn:active { transform: scale(0.95); }
         .btn-play { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a1a2e; font-size: 18px; padding: 16px; box-shadow: 0 8px 25px rgba(255,140,0,0.5); }
         .btn-secondary { background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,215,0,0.25); }
-        
+
         .game-header { display: flex; justify-content: space-between; padding: 8px; background: rgba(10,10,30,0.85); border-bottom: 1px solid rgba(255,215,0,0.2); min-height: 65px; align-items: center; }
         .player-info { display: flex; align-items: center; gap: 6px; color: white; flex: 1; }
         .player-name { font-size: 12px; font-weight: 600; color: #ffd700; }
@@ -45,14 +43,11 @@
         .modal.active { display: flex; }
         .modal-box { background: linear-gradient(135deg, #16163e, #2a2a5e); border: 2px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 20px; max-width: 380px; width: 90%; color: white; }
         .room-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; width: 100%; cursor: pointer; }
-        .locked-card { opacity: 0.5; cursor: not-allowed; }
-
         .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .toggle-btn { background: #555; width: 50px; height: 26px; border-radius: 13px; position: relative; cursor: pointer; transition: 0.3s; }
         .toggle-btn.on { background: #44ff44; }
         .toggle-circle { width: 22px; height: 22px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.3s; }
         .toggle-btn.on .toggle-circle { left: 26px; }
-
         #academyMessage { position: absolute; top: 10px; background: rgba(0,0,0,0.9); color: #44ff44; padding: 10px; border-radius: 8px; border: 1px solid #44ff44; font-size: 13px; text-align: center; width: 90%; z-index: 10; display: none; }
         .trivia-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,215,0,0.5); padding: 10px; border-radius: 8px; color: white; cursor: pointer; text-align: left; transition: background 0.2s; margin-bottom: 5px; }
         .trivia-btn:active { background: rgba(255,215,0,0.3); }
@@ -61,7 +56,6 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- HOME -->
         <div class="screen active" id="homeScreen">
             <div class="home-screen">
                 <div class="crown-icon">👑</div>
@@ -79,7 +73,6 @@
             </div>
         </div>
 
-        <!-- SETTINGS -->
         <div class="screen" id="settingsScreen">
             <div class="home-screen" style="justify-content: flex-start; padding-top: 40px;">
                 <h1 class="title">⚙️ AJUSTES</h1>
@@ -97,30 +90,20 @@
             </div>
         </div>
 
-        <!-- GAME -->
         <div class="screen" id="gameScreen">
             <div class="game-screen">
                 <div class="game-header">
-                    <div class="player-info">
-                        <div><div class="player-name" id="topName">OPONENTE</div></div>
-                        <div class="turn-dot opp" id="topTurn"></div>
-                    </div>
-                    <div class="player-info" style="justify-content: flex-end;">
-                        <div class="turn-dot you" id="bottomTurn"></div>
-                        <div><div class="player-name" id="bottomName">TÚ</div></div>
-                    </div>
+                    <div class="player-info"><div><div class="player-name" id="topName">OPONENTE</div></div><div class="turn-dot opp" id="topTurn"></div></div>
+                    <div class="player-info" style="justify-content: flex-end;"><div class="turn-dot you" id="bottomTurn"></div><div><div class="player-name" id="bottomName">TÚ</div></div></div>
                 </div>
                 <div class="board-container" id="boardContainer">
                     <div id="academyMessage">...</div>
                     <canvas id="chessCanvas"></canvas>
                 </div>
-                <div class="game-footer">
-                    <button class="btn-back" onclick="exitGame()">🏠 SALIR</button>
-                </div>
+                <div class="game-footer"><button class="btn-back" onclick="exitGame()">🏠 SALIR</button></div>
             </div>
         </div>
 
-        <!-- ACADEMY -->
         <div class="screen" id="academyScreen">
             <div class="academy-screen">
                 <div class="crown-icon">🧠</div><h1 class="title">ACADEMIA</h1>
@@ -130,7 +113,6 @@
             </div>
         </div>
 
-        <!-- RANKING -->
         <div class="screen" id="rankingScreen">
             <div class="ranking-screen">
                 <h1 class="title">🏆 TOP JUGADORES</h1>
@@ -140,32 +122,19 @@
         </div>
     </div>
 
-    <!-- MODAL TRIVIA -->
     <div class="modal" id="triviaModal">
-        <div class="modal-box">
-            <h2 id="triviaTitle">Trivia</h2>
-            <div style="border-bottom: 1px solid rgba(255,215,0,0.2); margin: 10px 0;"></div>
-            <p id="triviaQuestion" style="font-size: 16px; margin-bottom: 15px;"></p>
-            <div id="triviaOptions" style="display: flex; flex-direction: column; gap: 8px;"></div>
-            <button class="btn-back" onclick="closeTrivia()" style="width: 100%; margin-top: 15px;">CANCELAR</button>
-        </div>
+        <div class="modal-box"><h2 id="triviaTitle">Trivia</h2><div style="border-bottom:1px solid rgba(255,215,0,0.2);margin:10px 0"></div><p id="triviaQuestion" style="font-size:16px;margin-bottom:15px"></p><div id="triviaOptions" style="display:flex;flex-direction:column;gap:8px"></div><button class="btn-back" onclick="closeTrivia()" style="width:100%;margin-top:15px">CANCELAR</button></div>
     </div>
 
-    <!-- MODAL LOBBY -->
     <div class="modal" id="lobbyModal">
-        <div class="modal-box">
-            <h2 style="color:#ffd700; text-align:center;">🌐 Salas Activas</h2>
-            <button class="btn btn-secondary" onclick="createRoom()" style="margin-bottom:10px; width: 100%;">🏠 Crear Sala de Juego</button>
-            <div id="roomList" style="max-height:200px; overflow-y:auto;"></div>
-            <button class="btn-back" onclick="closeLobby()" style="width:100%; margin-top:10px;">CERRAR</button>
-        </div>
+        <div class="modal-box"><h2 style="color:#ffd700;text-align:center">🌐 Salas Activas</h2><button class="btn btn-secondary" onclick="createRoom()" style="margin-bottom:10px;width:100%">🏠 Crear Sala de Juego</button><div id="roomList" style="max-height:200px;overflow-y:auto"></div><button class="btn-back" onclick="closeLobby()" style="width:100%;margin-top:10px">CERRAR</button></div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
-        // ============ TELEGRAM Y PERFIL ============
+        // ============ TELEGRAM & PERFIL ============
         const tg = window.Telegram.WebApp; tg.expand();
         let userProfile = { id: "dev_123", name: "Jugador Local", points: 0 };
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
@@ -173,22 +142,39 @@
             userProfile.name = tg.initDataUnsafe.user.first_name;
         }
 
-        // ============ AUDIO ============
+        // ============ SISTEMA DE AUDIO COMPLETO ============
         const audioSys = {
             sfxOn: true, bgmOn: false,
             click: new Audio('sounds/click.mp3'),
             move: new Audio('sounds/move.mp3'),
             capture: new Audio('sounds/capture.mp3'),
+            check: new Audio('sounds/check.mp3'),
+            checkmate: new Audio('sounds/checkmate.mp3'),
+            victory: new Audio('sounds/victory.mp3'),
+            defeat: new Audio('sounds/defeat.mp3'),
             bgm: new Audio('sounds/bgm.mp3')
         };
         audioSys.bgm.loop = true;
-        function playSound(type) { if(!audioSys.sfxOn) return; try { audioSys[type].currentTime = 0; audioSys[type].play().catch(e=>{}); } catch(e) {} }
+
+        function playSound(type) { 
+            if (!audioSys.sfxOn && type !== 'bgm') return; 
+            try { 
+                if (type === 'bgm') {
+                    if (audioSys.bgmOn) audioSys.bgm.play().catch(e=>{});
+                    else audioSys.bgm.pause();
+                    return;
+                }
+                audioSys[type].currentTime = 0; 
+                audioSys[type].play().catch(e=>{}); 
+            } catch(e) {} 
+        }
+
         function toggleAudio(type) {
             playSound('click');
-            if(type === 'bgm') {
+            if (type === 'bgm') {
                 audioSys.bgmOn = !audioSys.bgmOn;
                 document.getElementById('toggleMusic').className = audioSys.bgmOn ? 'toggle-btn on' : 'toggle-btn';
-                audioSys.bgmOn ? audioSys.bgm.play().catch(e=>{}) : audioSys.bgm.pause();
+                playSound('bgm');
             } else {
                 audioSys.sfxOn = !audioSys.sfxOn;
                 document.getElementById('toggleSfx').className = audioSys.sfxOn ? 'toggle-btn on' : 'toggle-btn';
@@ -206,6 +192,12 @@
             document.getElementById('tgPoints').innerText = userProfile.points;
         });
 
+        function addPoints(amount) {
+            userProfile.points += amount;
+            document.getElementById('tgPoints').innerText = userProfile.points;
+            db.ref('users/' + userProfile.id).update({ points: userProfile.points });
+        }
+
         // ============ DATOS ACADEMIA ============
         const academyData = {
             mate_pastor: {
@@ -215,26 +207,23 @@
                     { q: "¿Cuántos movimientos se necesitan para este mate?", opts: ["2", "3", "4", "5"], ans: 2 }
                 ],
                 steps: [
-                    { msg: "1. Mueve el peón de Rey a e4.", fr: 6, fc: 4, tr: 4, tc: 4, opp: {fr: 1, fc: 4, tr: 3, tc: 4} },
-                    { msg: "2. Desarrolla el Alfil a c4.", fr: 7, fc: 5, tr: 4, tc: 2, opp: {fr: 0, fc: 1, tr: 2, tc: 2} },
-                    { msg: "3. Saca tu Reina a h5.", fr: 7, fc: 3, tr: 3, tc: 7, opp: {fr: 0, fc: 6, tr: 2, tc: 5} },
-                    { msg: "4. ¡Captura en f7 para dar Mate!", fr: 3, fc: 7, tr: 1, tc: 5, end: true }
+                    { msg: "1. Mueve el peón de Rey a e4.", fr:6, fc:4, tr:4, tc:4, opp:{fr:1, fc:4, tr:3, tc:4} },
+                    { msg: "2. Desarrolla el Alfil a c4.", fr:7, fc:5, tr:4, tc:2, opp:{fr:0, fc:1, tr:2, tc:2} },
+                    { msg: "3. Saca tu Reina a h5.", fr:7, fc:3, tr:3, tc:7, opp:{fr:0, fc:6, tr:2, tc:5} },
+                    { msg: "4. ¡Captura en f7 para dar Mate!", fr:3, fc:7, tr:1, tc:5, end:true }
                 ]
             }
         };
 
         // ============ ESTADO GLOBAL ============
-        const gs = { 
-            mode: 'ai', roomId: null, role: 'w', viewBlack: false, turn: 'w', sel: null,
-            lessonId: null, lessonStep: 0, currentTriviaIndex: 0, over: false
-        };
+        const gs = { mode:'ai', roomId:null, role:'w', viewBlack:false, turn:'w', sel:null, lessonId:null, lessonStep:0, currentTriviaIndex:0, over:false, gameResult:null };
 
         // ============ MOTOR AJEDREZ ============
         const chess = {
-            board: [],
-            init() { this.board = [['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']]; },
-            getPiece(r,c) { return this.board[r]?.[c]||''; },
-            isValid(fr,fc,tr,tc) {
+            board:[],
+            init(){ this.board = [['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']]; },
+            getPiece(r,c){ return this.board[r]?.[c]||''; },
+            isValid(fr,fc,tr,tc){
                 const p=this.getPiece(fr,fc), tgt=this.getPiece(tr,tc);
                 if(!p || (tgt && ((p===p.toUpperCase()&&tgt===tgt.toUpperCase())||(p===p.toLowerCase()&&tgt===tgt.toLowerCase())))) return false;
                 const type=p.toLowerCase(), rd=tr-fr, cd=tc-fc, ard=Math.abs(rd), acd=Math.abs(cd);
@@ -242,21 +231,10 @@
                 switch(type){case'p':const d=p==='P'?-1:1,sr=p==='P'?6:1;if(cd===0&&!tgt){if(rd===d)return true;if(fr===sr&&rd===2*d&&!this.getPiece(fr+d,fc))return true;}return acd===1&&rd===d&&!!tgt;case'r':return(rd===0||cd===0)&&cp(rd,cd);case'n':return(ard===2&&acd===1)||(ard===1&&acd===2);case'b':return ard===acd&&cp(rd,cd);case'q':return(rd===0||cd===0||ard===acd)&&cp(rd,cd);case'k':return ard<=1&&acd<=1;}return false;
             },
             inCheck(c){const k=c==='w'?'K':'k';let kr=-1,kc=-1;for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++)if(this.board[r][cc]===k){kr=r;kc=cc;}if(kr===-1)return false;for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++){const p=this.board[r][cc];if(p&&((c==='w'&&p===p.toLowerCase())||(c==='b'&&p===p.toUpperCase())))if(this.isValid(r,cc,kr,kc))return true;}return false;},
+            hasMoves(c){for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++){const p=this.board[r][cc];if((c==='w'&&p&&p===p.toUpperCase())||(c==='b'&&p&&p===p.toLowerCase()))for(let tr=0;tr<8;tr++)for(let tc=0;tc<8;tc++)if(this.isValid(r,cc,tr,tc)){const sv=this.board[tr][tc];this.board[tr][tc]=p;this.board[r][cc]='';if(!this.inCheck(c)){this.board[r][cc]=p;this.board[tr][tc]=sv;return true;}this.board[r][cc]=p;this.board[tr][tc]=sv;}}return false;},
             aiMove(){
                 const moves=[];
-                for(let r=0;r<8;r++)for(let c=0;c<8;c++){
-                    const p=this.board[r][c];
-                    if(p&&p===p.toLowerCase())for(let tr=0;tr<8;tr++)for(let tc=0;tc<8;tc++){
-                        if(this.isValid(r,c,tr,tc)){
-                            const sv=this.board[tr][tc]; this.board[tr][tc]=p; this.board[r][c]='';
-                            if(!this.inCheck('b')){
-                                let sc=sv?(sv.toUpperCase()==='Q'?9:sv.toUpperCase()==='R'?5:'BN'.includes(sv.toUpperCase())?3:1):0;
-                                moves.push({fr:r,fc:c,tr,tc,score:sc});
-                            }
-                            this.board[r][c]=p; this.board[tr][tc]=sv;
-                        }
-                    }
-                }
+                for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=this.board[r][c];if(p&&p===p.toLowerCase())for(let tr=0;tr<8;tr++)for(let tc=0;tc<8;tc++)if(this.isValid(r,c,tr,tc)){const sv=this.board[tr][tc];this.board[tr][tc]=p;this.board[r][c]='';if(!this.inCheck('b')){let sc=sv?(sv.toUpperCase()==='Q'?9:sv.toUpperCase()==='R'?5:'BN'.includes(sv.toUpperCase())?3:1):0;moves.push({fr:r,fc:c,tr,tc,score:sc});}this.board[r][c]=p;this.board[tr][tc]=sv;}}
                 if(!moves.length)return null;
                 moves.sort((a,b)=>b.score-a.score);
                 return Math.random()<0.7 ? moves[0] : moves[Math.floor(Math.random()*Math.min(5,moves.length))];
@@ -264,7 +242,8 @@
             move(fr,fc,tr,tc){
                 const p=this.getPiece(fr,fc), tgt=this.getPiece(tr,tc);
                 this.board[tr][tc]=p; this.board[fr][fc]='';
-                if(tgt) { playSound('capture'); } else { playSound('move'); }
+                if(tgt) playSound('capture'); else playSound('move');
+                return tgt;
             }
         };
 
@@ -276,33 +255,21 @@
 
         function draw(){
             ctx.clearRect(0,0,B,B);
-            // Tablero
             for(let r=0;r<8;r++)for(let c=0;c<8;c++){
                 let dr=r,dc=c; if(gs.viewBlack){dr=7-r;dc=7-c;}
                 const x=dc*S, y=dr*S, light=(r+c)%2===0;
                 ctx.fillStyle = light ? '#f5deb3' : '#8b6914'; ctx.fillRect(x,y,S,S);
-                ctx.font = `bold ${S*0.18}px sans-serif`; ctx.fillStyle = light ? '#5c3d0e' : '#f5deb3';
-                if(dc === 0) { ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(gs.viewBlack ? dr+1 : 8-dr, x + 4, y + 4); }
-                if(dr === 7) { ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'; ctx.fillText(String.fromCharCode(97 + (gs.viewBlack ? 7-dc : dc)), x + S - 4, y + S - 4); }
             }
-            // Resaltado Academia
-            if(gs.mode === 'academy' && academyData[gs.lessonId]) {
-                const step = academyData[gs.lessonId].steps[gs.lessonStep];
-                if(step) {
-                    let sc = gs.viewBlack ? 7-step.fc : step.fc;
-                    let sr = gs.viewBlack ? 7-step.fr : step.fr;
-                    let tc = gs.viewBlack ? 7-step.tc : step.tc;
-                    let tr = gs.viewBlack ? 7-step.tr : step.tr;
-                    ctx.fillStyle = 'rgba(68, 255, 68, 0.4)'; ctx.fillRect(sc*S, sr*S, S, S);
-                    ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 3; ctx.strokeRect(tc*S+2, tr*S+2, S-4, S-4);
+            if(gs.mode==='academy' && academyData[gs.lessonId]){
+                const step=academyData[gs.lessonId].steps[gs.lessonStep];
+                if(step){
+                    let sc=gs.viewBlack?7-step.fc:step.fc, sr=gs.viewBlack?7-step.fr:step.fr;
+                    let tc=gs.viewBlack?7-step.tc:step.tc, tr=gs.viewBlack?7-step.tr:step.tr;
+                    ctx.fillStyle='rgba(68,255,68,0.4)'; ctx.fillRect(sc*S,sr*S,S,S);
+                    ctx.strokeStyle='#00ffff'; ctx.lineWidth=3; ctx.strokeRect(tc*S+2,tr*S+2,S-4,S-4);
                 }
             }
-            // Selección
-            if(gs.sel){
-                let r=gs.sel.row,c=gs.sel.col; if(gs.viewBlack){r=7-r;c=7-c;}
-                ctx.fillStyle='rgba(255,215,0,0.4)';ctx.fillRect(c*S,r*S,S,S);
-            }
-            // Piezas
+            if(gs.sel){let r=gs.sel.row,c=gs.sel.col; if(gs.viewBlack){r=7-r;c=7-c;} ctx.fillStyle='rgba(255,215,0,0.4)'; ctx.fillRect(c*S,r*S,S,S);}
             for(let r=0;r<8;r++)for(let c=0;c<8;c++){
                 const p=chess.getPiece(r,c); if(!p)continue;
                 let dr=r,dc=c; if(gs.viewBlack){dr=7-r;dc=7-c;}
@@ -313,6 +280,46 @@
                 ctx.fillStyle=g; ctx.fill(); ctx.strokeStyle=isW?'#888':'#333'; ctx.lineWidth=2; ctx.stroke();
                 ctx.fillStyle=isW?'#000':'#fff'; ctx.font=`bold ${S*0.7}px Arial`; ctx.textAlign='center'; ctx.textBaseline='middle';
                 ctx.fillText(SYM[p],cx,cy+2);
+            }
+        }
+
+        // ============ DETECCIÓN DE FIN DE JUEGO Y PUNTOS ============
+        function checkGameEnd() {
+            const opponent = gs.turn === 'w' ? 'b' : 'w';
+            const inCheck = chess.inCheck(opponent);
+            const hasMoves = chess.hasMoves(opponent);
+            if (inCheck && !hasMoves) {
+                // Jaque mate
+                playSound('checkmate');
+                const winner = gs.turn; // el que movió acaba de dar mate
+                if ((gs.mode === 'ai' && winner === 'w') || (gs.mode === 'local' && winner === 'w')) {
+                    playSound('victory');
+                    addPoints(10);
+                    gs.gameResult = 'win';
+                } else if (gs.mode === 'ai' && winner === 'b') {
+                    playSound('defeat');
+                    gs.gameResult = 'loss';
+                } else if (gs.mode === 'multi') {
+                    // En multijugador, el que da mate es el ganador; el otro recibirá la notificación via Firebase
+                    if (winner === gs.role) {
+                        playSound('victory');
+                        addPoints(15);
+                    } else {
+                        playSound('defeat');
+                    }
+                    db.ref('rooms/' + gs.roomId).update({ status: 'finished', winner: winner });
+                }
+                gs.over = true;
+                setTimeout(() => { alert(winner === 'w' ? '¡Blancas ganan por Jaque Mate!' : '¡Negras ganan por Jaque Mate!'); exitGame(); }, 500);
+                return;
+            } else if (!hasMoves) {
+                // Tablas (ahogado)
+                playSound('defeat'); // o un sonido de tablas
+                gs.over = true;
+                setTimeout(() => { alert('¡Tablas!'); exitGame(); }, 500);
+                return;
+            } else if (inCheck) {
+                playSound('check');
             }
         }
 
@@ -327,16 +334,14 @@
             const p = chess.getPiece(r, c);
 
             if (gs.sel) {
-                // MODO ACADEMIA
-                if(gs.mode === 'academy') {
+                if (gs.mode === 'academy') {
                     const step = academyData[gs.lessonId].steps[gs.lessonStep];
-                    if(gs.sel.row === step.fr && gs.sel.col === step.fc && r === step.tr && c === step.tc) {
+                    if (gs.sel.row === step.fr && gs.sel.col === step.fc && r === step.tr && c === step.tc) {
                         chess.move(step.fr, step.fc, step.tr, step.tc);
                         gs.sel = null; draw();
-                        if(step.end) {
+                        if (step.end) {
                             document.getElementById('academyMessage').innerText = "¡Mate Conseguido! Lección Completada. +10 PTS";
-                            userProfile.points += 10; document.getElementById('tgPoints').innerText = userProfile.points;
-                            db.ref('users/' + userProfile.id).update({ points: userProfile.points });
+                            addPoints(10);
                             setTimeout(goHome, 3000);
                         } else {
                             setTimeout(() => {
@@ -350,112 +355,70 @@
                     return;
                 }
 
-                // NORMAL / MULTI
                 if (chess.isValid(gs.sel.row, gs.sel.col, r, c)) {
-                    chess.move(gs.sel.row, gs.sel.col, r, c); gs.sel = null;
+                    chess.move(gs.sel.row, gs.sel.col, r, c);
+                    gs.sel = null;
                     const nextTurn = gs.turn === 'w' ? 'b' : 'w';
                     if (gs.mode === 'multi' && gs.roomId) {
                         db.ref('rooms/' + gs.roomId).update({ board: chess.board, turn: nextTurn });
-                    } else { 
-                        gs.turn = nextTurn; draw(); 
-                        if(gs.mode === 'ai' && gs.turn === 'b') {
+                    } else {
+                        gs.turn = nextTurn;
+                        draw();
+                        checkGameEnd();
+                        if (gs.mode === 'ai' && gs.turn === 'b' && !gs.over) {
                             setTimeout(() => {
                                 const m = chess.aiMove();
-                                if(m) { chess.move(m.fr, m.fc, m.tr, m.tc); gs.turn = 'w'; draw(); }
+                                if (m) {
+                                    chess.move(m.fr, m.fc, m.tr, m.tc);
+                                    gs.turn = 'w';
+                                    draw();
+                                    checkGameEnd();
+                                }
                             }, 500);
                         }
                     }
                 } else {
-                    if(p && ((gs.turn === 'w' && p === p.toUpperCase()) || (gs.turn === 'b' && p === p.toLowerCase()))) gs.sel = {row: r, col: c};
+                    if (p && ((gs.turn === 'w' && p === p.toUpperCase()) || (gs.turn === 'b' && p === p.toLowerCase()))) gs.sel = {row:r, col:c};
                     else gs.sel = null;
                 }
             } else {
-                if(p && ((gs.turn === 'w' && p === p.toUpperCase()) || (gs.turn === 'b' && p === p.toLowerCase()))) gs.sel = {row: r, col: c};
+                if (p && ((gs.turn === 'w' && p === p.toUpperCase()) || (gs.turn === 'b' && p === p.toLowerCase()))) gs.sel = {row:r, col:c};
             }
             draw();
         });
+
+        function updateTurns() {
+            const mt = (gs.mode === 'multi') ? (gs.turn === gs.role) : (gs.turn === 'w');
+            document.getElementById('bottomTurn').className = mt ? 'turn-dot you' : 'turn-dot opp';
+            document.getElementById('topTurn').className = mt ? 'turn-dot opp' : 'turn-dot you';
+        }
 
         // ============ NAVEGACIÓN ============
         function showScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id==='gameScreen') resize(); }
         function goHome() { gs.over = true; document.getElementById('academyMessage').style.display = 'none'; showScreen('homeScreen'); }
         function openSettings() { showScreen('settingsScreen'); }
-        function playAI() { gs.mode = 'ai'; gs.roomId = null; gs.viewBlack = false; gs.turn = 'w'; gs.over = false; chess.init(); document.getElementById('topName').innerText="BOT (IA) ⚫"; document.getElementById('bottomName').innerText=userProfile.name + " ⚪"; showScreen('gameScreen'); }
-        function playLocal() { gs.mode = 'local'; gs.roomId = null; gs.viewBlack = false; gs.turn = 'w'; gs.over = false; chess.init(); document.getElementById('topName').innerText="RIVAL LOCAL"; document.getElementById('bottomName').innerText=userProfile.name + " (Blancas)"; showScreen('gameScreen'); }
+        function playAI() { gs.mode='ai'; gs.roomId=null; gs.viewBlack=false; gs.turn='w'; gs.over=false; chess.init(); document.getElementById('topName').innerText="BOT (IA) ⚫"; document.getElementById('bottomName').innerText=userProfile.name+" ⚪"; updateTurns(); showScreen('gameScreen'); }
+        function playLocal() { gs.mode='local'; gs.roomId=null; gs.viewBlack=false; gs.turn='w'; gs.over=false; chess.init(); document.getElementById('topName').innerText="RIVAL LOCAL"; document.getElementById('bottomName').innerText=userProfile.name+" (Blancas)"; updateTurns(); showScreen('gameScreen'); }
 
         // ============ ACADEMIA INTERACTIVA ============
-        const lessons = [
-            { id: 'mate_pastor', name: '💥 El Mate del Pastor', desc: 'Supera la trivia y domina la apertura.' }
-        ];
-        function openAcademy() {
-            showScreen('academyScreen');
-            const container = document.getElementById('lessonsContainer');
-            container.innerHTML = lessons.map(l => 
-                `<div class="room-card" onclick="startLesson('${l.id}')" style="flex-direction: column; align-items: flex-start;">
-                    <div style="font-weight:700; color:#ffd700;">${l.name}</div>
-                    <div style="font-size:12px; color:#bbb; margin-top:5px;">${l.desc}</div>
-                </div>`
-            ).join('');
-        }
-        function startLesson(id) {
-            gs.lessonId = id; gs.currentTriviaIndex = 0;
-            const lesson = academyData[id];
-            document.getElementById('triviaTitle').innerText = lesson.title;
-            showTriviaQuestion();
-            document.getElementById('triviaModal').classList.add('active');
-        }
+        const lessons = [{ id:'mate_pastor', name:'💥 El Mate del Pastor', desc:'Supera la trivia y domina la apertura.' }];
+        function openAcademy() { showScreen('academyScreen'); document.getElementById('lessonsContainer').innerHTML = lessons.map(l=>`<div class="room-card" onclick="startLesson('${l.id}')" style="flex-direction:column;align-items:flex-start"><div style="font-weight:700;color:#ffd700">${l.name}</div><div style="font-size:12px;color:#bbb;margin-top:5px">${l.desc}</div></div>`).join(''); }
+        function startLesson(id) { gs.lessonId=id; gs.currentTriviaIndex=0; document.getElementById('triviaTitle').innerText=academyData[id].title; showTriviaQuestion(); document.getElementById('triviaModal').classList.add('active'); }
         function closeTrivia() { document.getElementById('triviaModal').classList.remove('active'); }
-        function showTriviaQuestion() {
-            const t = academyData[gs.lessonId].trivia[gs.currentTriviaIndex];
-            document.getElementById('triviaQuestion').innerText = t.q;
-            const optsDiv = document.getElementById('triviaOptions');
-            optsDiv.innerHTML = '';
-            t.opts.forEach((opt, idx) => {
-                optsDiv.innerHTML += `<button class="trivia-btn" onclick="checkTrivia(${idx})">${opt}</button>`;
-            });
-        }
-        function checkTrivia(idx) {
-            const t = academyData[gs.lessonId].trivia[gs.currentTriviaIndex];
-            if(idx === t.ans) {
-                gs.currentTriviaIndex++;
-                if(gs.currentTriviaIndex < academyData[gs.lessonId].trivia.length) { showTriviaQuestion(); } 
-                else { closeTrivia(); enterAcademyBoard(); }
-            } else { alert("Respuesta incorrecta. ¡Intenta de nuevo!"); }
-        }
-        function enterAcademyBoard() {
-            gs.mode = 'academy'; gs.viewBlack = false; gs.lessonStep = 0; chess.init();
-            document.getElementById('topName').innerText="TUTOR"; document.getElementById('bottomName').innerText="ESTUDIANTE";
-            showScreen('gameScreen');
-            document.getElementById('academyMessage').style.display = 'block';
-            updateAcademyMessage();
-            draw();
-        }
-        function updateAcademyMessage() {
-            const step = academyData[gs.lessonId].steps[gs.lessonStep];
-            if(step) document.getElementById('academyMessage').innerText = step.msg;
-        }
+        function showTriviaQuestion() { const t=academyData[gs.lessonId].trivia[gs.currentTriviaIndex]; document.getElementById('triviaQuestion').innerText=t.q; const optsDiv=document.getElementById('triviaOptions'); optsDiv.innerHTML=''; t.opts.forEach((opt,idx)=>{ optsDiv.innerHTML+=`<button class="trivia-btn" onclick="checkTrivia(${idx})">${opt}</button>`; }); }
+        function checkTrivia(idx) { const t=academyData[gs.lessonId].trivia[gs.currentTriviaIndex]; if(idx===t.ans){ gs.currentTriviaIndex++; if(gs.currentTriviaIndex<academyData[gs.lessonId].trivia.length) showTriviaQuestion(); else{ closeTrivia(); enterAcademyBoard(); } } else alert("Respuesta incorrecta. ¡Intenta de nuevo!"); }
+        function enterAcademyBoard() { gs.mode='academy'; gs.viewBlack=false; gs.lessonStep=0; chess.init(); document.getElementById('topName').innerText="TUTOR"; document.getElementById('bottomName').innerText="ESTUDIANTE"; showScreen('gameScreen'); document.getElementById('academyMessage').style.display='block'; updateAcademyMessage(); draw(); }
+        function updateAcademyMessage() { const step=academyData[gs.lessonId].steps[gs.lessonStep]; if(step) document.getElementById('academyMessage').innerText=step.msg; }
 
         // ============ RANKING ============
-        function showRanking() {
-            showScreen('rankingScreen');
-            const list = document.getElementById('rankingList');
-            list.innerHTML = 'Cargando...';
-            db.ref('users').orderByChild('points').limitToLast(10).once('value', snap => {
-                list.innerHTML = '';
-                const users = [];
-                snap.forEach(child => users.push({ name: child.val().name, points: child.val().points }));
-                users.reverse().forEach((u, i) => {
-                    list.innerHTML += `<div class="rank-item"><span>${i+1}. ${u.name}</span><span>${u.points} pts</span></div>`;
-                });
-                if (users.length === 0) list.innerHTML = '<p style="color:#888;">No hay jugadores aún.</p>';
-            });
-        }
+        function showRanking() { showScreen('rankingScreen'); const list=document.getElementById('rankingList'); list.innerHTML='Cargando...'; db.ref('users').orderByChild('points').limitToLast(10).once('value',snap=>{ list.innerHTML=''; const users=[]; snap.forEach(child=>users.push({name:child.val().name,points:child.val().points})); users.reverse().forEach((u,i)=>{ list.innerHTML+=`<div class="rank-item"><span>${i+1}. ${u.name}</span><span>${u.points} pts</span></div>`; }); if(users.length===0) list.innerHTML='<p style="color:#888">No hay jugadores aún.</p>'; }); }
 
         // ============ MULTIJUGADOR ============
-        function openLobby() { document.getElementById('lobbyModal').classList.add('active'); db.ref('rooms').on('value', snap => { const list=document.getElementById('roomList'); list.innerHTML=''; snap.forEach(child=>{ const room=child.val(); if(room.status==='waiting') list.innerHTML += `<div class="room-card"><span class="room-name">Sala de ${room.white}</span><button class="btn-secondary" onclick="joinRoom('${child.key}')">UNIRSE</button></div>`; }); }); }
+        function openLobby() { document.getElementById('lobbyModal').classList.add('active'); db.ref('rooms').on('value', snap=>{ const list=document.getElementById('roomList'); list.innerHTML=''; snap.forEach(child=>{ const room=child.val(); if(room.status==='waiting') list.innerHTML+=`<div class="room-card"><span class="room-name">Sala de ${room.white}</span><button class="btn-secondary" onclick="joinRoom('${child.key}')">UNIRSE</button></div>`; }); }); }
         function closeLobby() { document.getElementById('lobbyModal').classList.remove('active'); db.ref('rooms').off(); }
-        function createRoom() { const name=document.getElementById('nameInput')? document.getElementById('nameInput').value : userProfile.name; const ref=db.ref('rooms').push(); gs.roomId=ref.key; gs.mode='multi'; gs.role='w'; gs.viewBlack=false; gs.over=false; chess.init(); ref.onDisconnect().remove(); ref.set({white:name,status:'waiting',turn:'w',board:chess.board}); closeLobby(); listenRoom(gs.roomId); }
-        function joinRoom(id) { const name=document.getElementById('nameInput')? document.getElementById('nameInput').value : userProfile.name; gs.roomId=id; gs.mode='multi'; gs.role='b'; gs.viewBlack=true; gs.over=false; db.ref('rooms/'+id).onDisconnect().remove(); db.ref('rooms/'+id).update({black:name,status:'playing'}).then(()=>{ closeLobby(); listenRoom(id); }); }
-        function listenRoom(id) { db.ref('rooms/'+id).on('value', snap=>{ const room=snap.val(); if(!room){ alert('Partida terminada.'); exitGame(); return; } if(room.status==='playing'){ chess.board=room.board; gs.turn=room.turn; document.getElementById('topName').innerText=gs.role==='w'?room.black+" ⚫":room.white+" ⚪"; document.getElementById('bottomName').innerText=gs.role==='w'?room.white+" ⚪":room.black+" ⚫"; document.getElementById('bottomTurn').className=gs.turn===gs.role?"turn-dot you":"turn-dot opp"; document.getElementById('topTurn').className=gs.turn===gs.role?"turn-dot opp":"turn-dot you"; showScreen('gameScreen'); draw(); }}); }
+        function createRoom() { const name=userProfile.name; const ref=db.ref('rooms').push(); gs.roomId=ref.key; gs.mode='multi'; gs.role='w'; gs.viewBlack=false; gs.over=false; chess.init(); ref.onDisconnect().remove(); ref.set({white:name,status:'waiting',turn:'w',board:chess.board}); closeLobby(); listenRoom(gs.roomId); }
+        function joinRoom(id) { const name=userProfile.name; gs.roomId=id; gs.mode='multi'; gs.role='b'; gs.viewBlack=true; gs.over=false; db.ref('rooms/'+id).onDisconnect().remove(); db.ref('rooms/'+id).update({black:name,status:'playing'}).then(()=>{ closeLobby(); listenRoom(id); }); }
+        function listenRoom(id) { db.ref('rooms/'+id).on('value', snap=>{ const room=snap.val(); if(!room){ alert('Partida terminada.'); exitGame(); return; } if(room.status==='playing'){ chess.board=room.board; gs.turn=room.turn; document.getElementById('topName').innerText=gs.role==='w'?room.black+" ⚫":room.white+" ⚪"; document.getElementById('bottomName').innerText=gs.role==='w'?room.white+" ⚪":room.black+" ⚫"; updateTurns(); showScreen('gameScreen'); draw(); } if(room.status==='finished'){ alert(room.winner===gs.role?'¡Ganaste!':'¡Perdiste!'); exitGame(); } }); }
         function exitGame() { if(gs.mode==='multi'&&gs.roomId){ db.ref('rooms/'+gs.roomId).remove(); db.ref('rooms/'+gs.roomId).off(); gs.roomId=null; } goHome(); }
 
         window.addEventListener('resize', resize);
