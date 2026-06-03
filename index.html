@@ -1,548 +1,284 @@
 <!DOCTYPE html>
-
 <html lang="es">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-
-<title>♔ Royal Chess Arena</title>
-
-<style>
-
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-
-html, body { width: 100%; height: 100%; overflow: hidden; }
-
-body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0a1a; display: flex; justify-content: center; align-items: center; }
-
-.app-container { width: 100vw; height: 100vh; height: 100dvh; background: #0a0a2e; overflow: hidden; display: flex; flex-direction: column; max-width: 500px; margin: 0 auto; }
-
-.screen { display: none; width: 100%; height: 100%; flex-direction: column; }
-
-.screen.active { display: flex; }
-
-
-
-/* PORTADA PRINCIPAL - Centrada y con Imagen 1 */
-
-.home-screen {
-
-display: flex;
-
-flex-direction: column;
-
-align-items: center;
-
-justify-content: center;
-
-gap: 12px;
-
-padding: 20px;
-
-width: 100%;
-
-height: 100%;
-
-text-align: center;
-
-background: linear-gradient(180deg, rgba(10,10,46,0.65), rgba(26,26,78,0.8)), url('1779421764793.png') center center / cover no-repeat;
-
-}
-
-.crown-icon { font-size: 60px; filter: drop-shadow(0 0 25px rgba(255,215,0,0.6)); text-align: center; }
-
-.title { font-size: 28px; font-weight: 900; background: linear-gradient(45deg, #ffd700, #ffed4a, #daa520); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; width: 100%; }
-
-.btn { padding: 14px 30px; border: none; border-radius: 50px; font-size: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; width: 100%; max-width: 280px; }
-
-.btn:active { transform: scale(0.95); }
-
-.btn-play { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a1a2e; font-size: 20px; padding: 18px; box-shadow: 0 8px 25px rgba(255,140,0,0.5); margin-bottom: 5px; }
-
-.btn-secondary { background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,215,0,0.25); font-size: 13px; padding: 10px; }
-
-input { width: 260px; padding: 14px; border-radius: 50px; border: 2px solid rgba(255,215,0,0.4); background: rgba(0,0,0,0.4); color: white; font-size: 16px; text-align: center; outline: none; backdrop-filter: blur(4px); }
-
-
-
-/* PANTALLA DE JUEGO - Con Imagen 2 */
-
-.game-screen {
-
-display: flex;
-
-flex-direction: column;
-
-height: 100%;
-
-background: linear-gradient(180deg, rgba(10,10,26,0.5), rgba(10,10,26,0.7)), url('1779422040370.png') center center / cover no-repeat;
-
-}
-
-.game-header { display: flex; justify-content: space-between; padding: 8px; background: rgba(10,10,30,0.85); border-bottom: 1px solid rgba(255,215,0,0.2); backdrop-filter: blur(4px); min-height: 65px; }
-
-.player-info { display: flex; align-items: center; gap: 6px; color: white; flex: 1; }
-
-.player-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
-
-.player-dot.white { background: linear-gradient(135deg, #fff, #ccc); color: #000; }
-
-.player-dot.black { background: linear-gradient(135deg, #333, #000); color: #fff; }
-
-.player-name { font-size: 11px; color: #fff; font-weight: 500; }
-
-.timer { font-size: 20px; font-weight: 900; color: #ffd700; font-family: monospace; }
-
-.turn-dot { width: 10px; height: 10px; border-radius: 50%; }
-
-.turn-dot.you { background: #44ff44; box-shadow: 0 0 10px #44ff44; }
-
-.turn-dot.opp { background: #555; }
-
-.board-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 5px; }
-
-canvas { border-radius: 8px; box-shadow: 0 0 60px rgba(255,215,0,0.15); cursor: pointer; max-width: 100%; max-height: 100%; }
-
-.game-footer { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: rgba(10,10,30,0.85); border-top: 1px solid rgba(255,215,0,0.2); backdrop-filter: blur(4px); }
-
-.energy-bar-wrap { flex: 1; height: 14px; background: rgba(255,255,255,0.08); border-radius: 7px; overflow: hidden; }
-
-.energy-bar { height: 100%; background: linear-gradient(90deg, #ff3333, #ffd700, #44ff44); transition: width 0.4s; }
-
-.btn-back { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.2); color: #ffd700; padding: 8px 14px; border-radius: 18px; font-size: 11px; cursor: pointer; }
-
-
-
-/* MODAL / LOBBY / TRIVIA BOX */
-
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center; }
-
-.modal.active { display: flex; }
-
-.modal-box { background: linear-gradient(135deg, rgba(26,26,62,0.95), rgba(42,42,94,0.95)), url('1779421764793.png') center center / cover no-repeat; border: 2px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 20px; max-width: 380px; width: 90%; color: white; box-shadow: 0 0 30px rgba(0,0,0,0.7); }
-
-.modal-box h2 { color: #ffd700; text-align: center; margin-bottom: 15px; }
-
-.room-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(4px); width: 100%; }
-
-.room-name { color: #ffd700; font-weight: 700; }
-
-.room-join { background: rgba(255,215,0,0.2); color: #ffd700; padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700; }
-
-
-/* Estilos específicos para la trivia */
-
-#triviaOptions { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>♔ Royal Chess Arena</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        html, body { width: 100%; height: 100%; overflow: hidden; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0a1a; display: flex; justify-content: center; align-items: center; }
+        .app-container { width: 100vw; height: 100vh; height: 100dvh; background: #0a0a2e; overflow: hidden; display: flex; flex-direction: column; max-width: 500px; margin: 0 auto; }
+        .screen { display: none; width: 100%; height: 100%; flex-direction: column; }
+        .screen.active { display: flex; }
+
+        /* PORTADA PRINCIPAL */
+        .home-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 20px; width: 100%; height: 100%; text-align: center; background: linear-gradient(180deg, rgba(10,10,46,0.65), rgba(26,26,78,0.8)), url('1779421764793.png') center center / cover no-repeat; }
+        .crown-icon { font-size: 60px; filter: drop-shadow(0 0 25px rgba(255,215,0,0.6)); text-align: center; }
+        .title { font-size: 28px; font-weight: 900; background: linear-gradient(45deg, #ffd700, #ffed4a, #daa520); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; width: 100%; }
+        .btn { padding: 14px 30px; border: none; border-radius: 50px; font-size: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; width: 100%; max-width: 280px; }
+        .btn:active { transform: scale(0.95); }
+        .btn-play { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a1a2e; font-size: 20px; padding: 18px; box-shadow: 0 8px 25px rgba(255,140,0,0.5); margin-bottom: 5px; }
+        .btn-secondary { background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,215,0,0.25); font-size: 13px; padding: 10px; }
+        input { width: 260px; padding: 14px; border-radius: 50px; border: 2px solid rgba(255,215,0,0.4); background: rgba(0,0,0,0.4); color: white; font-size: 16px; text-align: center; outline: none; backdrop-filter: blur(4px); }
+
+        /* PANTALLA DE JUEGO */
+        .game-screen { display: flex; flex-direction: column; height: 100%; background: linear-gradient(180deg, rgba(10,10,26,0.5), rgba(10,10,26,0.7)), url('1779422040370.png') center center / cover no-repeat; }
+        .game-header { display: flex; justify-content: space-between; padding: 8px; background: rgba(10,10,30,0.85); border-bottom: 1px solid rgba(255,215,0,0.2); backdrop-filter: blur(4px); min-height: 65px; }
+        .player-info { display: flex; align-items: center; gap: 6px; color: white; flex: 1; }
+        .player-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+        .player-dot.white { background: linear-gradient(135deg, #fff, #ccc); color: #000; }
+        .player-dot.black { background: linear-gradient(135deg, #333, #000); color: #fff; }
+        .player-name { font-size: 11px; color: #fff; font-weight: 500; }
+        .timer { font-size: 20px; font-weight: 900; color: #ffd700; font-family: monospace; }
+        .turn-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .turn-dot.you { background: #44ff44; box-shadow: 0 0 10px #44ff44; }
+        .turn-dot.opp { background: #555; }
+        .board-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 5px; }
+        canvas { border-radius: 8px; box-shadow: 0 0 60px rgba(255,215,0,0.15); cursor: pointer; max-width: 100%; max-height: 100%; }
+        .game-footer { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: rgba(10,10,30,0.85); border-top: 1px solid rgba(255,215,0,0.2); backdrop-filter: blur(4px); }
+        .energy-bar-wrap { flex: 1; height: 14px; background: rgba(255,255,255,0.08); border-radius: 7px; overflow: hidden; }
+        .energy-bar { height: 100%; background: linear-gradient(90deg, #ff3333, #ffd700, #44ff44); transition: width 0.4s; }
+        .btn-back { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.2); color: #ffd700; padding: 8px 14px; border-radius: 18px; font-size: 11px; cursor: pointer; }
+
+        /* MODAL / LOBBY / TRIVIA BOX */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal-box { background: linear-gradient(135deg, rgba(26,26,62,0.95), rgba(42,42,94,0.95)), url('1779421764793.png') center center / cover no-repeat; border: 2px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 20px; max-width: 380px; width: 90%; color: white; box-shadow: 0 0 30px rgba(0,0,0,0.7); }
+        .modal-box h2 { color: #ffd700; text-align: center; margin-bottom: 15px; }
+        .room-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(4px); width: 100%; }
+        .room-name { color: #ffd700; font-weight: 700; }
+        .room-join { background: rgba(255,215,0,0.2); color: #ffd700; padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700; }
+        #triviaOptions { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
+    </style>
 </head>
-
 <body>
-
-<div class="app-container">
-
-<div class="screen active" id="homeScreen">
-
-<div class="home-screen">
-
-<div class="crown-icon">👑</div>
-
-<h1 class="title">ROYAL CHESS</h1>
-
-<p style="color:#aaa;font-size:12px;margin-bottom:8px;">Play & Earn Arena</p>
-
-<input type="text" id="nameInput" placeholder="Tu nombre" maxlength="15">
-
-<button class="btn btn-play" onclick="playAI()">⚔️ PLAY NOW</button>
-
-<button class="btn btn-secondary" onclick="openAcademy()">🧠 ACADEMIA TUTOR</button>
-
-<button class="btn btn-secondary" onclick="playLocal()">👥 2 JUGADORES</button>
-
-<button class="btn btn-secondary" onclick="openLobby()">🌐 MULTIJUGADOR</button>
-
-</div>
-
-</div>
-
-
-
-<div class="screen" id="academyScreen">
-
-<div class="home-screen" style="justify-content: flex-start; padding-top: 40px;">
-
-<div class="crown-icon">🧠</div>
-
-<h1 class="title">ACADEMIA</h1>
-
-<p style="color:#aaa;font-size:12px;margin-bottom:20px;">Aprende Jugadas Maestras</p>
-
-
-<div class="room-card" style="cursor: pointer; text-align: left; flex-direction: column; align-items: flex-start; gap: 4px;" onclick="startLesson('mate_pastor')">
-
-<div class="room-name">💥 El Mate del Pastor</div>
-
-<div style="font-size: 12px; color: #bbb;">Aprende el ataque fulminante de 4 movimientos aprovechando las debilidades del rival.</div>
-
-</div>
-
-
-
-<button class="btn btn-secondary" onclick="goHome()" style="margin-top: 20px;">🏠 VOLVER AL MENÚ</button>
-
-</div>
-
-</div>
-
-
-
-<div class="screen" id="triviaScreen">
-
-<div class="modal-box" style="display: block; position: relative; width: 90%; max-width: 400px; margin: auto;">
-
-<h2 id="triviaLessonTitle">💥 Mate del Pastor</h2>
-
-<p style="color:#aaa; font-size: 13px; text-align: center;">Módulo de Trivia Didáctica</p>
-
-<div style="border-bottom: 1px solid rgba(255,215,0,0.2); margin: 10px 0;"></div>
-
-
-<p id="triviaQuestion" style="font-size: 16px; color: #fff; text-align: center; font-weight: 500;"></p>
-
-<div id="triviaOptions">
-
-</div>
-
-<button class="btn btn-secondary" onclick="goHome()" style="width: 100%; margin-top: 15px;">🏠 VOLVER AL MENÚ</button>
-
-</div>
-
-</div>
-
-
-
-<div class="screen" id="gameScreen">
-
-<div class="game-screen">
-
-<div class="game-header">
-
-<div class="player-info">
-
-<div class="player-dot white" id="topDot">⚪</div>
-
-<div><div class="player-name" id="topName">OPONENTE</div><div class="timer" id="topTimer">10:00</div></div>
-
-<div class="turn-dot opp" id="topTurn"></div>
-
-</div>
-
-<div class="player-info" id="bottomPlayerArea">
-
-<div class="player-dot white" id="bottomDot">⚪</div>
-
-<div><div class="player-name" id="bottomName">TÚ</div><div class="timer" id="bottomTimer">10:00</div></div>
-
-<div class="turn-dot you" id="bottomTurn"></div>
-
-</div>
-
-</div>
-
-<div class="board-container" id="boardContainer">
-
-<canvas id="chessCanvas"></canvas>
-
-</div>
-
-<div class="game-footer">
-
-<span style="color:#ffd700;font-size:10px;">⚡</span>
-
-<div class="energy-bar-wrap"><div class="energy-bar" id="energyBar" style="width:100%"></div></div>
-
-<button class="btn-back" onclick="goHome()">🏠</button>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-
-
-<div class="modal" id="lobbyModal">
-
-<div class="modal-box">
-
-<h2>🌐 Salas</h2>
-
-<button class="btn btn-secondary" onclick="createRoom()" style="margin-bottom:10px; width: 100%; max-width: 100%;">🏠 Crear Sala (Blancas)</button>
-
-<div id="roomList" style="max-height:200px;overflow-y:auto;"></div>
-
-<button class="btn-back" onclick="closeLobby()" style="width:100%;margin-top:10px;">CERRAR</button>
-
-</div>
-
-</div>
-
-
-
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
-
-
-<script>
-
-// ============ FIREBASE ============
-
-firebase.initializeApp({
-
-apiKey: "AIzaSyDMu83hA5xjmwSlUX4KUgWkYlx6SqHcaAk",
-
-authDomain: "royal-chess-multiplayer.firebaseapp.com",
-
-databaseURL: "https://royal-chess-multiplayer-default-rtdb.firebaseio.com",
-
-projectId: "royal-chess-multiplayer",
-
-storageBucket: "royal-chess-multiplayer.firebasestorage.app",
-
-messagingSenderId: "380447919929",
-
-appId: "1:380447919929:web:13c8584bf1e688830ea2e8"
-
-});
-
-const db = firebase.database();
-
-
-
-// ============ BASE DE DATOS DE LA ACADEMIA Y TRIVIA ============
-
-const academyData = {
-
-mate_pastor: {
-
-title: "Mate del Pastor",
-
-// PANTALLA DE TRIVIA (DESBLOQUEO)
-
-trivia: [
-
-{ pregunta: "¿A qué casilla apunta el ataque directo en f7?", opciones: ["Alfil", "Caballo", "Reina", "Rey"], correcta: 2 }, // Reina (Opción index 2)
-
-{ pregunta: "¿Cuántos movimientos se necesitan para este mate?", opciones: ["2", "3", "4", "5"], correcta: 2 }, // 4 (Opción index 2)
-
-{ pregunta: "¿Cuál es la pieza más importante a proteger en la apertura?", opciones: ["Reina", "Torre", "Alfil", "Rey"], correcta: 3 } // Rey (Opción index 3)
-
-],
-
-// PANTALLA DE PRÁCTICA (TABLERO)
-
-steps: [
-
-{ msg: "1. Abre paso a tu Alfil y Reina. Mueve el peón de Rey a e4.", fr: 6, fc: 4, tr: 4, tc: 4, response: {fr: 1, fc: 4, tr: 3, tc: 4} },
-
-{ msg: "2. Desarrolla el Alfil a c4 apuntando al punto débil f7.", fr: 7, fc: 5, tr: 4, tc: 2, response: {fr: 0, fc: 1, tr: 2, tc: 2} },
-
-{ msg: "3. Saca tu Reina a h5 sumando ataque sobre f7.", fr: 7, fc: 3, tr: 3, tc: 7, response: {fr: 0, fc: 6, tr: 2, tc: 5} },
-
-{ msg: "4. ¡Momento final! Captura el peón en f7 con la Reina para dar Mate.", fr: 3, fc: 7, tr: 1, tc: 5, isEnd: true }
-
-]
-
-}
-
-};
-
-
-
-// ============ CHESS ENGINE ============
-
-const chess = {
-
-board: [],
-
-init() { this.board = [['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']]; },
-
-getPiece(r,c) { return this.board[r]?.[c]||''; },
-
-isValid(fr,fc,tr,tc) {
-
-const p=this.getPiece(fr,fc); if(!p)return false;
-
-const tgt=this.getPiece(tr,tc); if(tgt&&((p===p.toUpperCase()&&tgt===tgt.toUpperCase())||(p===p.toLowerCase()&&tgt===tgt.toLowerCase())))return false;
-
-const type=p.toLowerCase(),rd=tr-fr,cd=tc-fc,ard=Math.abs(rd),acd=Math.abs(cd);
-
-const cp=(dr,dc)=>{const s=Math.max(Math.abs(dr),Math.abs(dc)),sr=dr===0?0:dr/Math.abs(dr),sc=dc===0?0:dc/Math.abs(dc);for(let i=1;i<s;i++)if(this.getPiece(fr+sr*i,fc+sc*i))return false;return true;};
-
-switch(type){case'p':const d=p==='P'?-1:1,sr=p==='P'?6:1;if(cd===0&&!tgt){if(rd===d)return true;if(fr===sr&&rd===2*d&&!this.getPiece(fr+d,fc))return true;}return acd===1&&rd===d&&!!tgt;case'r':return(rd===0||cd===0)&&cp(rd,cd);case'n':return(ard===2&&acd===1)||(ard===1&&acd===2);case'b':return ard===acd&&cp(rd,cd);case'q':return(rd===0||cd===0||ard===acd)&&cp(rd,cd);case'k':return ard<=1&&acd<=1;}return false;
-
-},
-
-move(fr,fc,tr,tc){const p=this.getPiece(fr,fc),c=this.getPiece(tr,tc);this.board[tr][tc]=p;this.board[fr][fc]='';return{piece:p,captured:c};},
-
-findKing(c){const k=c==='w'?'K':'k';for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++)if(this.board[r][cc]===k)return{row:r,col:cc};return null;},
-
-inCheck(c){const k=this.findKing(c);if(!k)return false;for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++){const p=this.board[r][cc];if(p&&((c==='w'&&p===p.toLowerCase())||(c==='b'&&p===p.toUpperCase())))if(this.isValid(r,cc,k.row,k.col))return true;}return false;},
-
-hasMoves(c){for(let r=0;r<8;r++)for(let cc=0;cc<8;cc++){const p=this.board[r][cc];if((c==='w'&&p&&p===p.toUpperCase())||(c==='b'&&p&&p===p.toLowerCase()))for(let tr=0;tr<8;tr++)for(let tc=0;tc<8;tc++)if(this.isValid(r,cc,tr,tc)){const sv=this.board[tr][tc];this.board[tr][tc]=p;this.board[r][cc]='';if(!this.inCheck(c)){this.board[r][cc]=p;this.board[tr][tc]=sv;return true;}this.board[r][cc]=p;this.board[tr][tc]=sv;}}return false;},
-
-aiMove(){const moves=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=this.board[r][c];if(p&&p===p.toLowerCase())for(let tr=0;tr<8;tr++)for(let tc=0;tc<8;tc++)if(this.isValid(r,c,tr,tc)){const sv=this.board[tr][tc];this.board[tr][tc]=p;this.board[r][c]='';if(!this.inCheck('b')){let sc=sv?(sv.toUpperCase()==='Q'?9:sv.toUpperCase()==='R'?5:'BN'.includes(sv.toUpperCase())?3:1):0;moves.push({fr:r,fc:c,tr,tc,score:sc});}this.board[r][c]=p;this.board[tr][tc]=sv;}}if(!moves.length)return null;moves.sort((a,b)=>b.score-a.score);return Math.random()<0.7?moves[0]:moves[Math.floor(Math.random()*Math.min(5,moves.length))];}
-
-};
-
-
-
-// ============ CANVAS ============
-
-const canvas=document.getElementById('chessCanvas'),ctx=canvas.getContext('2d');
-
-let B=0,S=0;
-
-function resize(){const c=document.getElementById('boardContainer'),s=Math.floor(Math.min(c.clientWidth,c.clientHeight)*0.98);B=s;S=s/8;canvas.width=B;canvas.height=B;draw();}
-
-const SYM={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
-
-
-function draw(){
-
-ctx.clearRect(0,0,B,B);
-
-
-// 1. Dibujar el tablero base e inyectar coordenadas numéricas/alfabéticas
-
-for(let r=0;r<8;r++)for(let c=0;c<8;c++){
-
-let dr=r,dc=c;if(gs.viewBlack){dr=7-r;dc=7-c;}
-
-const x=dc*S,y=dr*S,light=(r+c)%2===0,g=ctx.createLinearGradient(x,y,x+S,y+S);
-
-light?(g.addColorStop(0,'#f5deb3'),g.addColorStop(1,'#d2b48c')):(g.addColorStop(0,'#8b6914'),g.addColorStop(1,'#5c3d0e'));
-
-ctx.fillStyle=g;ctx.fillRect(x,y,S,S);
-
-
-
-// COORDENADAS INTEGRADAS ESTILO PREMIUM
-
-ctx.font = `bold ${S*0.18}px sans-serif`;
-
-ctx.fillStyle = light ? '#5c3d0e' : '#f5deb3';
-
-
-// Números en el borde izquierdo
-
-if(dc === 0) {
-
-let rank = gs.viewBlack ? (dr + 1) : (8 - dr);
-
-ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-
-ctx.fillText(rank, x + 4, y + 4);
-
-}
-
-// Letras en el borde inferior
-
-if(dr === 7) {
-
-let file = String.fromCharCode(97 + (gs.viewBlack ? (7 - dc) : dc));
-
-ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
-
-ctx.fillText(file, x + S - 4, y + S - 4);
-
-}
-
-}
-
-
-
-// 2. DESTELLO DE ASISTENCIA / GLOW PARA EL MODO TUTOR
-
-if(gs.mode === 'academy' && !gs.triviaMode){
-
-const lesson = academyData[gs.lessonId];
-
-const step = lesson.steps[gs.lessonStep];
-
-if(step){
-
-// Iluminar Casilla de origen (Pieza que se debe mover - Verde Suave)
-
-let sr = step.fr, sc = step.fc;
-
-if(gs.viewBlack){sr=7-sr; sc=7-sc;}
-
-ctx.fillStyle = 'rgba(68, 255, 68, 0.25)';
-
-ctx.fillRect(sc*S, sr*S, S, S);
-
-
-
-// Iluminar Casilla de destino (Meta del movimiento - Celeste Eléctrico)
-
-let tr = step.tr, tc = step.tc;
-
-if(gs.viewBlack){tr=7-tr; tc=7-tc;}
-
-ctx.fillStyle = 'rgba(0, 255, 255, 0.2)';
-
-ctx.fillRect(tc*S, tr*S, S, S);
-
-ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 2;
-
-ctx.strokeRect(tc*S+3, tr*S+3, S-6, S-6);
-
-}
-
-}
-
-
-
-// 3. Resaltado de selección manual tradicional
-
-if(gs.sel){
-
-let r=gs.sel.row,c=gs.sel.col;if(gs.viewBlack){r=7-r;c=7-c;}
-
-ctx.fillStyle='rgba(255,215,0,0.4)';ctx.fillRect(c*S,r*S,S,S);
-
-ctx.strokeStyle='#ffd700';ctx.lineWidth=3;ctx.strokeRect(c*S+2,r*S+2,S-4,S-4);
-
-}
-
-
-
-// 4. Dibujar las piezas por encima de los fondos y destellos
-
-for(let r=0;r<8;r++)for(let c=0;c<8;c++){
-
-const p=chess.getPiece(r,c);if(!p)continue;
-
-let dr=r,dc=c;if(gs.viewBlack){dr=7-r;dc=7-c;}
-
-const cx=dc*S+S/2,cy=dr*S+S/2,isW=p===p.toUpperCase(),R=S*0.4;
-
-ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);
-
-const g=ctx.createRadialGradient(cx-R*0.3,cy-R*0.3,R*0.05,cx,cy,R);
-
-isW?(g.addColorStop(0,'#fff'),g.addColorStop(1,'#aaa')):(g.addColorStop(0,'#666'),g.addColorStop(1,'#000'));
-
-ctx.fillStyle=g;ctx.fill();ctx.strokeStyle=isW?'#888':'#333';ctx.lineWidth=2;ctx.stroke();
-
-ctx.fillStyle=isW?'#000':'#fff';ctx.font=`bold ${S*0.7}px Arial`;ctx.textAli 
-
+    <div class="app-container">
+        <div class="screen active" id="homeScreen">
+            <div class="home-screen">
+                <div class="crown-icon">👑</div>
+                <h1 class="title">ROYAL CHESS</h1>
+                <p style="color:#aaa;font-size:12px;margin-bottom:8px;">Play & Earn Arena</p>
+                <input type="text" id="nameInput" placeholder="Tu nombre" maxlength="15">
+                <button class="btn btn-play" onclick="playAI()">⚔️ PLAY NOW</button>
+                <button class="btn btn-secondary" onclick="openAcademy()">🧠 ACADEMIA TUTOR</button>
+                <button class="btn btn-secondary" onclick="playLocal()">👥 2 JUGADORES</button>
+                <button class="btn btn-secondary" onclick="openLobby()">🌐 MULTIJUGADOR</button>
+            </div>
+        </div>
+
+        <div class="screen" id="academyScreen">
+            <div class="home-screen" style="justify-content: flex-start; padding-top: 40px;">
+                <div class="crown-icon">🧠</div>
+                <h1 class="title">ACADEMIA</h1>
+                <p style="color:#aaa;font-size:12px;margin-bottom:20px;">Aprende Jugadas Maestras</p>
+                <div class="room-card" style="cursor: pointer; text-align: left; flex-direction: column; align-items: flex-start; gap: 4px;" onclick="startLesson('mate_pastor')">
+                    <div class="room-name">💥 El Mate del Pastor</div>
+                    <div style="font-size: 12px; color: #bbb;">Aprende el ataque fulminante de 4 movimientos.</div>
+                </div>
+                <button class="btn btn-secondary" onclick="goHome()" style="margin-top: 20px;">🏠 VOLVER AL MENÚ</button>
+            </div>
+        </div>
+
+        <div class="screen" id="gameScreen">
+            <div class="game-screen">
+                <div class="game-header">
+                    <div class="player-info">
+                        <div class="player-dot white" id="topDot">⚪</div>
+                        <div><div class="player-name" id="topName">OPONENTE</div><div class="timer" id="topTimer">10:00</div></div>
+                        <div class="turn-dot opp" id="topTurn"></div>
+                    </div>
+                    <div class="player-info" id="bottomPlayerArea">
+                        <div class="player-dot white" id="bottomDot">⚪</div>
+                        <div><div class="player-name" id="bottomName">TÚ</div><div class="timer" id="bottomTimer">10:00</div></div>
+                        <div class="turn-dot you" id="bottomTurn"></div>
+                    </div>
+                </div>
+                <div class="board-container" id="boardContainer">
+                    <canvas id="chessCanvas"></canvas>
+                </div>
+                <div class="game-footer">
+                    <span style="color:#ffd700;font-size:10px;">⚡</span>
+                    <div class="energy-bar-wrap"><div class="energy-bar" id="energyBar" style="width:100%"></div></div>
+                    <button class="btn-back" onclick="goHome()">🏠</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="lobbyModal">
+        <div class="modal-box">
+            <h2>🌐 Salas</h2>
+            <button class="btn btn-secondary" onclick="createRoom()" style="margin-bottom:10px; width: 100%;">🏠 Crear Sala (Blancas)</button>
+            <div id="roomList" style="max-height:200px;overflow-y:auto;"></div>
+            <button class="btn-back" onclick="closeLobby()" style="width:100%;margin-top:10px;">CERRAR</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        // ============ ESTADO DEL JUEGO (Lo que faltaba) ============
+        const gs = { viewBlack: false, mode: 'local', triviaMode: false, lessonId: null, lessonStep: 0, sel: null, turn: 'w' };
+
+        // ============ FIREBASE ============
+        firebase.initializeApp({
+            apiKey: "AIzaSyDMu83hA5xjmwSlUX4KUgWkYlx6SqHcaAk",
+            authDomain: "royal-chess-multiplayer.firebaseapp.com",
+            databaseURL: "https://royal-chess-multiplayer-default-rtdb.firebaseio.com",
+            projectId: "royal-chess-multiplayer",
+            storageBucket: "royal-chess-multiplayer.firebasestorage.app",
+            messagingSenderId: "380447919929",
+            appId: "1:380447919929:web:13c8584bf1e688830ea2e8"
+        });
+        const db = firebase.database();
+
+        // ============ BASE DE DATOS DE LA ACADEMIA ============
+        const academyData = {
+            mate_pastor: {
+                title: "Mate del Pastor",
+                steps: [
+                    { msg: "1. Abre paso a tu Alfil y Reina.", fr: 6, fc: 4, tr: 4, tc: 4, response: {fr: 1, fc: 4, tr: 3, tc: 4} },
+                    { msg: "2. Desarrolla el Alfil a c4.", fr: 7, fc: 5, tr: 4, tc: 2, response: {fr: 0, fc: 1, tr: 2, tc: 2} }
+                ]
+            }
+        };
+
+        // ============ CHESS ENGINE ============
+        const chess = {
+            board: [],
+            init() { this.board = [['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']]; },
+            getPiece(r,c) { return this.board[r]?.[c]||''; },
+            isValid(fr,fc,tr,tc) {
+                const p=this.getPiece(fr,fc); if(!p)return false;
+                const tgt=this.getPiece(tr,tc); if(tgt&&((p===p.toUpperCase()&&tgt===tgt.toUpperCase())||(p===p.toLowerCase()&&tgt===tgt.toLowerCase())))return false;
+                const type=p.toLowerCase(),rd=tr-fr,cd=tc-fc,ard=Math.abs(rd),acd=Math.abs(cd);
+                const cp=(dr,dc)=>{const s=Math.max(Math.abs(dr),Math.abs(dc)),sr=dr===0?0:dr/Math.abs(dr),sc=dc===0?0:dc/Math.abs(dc);for(let i=1;i<s;i++)if(this.getPiece(fr+sr*i,fc+sc*i))return false;return true;};
+                switch(type){case'p':const d=p==='P'?-1:1,sr=p==='P'?6:1;if(cd===0&&!tgt){if(rd===d)return true;if(fr===sr&&rd===2*d&&!this.getPiece(fr+d,fc))return true;}return acd===1&&rd===d&&!!tgt;case'r':return(rd===0||cd===0)&&cp(rd,cd);case'n':return(ard===2&&acd===1)||(ard===1&&acd===2);case'b':return ard===acd&&cp(rd,cd);case'q':return(rd===0||cd===0||ard===acd)&&cp(rd,cd);case'k':return ard<=1&&acd<=1;}return false;
+            },
+            move(fr,fc,tr,tc){const p=this.getPiece(fr,fc),c=this.getPiece(tr,tc);this.board[tr][tc]=p;this.board[fr][fc]='';return{piece:p,captured:c};}
+        };
+
+        // ============ CANVAS Y DIBUJO (Reparado) ============
+        const canvas = document.getElementById('chessCanvas'), ctx = canvas.getContext('2d');
+        let B = 0, S = 0;
+        function resize() { 
+            const c = document.getElementById('boardContainer'); 
+            const s = Math.floor(Math.min(c.clientWidth, c.clientHeight) * 0.98); 
+            B = s; S = s / 8; canvas.width = B; canvas.height = B; draw(); 
+        }
+        const SYM = {K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
+
+        function draw() {
+            ctx.clearRect(0,0,B,B);
+            for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+                let dr=r,dc=c;if(gs.viewBlack){dr=7-r;dc=7-c;}
+                const x=dc*S,y=dr*S,light=(r+c)%2===0,g=ctx.createLinearGradient(x,y,x+S,y+S);
+                light?(g.addColorStop(0,'#f5deb3'),g.addColorStop(1,'#d2b48c')):(g.addColorStop(0,'#8b6914'),g.addColorStop(1,'#5c3d0e'));
+                ctx.fillStyle=g;ctx.fillRect(x,y,S,S);
+
+                ctx.font = `bold ${S*0.18}px sans-serif`;
+                ctx.fillStyle = light ? '#5c3d0e' : '#f5deb3';
+                if(dc === 0) {
+                    let rank = gs.viewBlack ? (dr + 1) : (8 - dr);
+                    ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(rank, x + 4, y + 4);
+                }
+                if(dr === 7) {
+                    let file = String.fromCharCode(97 + (gs.viewBlack ? (7 - dc) : dc));
+                    ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'; ctx.fillText(file, x + S - 4, y + S - 4);
+                }
+            }
+
+            if(gs.sel){
+                let r=gs.sel.row,c=gs.sel.col;if(gs.viewBlack){r=7-r;c=7-c;}
+                ctx.fillStyle='rgba(255,215,0,0.4)';ctx.fillRect(c*S,r*S,S,S);
+                ctx.strokeStyle='#ffd700';ctx.lineWidth=3;ctx.strokeRect(c*S+2,r*S+2,S-4,S-4);
+            }
+
+            for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+                const p=chess.getPiece(r,c);if(!p)continue;
+                let dr=r,dc=c;if(gs.viewBlack){dr=7-r;dc=7-c;}
+                const cx=dc*S+S/2,cy=dr*S+S/2,isW=p===p.toUpperCase(),R=S*0.4;
+                
+                // Aquí estaba el corte. Todo esto es nuevo para completar el dibujo de la pieza
+                ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);
+                const grad=ctx.createRadialGradient(cx-R*0.3,cy-R*0.3,R*0.05,cx,cy,R);
+                isW?(grad.addColorStop(0,'#fff'),grad.addColorStop(1,'#aaa')):(grad.addColorStop(0,'#666'),grad.addColorStop(1,'#000'));
+                ctx.fillStyle=grad;ctx.fill();ctx.strokeStyle=isW?'#888':'#333';ctx.lineWidth=2;ctx.stroke();
+                
+                ctx.fillStyle = isW ? '#000' : '#fff'; 
+                ctx.font = `bold ${S*0.7}px Arial`; 
+                ctx.textAlign = 'center'; 
+                ctx.textBaseline = 'middle';
+                ctx.fillText(SYM[p], cx, cy + S * 0.05);
+            }
+        }
+
+        // Eventos del Canvas
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            let c = Math.floor((e.clientX - rect.left) / S);
+            let r = Math.floor((e.clientY - rect.top) / S);
+            if (gs.viewBlack) { r = 7 - r; c = 7 - c; }
+            
+            if (gs.sel) {
+                if (chess.isValid(gs.sel.row, gs.sel.col, r, c)) {
+                    chess.move(gs.sel.row, gs.sel.col, r, c);
+                    gs.sel = null;
+                } else { gs.sel = {row: r, col: c}; }
+            } else { gs.sel = {row: r, col: c}; }
+            draw();
+        });
+
+        // ============ INTERFAZ Y NAVEGACIÓN ============
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(id === 'gameScreen') resize();
+        }
+        
+        function goHome() { showScreen('homeScreen'); }
+        function playLocal() { chess.init(); showScreen('gameScreen'); }
+        function playAI() { chess.init(); showScreen('gameScreen'); }
+        function openAcademy() { showScreen('academyScreen'); }
+
+        // ============ FIREBASE (Lobby y Salas) ============
+        function openLobby() { 
+            document.getElementById('lobbyModal').classList.add('active'); 
+            db.ref('rooms').on('value', (snap) => {
+                const list = document.getElementById('roomList');
+                list.innerHTML = '';
+                snap.forEach(child => {
+                    const room = child.val();
+                    if(room.status === 'waiting') {
+                        list.innerHTML += `<div class="room-card">
+                            <span class="room-name">Sala de ${room.white}</span>
+                            <button class="room-join" onclick="joinRoom('${child.key}')">UNIRSE</button>
+                        </div>`;
+                    }
+                });
+            });
+        }
+        function closeLobby() { document.getElementById('lobbyModal').classList.remove('active'); db.ref('rooms').off(); }
+        function createRoom() {
+            const name = document.getElementById('nameInput').value || 'Jugador';
+            const roomRef = db.ref('rooms').push();
+            roomRef.set({ white: name, status: 'waiting' });
+            alert('Sala creada');
+            closeLobby();
+        }
+        function joinRoom(id) {
+            const name = document.getElementById('nameInput').value || 'Jugador';
+            db.ref('rooms/' + id).update({ black: name, status: 'playing' }).then(() => {
+                alert('Te uniste correctamente a la sala.');
+                closeLobby();
+                playLocal(); // Iniciar partida
+            });
+        }
+
+        window.addEventListener('resize', resize);
+        chess.init();
+    </script>
+</body>
+</html>
